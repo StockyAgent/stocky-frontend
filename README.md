@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Stocky Frontend
 
-## Getting Started
+AI 기반 주식 분석 서비스 **Stocky**의 프론트엔드 애플리케이션입니다.
 
-First, run the development server:
+## 기술 스택
+
+- **프레임워크**: Next.js 16 (App Router)
+- **언어**: TypeScript
+- **스타일링**: Tailwind CSS
+- **폰트**: Noto Sans KR (Google Fonts)
+
+## 시작하기
 
 ```bash
+# 의존성 설치
+npm install
+
+# 개발 서버 실행
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+`http://localhost:3000`에서 앱을 확인할 수 있습니다.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 페이지 구조
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| 경로                | 설명                                      |
+| ------------------- | ----------------------------------------- |
+| `/onboarding/step1` | 투자 성향 선택 (투자자 / 트레이더)        |
+| `/onboarding/step2` | 관심 종목 선택                            |
+| `/dashboard`        | AI 분석 대시보드 (데일리 브리핑 + 리포트) |
+| `/reports`          | 리포트 히스토리 전체 목록                 |
+| `/watchlist`        | 관심 종목 관리                            |
+| `/mypage`           | 마이페이지 (프로필, 설정)                 |
 
-## Learn More
+## 프로젝트 구조
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+src/
+├── app/                    # 페이지 (App Router)
+│   ├── dashboard/
+│   ├── reports/
+│   ├── watchlist/
+│   ├── mypage/
+│   └── onboarding/
+│       ├── step1/
+│       └── step2/
+├── components/
+│   ├── ui/                 # 공유 UI (NavBar, SubpageHeader, ...)
+│   ├── onboarding/         # 온보딩 전용 (StockCard, SearchBar, ...)
+│   └── dashboard/          # 대시보드 전용 (ReportCard, BriefingTag, ...)
+public/
+└── icons/                  # SVG 아이콘
+```

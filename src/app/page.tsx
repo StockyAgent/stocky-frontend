@@ -1,65 +1,81 @@
 import Image from "next/image";
 
-export default function Home() {
+function GoogleLoginButton() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
+    <button
+      className="flex h-[56px] w-full max-w-[342px] items-center justify-center gap-3 rounded-xl bg-accent px-5 cursor-pointer transition-transform active:scale-[0.98] hover:brightness-110"
+      type="button"
+    >
+      <div className="flex size-8 items-center justify-center rounded-full bg-white shadow-sm">
         <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
+          src="/icons/google-logo.svg"
+          alt="Google"
+          width={20}
           height={20}
-          priority
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+      </div>
+      <span className="text-base font-bold tracking-wide text-[#0d0d0d]">
+        Google 계정으로 시작하기
+      </span>
+    </button>
+  );
+}
+
+export default function LandingPage() {
+  return (
+    <div className="flex min-h-dvh flex-col items-center bg-[#0d0d0d]">
+      {/* Hero Section */}
+      <div className="flex flex-1 flex-col items-center justify-center px-6 pb-20 pt-24">
+        <div className="flex flex-col items-center gap-4">
+          {/* Logo Icon */}
+          <div className="mb-8">
+            <div className="flex items-center justify-center rounded-2xl border border-white/10 bg-white/5 p-3 shadow-lg backdrop-blur-sm">
+              <Image
+                src="/icons/chart-icon.svg"
+                alt="Stocky Logo"
+                width={40}
+                height={48}
+                className="rotate-180"
+              />
+            </div>
+          </div>
+
+          {/* Heading */}
+          <h1 className="text-center text-4xl font-black leading-[45px] tracking-tight text-white">
+            나만을 위한
+            <br />
+            AI 주식 애널리스트
+            <br />
+            <span className="text-accent">Stocky</span>
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+
+          {/* Subtitle */}
+          <p className="mt-2 max-w-[320px] text-center text-base font-medium leading-relaxed text-gray-400">
+            매일 아침 전달되는 맞춤형 데일리
+            <br />
+            브리핑으로 시장의 흐름을 파악하세요.
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
+      </div>
+
+      {/* CTA Section */}
+      <div className="flex w-full flex-col items-center gap-[18px] px-6 pb-[104px]">
+        <GoogleLoginButton />
+
+        {/* Terms */}
+        <p className="text-center text-xs text-gray-500">
+          계속 진행 시 Stocky의
+          <br />
+          <a href="/terms" className="underline decoration-gray-600">
+            이용약관
           </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
+          {" "}및{" "}
+          <a href="/privacy" className="underline decoration-gray-600">
+            개인정보 처리방침
           </a>
-        </div>
-      </main>
+          에 동의하게 됩니다.
+        </p>
+      </div>
     </div>
   );
 }
