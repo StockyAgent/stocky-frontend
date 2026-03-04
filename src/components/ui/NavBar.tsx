@@ -13,7 +13,7 @@ export default function NavBar() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 flex h-[72px] items-center justify-around border-t border-white/5 bg-[#0d0d0d] px-4">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 flex h-[72px] items-center justify-around bg-[#f1faee] px-4">
       {TABS.map((tab) => {
         const isActive = pathname === tab.href;
         return (
@@ -22,15 +22,24 @@ export default function NavBar() {
             href={tab.href}
             className="flex flex-col items-center gap-0.5"
           >
-            <div
-              className="flex size-[34px] items-center justify-center"
-              style={{ color: isActive ? "#00ff66" : "#64748b" }}
-            >
-              <Image src={tab.icon} alt={tab.label} width={24} height={24} className="brightness-0" style={{ filter: isActive ? "brightness(0) saturate(100%) invert(68%) sepia(74%) saturate(2741%) hue-rotate(95deg) brightness(104%) contrast(107%)" : "brightness(0) saturate(100%) invert(44%) sepia(11%) saturate(1397%) hue-rotate(182deg) brightness(95%) contrast(88%)" }} />
+            <div className="flex size-[34px] items-center justify-center">
+              <Image
+                src={tab.icon}
+                alt={tab.label}
+                width={24}
+                height={24}
+                style={{
+                  filter: isActive
+                    ? "brightness(0) saturate(100%) invert(17%) sepia(27%) saturate(2349%) hue-rotate(182deg) brightness(96%) contrast(91%)"
+                    : "brightness(0) saturate(100%) invert(70%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(90%) contrast(90%)",
+                }}
+              />
             </div>
             <span
               className={`text-[11px] tracking-[-0.275px] ${
-                isActive ? "font-bold text-[#0f6]" : "font-medium text-[#64748b]"
+                isActive
+                  ? "font-bold text-[#1d3557]"
+                  : "font-medium text-[#a0a0a0]"
               }`}
             >
               {tab.label}

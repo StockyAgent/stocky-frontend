@@ -4,17 +4,16 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import NavBar from "@/components/ui/NavBar";
-import CategoryButton from "@/components/onboarding/CategoryButton";
+import CategoryButton from "@/components/ui/CategoryButton";
 import ReportCard from "@/components/dashboard/ReportCard";
 import DailyBriefingItem from "@/components/dashboard/DailyBriefingItem";
 import BriefingTag from "@/components/dashboard/BriefingTag";
 
-const REPORT_CATEGORIES = ["전체", "데일리", "심층분석", "위클리"];
+const REPORT_CATEGORIES = ["전체", "데일리", "위클리"];
 
 const REPORTS = [
   { type: "데일리" as const, date: "2024.03.21", title: "3월 21일 AAPL", description: "애플에 대한 데일리 분석, 어쩌구 저쩌구 나올…" },
   { type: "주간" as const, date: "2026.03.16", title: "3월 3주차 요약", description: "주차별 리포트, 어떤 내용이 리포트로 쓰여야 좋…" },
-  { type: "심층분석" as const, date: "2026.03.19", title: "애플(AAPL) 심층 분석", description: "심층 리포트 내용이 여기로 들어가, 리포트 폼은…" },
 ];
 
 const BRIEFINGS = [
@@ -27,46 +26,58 @@ export default function DashboardPage() {
   const [activeCategory, setActiveCategory] = useState("전체");
 
   return (
-    <div className="flex min-h-dvh flex-col bg-[#0d0d0d] pb-[72px]">
+    <div className="flex min-h-dvh flex-col bg-[#f1faee] pb-[72px]">
       {/* Header */}
-      <header className="sticky top-0 z-20 border-b border-white/5 bg-[rgba(13,13,13,0.95)] px-5 pb-[17px] pt-14 backdrop-blur-[12px]">
+      <header className="sticky top-0 z-20 border-b border-[#e1e1e1] bg-[#f1faee] px-5 pb-[17px] pt-14 backdrop-blur-md">
         <div className="flex items-center justify-between">
           <div className="flex flex-col">
             <div className="flex items-center gap-1.5">
               <div className="flex items-center">
-                <span className="text-[24px] font-extrabold uppercase tracking-[-0.6px] text-white" style={{ fontFamily: "Inter, sans-serif" }}>
+                <span className="text-[24px] font-extrabold uppercase tracking-[-0.6px] text-[#1d3557]" style={{ fontFamily: "Inter, sans-serif" }}>
                   STOCKY
                 </span>
-                <div className="ml-1 size-2 rounded-full bg-[#0f6] shadow-[0px_0px_15px_0px_rgba(0,255,102,0.4)]" />
+                <div className="ml-1 size-2 rounded-full bg-[#a8dadc] shadow-[0px_0px_15px_0px_rgba(0,255,102,0.4)]" />
               </div>
-              <span className="mt-2 text-[12px] font-bold uppercase tracking-[1.2px] text-[#0f6]" style={{ fontFamily: "Inter, sans-serif" }}>
+              <span className="mt-2 text-[12px] font-bold uppercase tracking-[1.2px] text-[#a8dadc]" style={{ fontFamily: "Inter, sans-serif" }}>
                 PRO
               </span>
             </div>
-            <span className="mt-1 text-[10px] font-bold uppercase tracking-[1px] text-[#64748b]" style={{ fontFamily: "Inter, sans-serif" }}>
+            <span className="mt-1 text-[10px] font-bold uppercase tracking-[1px] text-[#457b9d]" style={{ fontFamily: "Inter, sans-serif" }}>
               AI ANALYSIS DASHBOARD
             </span>
           </div>
           {/* Profile Avatar */}
-          <div className="relative flex size-10 items-center justify-center rounded-full border border-white/10">
-            <Image src="/icons/profile-icon.svg" alt="Profile" width={24} height={24} className="opacity-60 brightness-0 invert" />
-            <div className="absolute right-0 top-0 size-3 rounded-full border-2 border-[#121212] bg-[#0f6]" />
-          </div>
+          <Link href="/mypage" className="relative flex size-10 items-center justify-center rounded-full border border-[#e1e1e1]">
+            <Image
+              src="/icons/profile-icon.svg"
+              alt="Profile"
+              width={24}
+              height={24}
+              style={{ filter: "brightness(0) saturate(100%) invert(52%) sepia(10%) saturate(1397%) hue-rotate(169deg) brightness(89%) contrast(87%)" }}
+            />
+            <div className="absolute -right-0.5 -top-0.5 z-10 size-3 rounded-full border-2 border-[#f1faee] bg-[#457b9d]" />
+          </Link>
         </div>
       </header>
 
       {/* Main Content */}
       <main className="flex flex-col gap-8 p-5">
-        {/* Daily Briefing Section */}
+        {/* Daily Issue Section */}
         <section className="flex flex-col gap-4">
           <div className="flex items-center gap-2">
-            <div className="flex items-center justify-center rounded-[6px] bg-[rgba(0,255,102,0.2)] p-1">
-              <Image src="/icons/briefing-icon.svg" alt="" width={20} height={24} className="brightness-0" style={{ filter: "brightness(0) saturate(100%) invert(68%) sepia(74%) saturate(2741%) hue-rotate(95deg) brightness(104%) contrast(107%)" }} />
+            <div className="flex items-center justify-center rounded-[6px] bg-[rgba(142,202,230,0.2)] p-1">
+              <Image
+                src="/icons/briefing-icon.svg"
+                alt=""
+                width={20}
+                height={24}
+                style={{ filter: "brightness(0) saturate(100%) invert(52%) sepia(10%) saturate(1397%) hue-rotate(169deg) brightness(89%) contrast(87%)" }}
+              />
             </div>
-            <h2 className="text-[18px] font-bold text-white">데일리 브리핑</h2>
+            <h2 className="text-[18px] font-bold text-[#1d3557]">데일리 이슈</h2>
           </div>
 
-          <div className="flex flex-col gap-4 rounded-[24px] border border-white/10 bg-[#181818] p-[21px]">
+          <div className="flex flex-col gap-4 rounded-[24px] border border-[#e1e1e1] bg-white p-[21px]">
             {BRIEFINGS.map((item, i) => (
               <DailyBriefingItem key={i} keyword={item.keyword} content={item.content} />
             ))}
@@ -80,11 +91,18 @@ export default function DashboardPage() {
         {/* Report History Section */}
         <section className="flex flex-col gap-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-[18px] font-bold text-white">리포트 히스토리</h2>
-            <Link href="/reports" className="flex items-center gap-0.5">
-              <span className="text-[12px] font-bold text-white">전체보기</span>
-              <Image src="/icons/chevron-right-icon.svg" alt="" width={16} height={20} className="brightness-0 invert" />
-            </Link>
+            <div className="flex items-center gap-2">
+              <div className="flex items-center justify-center rounded-[6px] bg-[rgba(142,202,230,0.2)] p-1">
+                <Image
+                  src="/icons/briefing-icon.svg"
+                  alt=""
+                  width={20}
+                  height={24}
+                  style={{ filter: "brightness(0) saturate(100%) invert(52%) sepia(10%) saturate(1397%) hue-rotate(169deg) brightness(89%) contrast(87%)" }}
+                />
+              </div>
+              <h2 className="text-[18px] font-bold text-[#1d3557]">리포트 히스토리</h2>
+          </div>
           </div>
 
           {/* Category Filters */}

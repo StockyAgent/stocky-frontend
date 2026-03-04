@@ -19,14 +19,14 @@ export default function PersonaCard({ type, title, description, selected, onClic
       type="button"
       className={`flex w-full items-center overflow-hidden rounded-2xl border p-[17px] transition-all cursor-pointer ${
         selected
-          ? "border-accent bg-accent/5 shadow-[0px_0px_0px_1px_#00ff66]"
-          : "border-white/10 bg-[#1c1c1e] shadow-[0px_0px_0px_1px_rgba(255,255,255,0.1)]"
+          ? "border-[#457b9d] bg-[#e8f4f5] shadow-[0px_0px_0px_1px_#457b9d]"
+          : "border-[#e1e1e1] bg-white shadow-[0px_0px_0px_1px_#e1e1e1]"
       }`}
     >
       {/* Icon */}
-      <div className="mr-4 flex-shrink-0">
+      <div className="mr-4 shrink-0">
         <div className={`flex size-12 items-center justify-center rounded-full ${
-          selected ? "bg-accent/10" : "bg-white/5"
+          selected ? "bg-[rgba(142,202,230,0.2)]" : "bg-[#f1faee]"
         }`}>
           <Image
             src={iconSrc}
@@ -34,23 +34,24 @@ export default function PersonaCard({ type, title, description, selected, onClic
             width={26}
             height={32}
             className="rotate-180"
+            style={{ filter: "brightness(0) saturate(100%) invert(17%) sepia(27%) saturate(2349%) hue-rotate(182deg) brightness(96%) contrast(91%)" }}
           />
         </div>
       </div>
 
       {/* Text */}
       <div className="flex flex-1 flex-col items-start pr-2">
-        <span className="text-[17px] font-bold text-white">{title}</span>
-        <span className="text-sm font-light text-gray-400">{description}</span>
+        <span className="text-[17px] font-bold text-[#1d3557]">{title}</span>
+        <span className="text-sm font-light text-[#457b9d]">{description}</span>
       </div>
 
       {/* Radio indicator */}
       {selected ? (
-        <div className="flex size-6 flex-shrink-0 items-center justify-center rounded-full border-2 border-accent bg-accent">
-          <div className="size-2 rounded-[4px] bg-black" />
+        <div className="flex size-6 shrink-0 items-center justify-center rounded-full border-2 border-[#457b9d] bg-[#457b9d]">
+          <div className="size-2 rounded-[4px] bg-white" />
         </div>
       ) : (
-        <div className="size-6 flex-shrink-0 rounded-full border-2 border-gray-600" />
+        <div className="size-6 shrink-0 rounded-full border-2 border-[#e1e1e1]" />
       )}
     </button>
   );

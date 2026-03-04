@@ -1,7 +1,7 @@
 <svg preserveAspectRatio="none" width="100%" height="100%" overflow="visible" style="display: block;" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g id="Background+Border">
-<rect x="1" y="1" width="22" height="22" rx="5" fill="var(--fill-0, #00FF66)"/>
-<rect x="1" y="1" width="22" height="22" rx="5" stroke="var(--stroke-0, #00FF66)" stroke-width="2"/>
-<path id="Vector" d="M10.6389 15.3403L7.47222 12.1736L8.26389 11.3819L10.6389 13.7569L15.7361 8.65972L16.5278 9.45139L10.6389 15.3403Z" fill="var(--fill-0, black)"/>
+<rect x="1" y="1" width="22" height="22" rx="5" fill="var(--fill-0, #457B9D)"/>
+<rect x="1" y="1" width="22" height="22" rx="5" stroke="var(--stroke-0, #457B9D)" stroke-width="2"/>
+<path id="Vector" d="M10.6389 15.3403L7.47222 12.1736L8.26389 11.3819L10.6389 13.7569L15.7361 8.65972L16.5278 9.45139L10.6389 15.3403Z" fill="var(--fill-0, white)"/>
 </g>
 </svg>
