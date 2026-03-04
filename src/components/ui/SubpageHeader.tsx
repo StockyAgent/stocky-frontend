@@ -5,16 +5,17 @@ import { useRouter } from "next/navigation";
 
 interface SubpageHeaderProps {
   title: string;
+  backHref?: string;
 }
 
-export default function SubpageHeader({ title }: SubpageHeaderProps) {
+export default function SubpageHeader({ title, backHref }: SubpageHeaderProps) {
   const router = useRouter();
 
   return (
     <header className="sticky top-0 z-20 flex items-center justify-between border-b border-[#e1e1e1] bg-[#f1faee] px-4 pb-[14px] pt-[53px] backdrop-blur-[6px]">
       <div className="flex items-center gap-3">
         <button
-          onClick={() => router.back()}
+          onClick={() => backHref ? router.push(backHref) : router.back()}
           className="flex items-center justify-center cursor-pointer"
           aria-label="Go back"
         >

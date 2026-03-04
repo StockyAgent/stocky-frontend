@@ -1,10 +1,16 @@
+"use client";
+
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 function GoogleLoginButton() {
+  const router = useRouter();
+
   return (
     <button
       className="flex h-[56px] w-full max-w-[342px] items-center justify-center gap-3 rounded-xl bg-[#a8dadc] px-5 cursor-pointer transition-transform active:scale-[0.98] hover:brightness-110"
       type="button"
+      onClick={() => router.push("/onboarding/step1")}
     >
       <div className="flex size-8 items-center justify-center rounded-full bg-white shadow-sm">
         <Image

@@ -1,12 +1,15 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import SubpageHeader from "@/components/ui/SubpageHeader";
 
 export default function MyPagePage() {
+  const router = useRouter();
   return (
     <div className="flex min-h-dvh flex-col bg-[#f1faee]">
-      <SubpageHeader title="마이페이지" />
+      <SubpageHeader title="마이페이지" backHref="/dashboard" />
 
       {/* Main */}
       <main className="flex flex-col items-center gap-8 p-4">
@@ -37,7 +40,7 @@ export default function MyPagePage() {
         {/* Settings Card */}
         <section className="w-full overflow-hidden rounded-[16px] border border-[#e1e1e1] bg-white">
           {/* 투자 성향 수정 */}
-          <button className="flex w-full items-center justify-between border-b border-[rgba(255,255,255,0.08)] px-4 py-[14px] cursor-pointer">
+          <Link href="/mypage/edit/invest" className="flex w-full items-center justify-between border-b border-[rgba(255,255,255,0.08)] px-4 py-[14px] cursor-pointer">
             <div className="flex items-center gap-3">
               <Image
                 src="/icons/invest-setting-icon.svg"
@@ -56,7 +59,7 @@ export default function MyPagePage() {
               className="opacity-30"
               style={{ filter: "brightness(0) saturate(100%) invert(52%) sepia(10%) saturate(1397%) hue-rotate(169deg) brightness(89%) contrast(87%)" }}
             />
-          </button>
+          </Link>
 
           {/* 구독 관리 */}
           <button className="flex w-full items-center justify-between px-4 py-[15px] cursor-pointer">
@@ -85,7 +88,7 @@ export default function MyPagePage() {
         </section>
 
         {/* Logout */}
-        <button className="py-4 text-[15px] font-bold text-[#a0a0a0] cursor-pointer">
+        <button onClick={() => router.push("/")} className="py-4 text-[15px] font-bold text-[#a0a0a0] cursor-pointer">
           로그아웃
         </button>
       </main>

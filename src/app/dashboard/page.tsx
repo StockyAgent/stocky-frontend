@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo, useRef, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import NavBar from "@/components/ui/NavBar";
@@ -12,8 +12,11 @@ import BriefingTag from "@/components/dashboard/BriefingTag";
 const REPORT_CATEGORIES = ["전체", "데일리", "위클리"];
 
 const REPORTS = [
-  { type: "데일리" as const, date: "2024.03.21", title: "3월 21일 AAPL", description: "애플에 대한 데일리 분석, 어쩌구 저쩌구 나올…" },
-  { type: "주간" as const, date: "2026.03.16", title: "3월 3주차 요약", description: "주차별 리포트, 어떤 내용이 리포트로 쓰여야 좋…" },
+  { type: "데일리" as const, date: "2026.03.03", title: "3월 3일 NVDA", description: "엔비디아 GTC 2026 발표 이후 AI 반도체 수요 전…" },
+  { type: "데일리" as const, date: "2026.03.02", title: "3월 2일 TSLA", description: "테슬라 자율주행 FSD V13 업데이트 소식에 따른…" },
+  { type: "주간" as const, date: "2026.03.01", title: "3월 1주차 요약", description: "주요 기술주 실적 발표 시즌을 앞두고 시장 변동…" },
+  { type: "데일리" as const, date: "2026.02.28", title: "2월 28일 AAPL", description: "애플 비전 프로 2세대 출시 예고에 따른 주가 전…" },
+  { type: "주간" as const, date: "2026.02.22", title: "2월 4주차 요약", description: "미 연준 금리 동결 결정 이후 시장 안도 랠리 분…" },
 ];
 
 const BRIEFINGS = [
@@ -24,6 +27,24 @@ const BRIEFINGS = [
 
 export default function DashboardPage() {
   const [activeCategory, setActiveCategory] = useState("전체");
+  const scrollPositions = useRef<Map<string, number>>(new Map());
+
+  const handleCategoryChange = useCallback((cat: string) => {
+    scrollPositions.current.set(activeCategory, window.scrollY);
+    setActiveCategory(cat);
+    requestAnimationFrame(() => {
+      const saved = scrollPositions.current.get(cat);
+      if (saved !== undefined) {
+        window.scrollTo({ top: saved, behavior: "instant" });
+      }
+    });
+  }, [activeCategory]);
+
+  const filteredReports = useMemo(() => {
+    if (activeCategory === "전체") return REPORTS;
+    if (activeCategory === "위클리") return REPORTS.filter((r) => r.type === "주간");
+    return REPORTS.filter((r) => r.type === activeCategory);
+  }, [activeCategory]);
 
   return (
     <div className="flex min-h-dvh flex-col bg-[#f1faee] pb-[72px]">
@@ -112,14 +133,14 @@ export default function DashboardPage() {
                 key={cat}
                 label={cat}
                 active={activeCategory === cat}
-                onClick={() => setActiveCategory(cat)}
+                onClick={() => handleCategoryChange(cat)}
               />
             ))}
           </div>
 
           {/* Report Cards */}
           <div className="flex flex-col gap-3">
-            {REPORTS.map((report, i) => (
+            {filteredReports.map((report, i) => (
               <ReportCard
                 key={i}
                 type={report.type}

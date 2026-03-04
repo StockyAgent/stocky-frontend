@@ -1,22 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import StepIndicator from "@/components/ui/StepIndicator";
 import PrimaryButton from "@/components/ui/PrimaryButton";
 import SearchBar from "@/components/ui/SearchBar";
 import CategoryButton from "@/components/ui/CategoryButton";
 import StockCard from "@/components/onboarding/StockCard";
+import { ALL_STOCKS } from "@/data/stocks";
+import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 
 const CATEGORIES = ["전체", "AI·반도체", "2차전지", "헬스케어", "플랫폼"];
-
-const STOCKS = [
-  { ticker: "NVDA", name: "엔비디아 (NVIDIA Corp.)", marketCap: "시총 2.3T USD", price: "$880.45", logoText: "AI" },
-  { ticker: "TSLA", name: "테슬라 (Tesla, Inc.)", marketCap: "시총 540B USD", price: "$240.10", logoText: "AI" },
-  { ticker: "AAPL", name: "애플 (Apple Inc.)", marketCap: "시총 2.6T USD", price: "$173.50", logoText: "AAPL" },
-  { ticker: "MSFT", name: "마이크로소프트 (Microsoft)", marketCap: "시총 3.1T USD", price: "$415.20", logoText: "MSFT" },
-  { ticker: "GOOGL", name: "구글 (Alphabet Inc.)", marketCap: "시총 1.8T USD", price: "$152.26", logoText: "GOOGL" },
-];
 
 type SortType = "marketCap" | "name";
 
@@ -26,6 +20,9 @@ export default function Step2Page() {
   const [selectedStocks, setSelectedStocks] = useState<Set<string>>(new Set(["NVDA"]));
   const [sortType, setSortType] = useState<SortType>("marketCap");
   const [searchQuery, setSearchQuery] = useState("");
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+
+  const isSearchMode = isSearchFocused || searchQuery.trim().length > 0;
 
   const toggleStock = (ticker: string) => {
     setSelectedStocks((prev) => {
@@ -39,31 +36,59 @@ export default function Step2Page() {
     });
   };
 
-  const filteredStocks = STOCKS.filter(
-    (s) =>
-      s.ticker.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      s.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // All stocks filtered by category (for normal mode)
+  const categoryStocks = useMemo(() => {
+    if (activeCategory === "전체") return ALL_STOCKS;
+    return ALL_STOCKS.filter((s) => s.category === activeCategory);
+  }, [activeCategory]);
+
+  // Search results
+  const searchResults = useMemo(() => {
+    if (!searchQuery.trim()) return [];
+    const q = searchQuery.toLowerCase();
+    let stocks = categoryStocks;
+    return stocks.filter(
+      (s) =>
+        s.ticker.toLowerCase().includes(q) ||
+        s.name.toLowerCase().includes(q) ||
+        s.category.toLowerCase().includes(q)
+    );
+  }, [searchQuery, categoryStocks]);
+
+  // Selected stocks data
+  const selectedStockData = useMemo(() => {
+    return ALL_STOCKS.filter((s) => selectedStocks.has(s.ticker));
+  }, [selectedStocks]);
+
+  const { visibleData, isLoading, hasMore, sentinelRef } = useInfiniteScroll({
+    data: isSearchMode ? searchResults : categoryStocks,
+    pageSize: 10,
+  });
 
   return (
     <div className="relative flex min-h-dvh flex-col bg-[#f1faee]">
-      {/* Header */}
-      <div className="sticky top-0 z-20 bg-[#f1faee]">
+      {/* Step Indicator */}
+      <div className="sticky top-0 z-20">
         <StepIndicator currentStep={2} />
-        <div className="px-4 pt-2 pb-4">
-          <h1 className="text-2xl font-bold tracking-tight text-[#1d3557]">
-            관심 종목 선택
-          </h1>
-        </div>
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 px-4 pb-44">
-        {/* Search Bar */}
-        <SearchBar value={searchQuery} onChange={setSearchQuery} />
+      <div className="flex-1 px-5 pt-4 pb-44">
+        {/* Heading */}
+        <div className="mb-4">
+          <h1 className="text-[28px] font-bold leading-[35px] text-[#1d3557]">관심 종목 선택</h1>
+        </div>
 
-        {/* Category Buttons */}
-        <div className="flex gap-2.5 overflow-x-auto py-1.5 scrollbar-hide">
+        {/* Search Bar */}
+        <SearchBar
+          value={searchQuery}
+          onChange={setSearchQuery}
+          placeholder="종목명 또는 섹터 검색"
+          onFocusChange={setIsSearchFocused}
+        />
+
+        {/* Category Filters */}
+        <div className="flex gap-2.5 py-1.5 overflow-x-auto">
           {CATEGORIES.map((cat) => (
             <CategoryButton
               key={cat}
@@ -75,56 +100,132 @@ export default function Step2Page() {
         </div>
 
         {/* Sort Controls */}
-        <div className="flex items-center justify-between px-1 py-2.5">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-medium text-[#457b9d]">정렬:</span>
-            <div className="flex rounded-full border border-[#e1e1e1] bg-white p-[3px]">
-              <button
-                onClick={() => setSortType("marketCap")}
-                type="button"
-                className={`rounded-full px-3 py-1 text-xs transition-all cursor-pointer ${
-                  sortType === "marketCap"
-                    ? "bg-[#e1e1e1] font-bold text-[#457b9d]"
-                    : "text-[#a0a0a0] font-medium"
-                }`}
-              >
-                시가총액순
-              </button>
-              <button
-                onClick={() => setSortType("name")}
-                type="button"
-                className={`rounded-full px-3 py-1 text-xs transition-all cursor-pointer ${
-                  sortType === "name"
-                    ? "bg-[#e1e1e1] font-bold text-[#457b9d]"
-                    : "text-[#a0a0a0] font-medium"
-                }`}
-              >
-                종목명순
-              </button>
-            </div>
+        <div className="flex items-center gap-2 px-1 py-1.5">
+          <span className="text-xs font-medium text-[#457b9d]">정렬:</span>
+          <div className="flex rounded-full border border-[#e1e1e1] bg-white p-[3px]">
+            <button
+              onClick={() => setSortType("marketCap")}
+              type="button"
+              className={`rounded-full px-3 py-1 text-xs transition-all cursor-pointer ${
+                sortType === "marketCap"
+                  ? "bg-[#e1e1e1] font-bold text-[#457b9d]"
+                  : "font-medium text-[#a0a0a0]"
+              }`}
+            >
+              시가총액순
+            </button>
+            <button
+              onClick={() => setSortType("name")}
+              type="button"
+              className={`rounded-full px-3 py-1 text-xs transition-all cursor-pointer ${
+                sortType === "name"
+                  ? "bg-[#e1e1e1] font-bold text-[#457b9d]"
+                  : "font-medium text-[#a0a0a0]"
+              }`}
+            >
+              종목명순
+            </button>
           </div>
         </div>
 
-        {/* Stock List */}
-        <div className="flex flex-col gap-3">
-          {filteredStocks.map((stock) => (
-            <StockCard
-              key={stock.ticker}
-              ticker={stock.ticker}
-              name={stock.name}
-              marketCap={stock.marketCap}
-              logoText={stock.logoText}
-              selected={selectedStocks.has(stock.ticker)}
-              onClick={() => toggleStock(stock.ticker)}
-            />
-          ))}
-        </div>
+        {isSearchMode ? (
+          /* ===== SEARCH MODE ===== */
+          <>
+            {/* 검색된 종목 */}
+            <div className="flex items-center gap-3 py-1.5">
+              <span className="text-sm font-bold text-[#457b9d]">검색된 종목</span>
+              <div className="h-px flex-1 bg-[#e1e1e1]" />
+            </div>
+            <div className="flex flex-col gap-3">
+              {visibleData.map((stock) => (
+                <StockCard
+                  key={stock.ticker}
+                  ticker={stock.ticker}
+                  name={stock.name}
+                  marketCap={stock.marketCap}
+                  logoText={stock.logoText}
+                  selected={selectedStocks.has(stock.ticker)}
+                  onClick={() => toggleStock(stock.ticker)}
+                />
+              ))}
+            </div>
 
-        {/* Loading Indicator */}
-        <div className="flex items-center justify-center gap-2 py-12">
-          <div className="size-1.5 rounded-full bg-[#a0a0a0]" />
-          <span className="text-sm font-light text-[#a0a0a0]">데이터 로드 중...</span>
-        </div>
+            {/* No Results / Loading */}
+            <div ref={sentinelRef} className="py-4">
+              {isLoading && (
+                <div className="flex items-center justify-center gap-2 py-4">
+                  <div className="size-1.5 animate-pulse rounded-full bg-[#8ecae6]" />
+                  <span className="text-sm font-[350] text-[#457b9d]">데이터 로드 중...</span>
+                </div>
+              )}
+              {!isLoading && searchQuery.trim().length > 0 && searchResults.length === 0 && (
+                <div className="flex flex-col items-center justify-center gap-2 py-12">
+                  <span className="text-sm font-bold text-[#457b9d]">검색 결과가 없습니다</span>
+                  <span className="text-xs text-[#a0a0a0]">&apos;{searchQuery}&apos;에 해당하는 종목을 찾을 수 없습니다</span>
+                </div>
+              )}
+              {!hasMore && visibleData.length > 0 && !isLoading && (
+                <div className="flex justify-center py-4">
+                  <span className="text-xs text-[#a0a0a0]">모든 종목을 불러왔습니다</span>
+                </div>
+              )}
+            </div>
+
+            {/* 선택한 종목 */}
+            {selectedStockData.length > 0 && (
+              <div className="mt-2">
+                <div className="flex items-center gap-3 py-1.5">
+                  <span className="text-sm font-bold text-[#457b9d]">선택한 종목</span>
+                  <div className="h-px flex-1 bg-[#e1e1e1]" />
+                </div>
+                <div className="flex flex-col gap-3">
+                  {selectedStockData.map((stock) => (
+                    <StockCard
+                      key={stock.ticker}
+                      ticker={stock.ticker}
+                      name={stock.name}
+                      marketCap={stock.marketCap}
+                      logoText={stock.logoText}
+                      selected={true}
+                      onClick={() => toggleStock(stock.ticker)}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
+        ) : (
+          /* ===== NORMAL MODE ===== */
+          <>
+            <div className="flex flex-col gap-3">
+              {visibleData.map((stock) => (
+                <StockCard
+                  key={stock.ticker}
+                  ticker={stock.ticker}
+                  name={stock.name}
+                  marketCap={stock.marketCap}
+                  logoText={stock.logoText}
+                  selected={selectedStocks.has(stock.ticker)}
+                  onClick={() => toggleStock(stock.ticker)}
+                />
+              ))}
+            </div>
+
+            <div ref={sentinelRef} className="py-4">
+              {isLoading && (
+                <div className="flex items-center justify-center gap-2 py-4">
+                  <div className="size-1.5 animate-pulse rounded-full bg-[#8ecae6]" />
+                  <span className="text-sm font-[350] text-[#457b9d]">데이터 로드 중...</span>
+                </div>
+              )}
+              {!hasMore && visibleData.length > 0 && !isLoading && (
+                <div className="flex justify-center py-4">
+                  <span className="text-xs text-[#a0a0a0]">모든 종목을 불러왔습니다</span>
+                </div>
+              )}
+            </div>
+          </>
+        )}
       </div>
 
       {/* Bottom CTA */}
