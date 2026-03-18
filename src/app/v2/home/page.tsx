@@ -21,7 +21,8 @@ export default function V2HomePage() {
         <span className="text-[20px] font-black tracking-wider text-[#0f2318]">STOCKY</span>
         <button
           type="button"
-          className="relative flex size-10 items-center justify-center rounded-[13px] bg-[#1cb863] text-xl shadow-[0_3px_0_#159e51]"
+          onClick={() => router.push("/v2/briefings")}
+          className="relative flex size-10 items-center justify-center rounded-[13px] bg-[#1cb863] text-xl shadow-[0_3px_0_#159e51] active:translate-y-0.5 active:shadow-[0_1.5px_0_#159e51] transition-all"
         >
           🚀
           <span 

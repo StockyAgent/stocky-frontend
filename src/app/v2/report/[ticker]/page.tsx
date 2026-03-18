@@ -180,7 +180,7 @@ export default function V2ReportPage() {
           <span className="text-[13px] font-black text-[#1cb863]">{targetScore}</span>
         </div>
       </header>
-      <div className="flex flex-col gap-4 px-5 py-5 pb-28">
+      <div className="flex flex-col gap-4 px-5 py-5 pb-6">
         {/* 코치 한마디 */}
         <div className="rounded-[20px] bg-white p-5 shadow-[0_4px_0_#d0e8d8]">
           <div className="mb-2 flex items-center gap-1.5">
@@ -229,7 +229,6 @@ export default function V2ReportPage() {
                     <span className="text-[12px] font-bold text-[#0f2318]">{item.label}</span>
                     <div className="flex items-center gap-1">
                       <span className="text-[12px] font-black text-[#1cb863]">{item.score}</span>
-                      <span className="text-[10px] text-[#8abeaa]">›</span>
                     </div>
                   </div>
                   <div className="h-2 w-full rounded-full bg-[#e8f5ee]">
@@ -239,6 +238,7 @@ export default function V2ReportPage() {
                     />
                   </div>
                 </div>
+                <span className="text-[20px] text-[#8abeaa]">›</span>
               </button>
             ))}
           </div>
@@ -259,21 +259,16 @@ export default function V2ReportPage() {
             </p>
           </div>
         </div>
+        
+        {/* 투자 유의사항 (면책 조항) */}
+        <div className="mt-8 border-t border-[#e8f0ec] pt-6 pb-6 text-center">
+          <p className="text-[10.5px] leading-relaxed text-[#8abeaa]">
+            본 리포트는 인공지능(AI) 분석에 기반한 참고용 자료이며, 주식 매수·매도 등의 투자 권유를 목적으로 하지 않습니다.<br />
+            제공되는 정보의 정확성이나 수익을 보장하지 않으며, <br />
+            모든 투자 결정과 그에 따른 결과에 대한 책임은 투자자 본인에게 있습니다.
+          </p>
+        </div>
       </div>
-
-      {/* 하단 탭바 */}
-      <nav className="fixed bottom-0 left-0 right-0 flex border-t border-[#eef5f2] bg-white">
-        {[
-          { icon: "🏠", label: "홈", href: "/v2/home", active: true },
-          { icon: "⭐", label: "관심종목", href: "/v2/watchlist", active: false },
-          { icon: "👤", label: "MY", href: "/v2/my", active: false },
-        ].map((tab) => (
-          <button key={tab.label} type="button" onClick={() => router.push(tab.href)} className="flex flex-1 flex-col items-center gap-1 py-3">
-            <span className="text-xl">{tab.icon}</span>
-            <span className={`text-[10px] font-bold ${tab.active ? "text-[#1cb863]" : "text-[#b0c8b8]"}`}>{tab.label}</span>
-          </button>
-        ))}
-      </nav>
     </div>
   );
 }

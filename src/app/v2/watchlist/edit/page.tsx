@@ -16,9 +16,10 @@ const STOCKS = [
 
 const CATEGORIES = ["전체", "AI·반도체", "빅테크", "전기차"];
 
-export default function V2StocksPage() {
+export default function V2WatchlistEditPage() {
   const router = useRouter();
-  const [selected, setSelected] = useState<Set<string>>(new Set(["NVDA", "AAPL"]));
+  // v2/watchlist/page.tsx 에 있는 초기 3개 종목을 디폴트로 선택해 둠
+  const [selected, setSelected] = useState<Set<string>>(new Set(["NVDA", "AAPL", "TSLA"]));
   const [category, setCategory] = useState("전체");
   const [search, setSearch] = useState("");
 
@@ -44,21 +45,16 @@ export default function V2StocksPage() {
     <div className="flex min-h-dvh flex-col bg-white">
       {/* 고정 헤더 */}
       <div className="sticky top-0 z-10 bg-white px-5 pt-5 pb-3">
-        {/* 진행바 */}
-        <div className="mb-5 flex gap-1">
-          <div className="h-1.5 flex-1 rounded-full bg-[#1cb863]" />
-          <div className="h-1.5 flex-1 rounded-full bg-[#1cb863]" />
-        </div>
-
-        {/* 타이틀 */}
-        <div className="mb-3">
-          <h1 className="text-[24px] font-black leading-tight text-[#0f2318]">
-            관심 종목을<br />
-            <span className="text-[#1cb863]">골라봐요 📈</span>
-          </h1>
-          <div className="mt-2 flex items-center gap-1.5">
-            <div className="flex size-5 items-center justify-center rounded-[6px] bg-[#1cb863] text-[10px]">🚀</div>
-            <p className="text-[12px] font-bold text-[#3d6b50]">테크투자 코치가 매일 분석해드려요</p>
+        <div className="mb-5 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="flex size-8 items-center justify-center rounded-[10px] border-2 border-[#e8f0ec] bg-white text-[#0f2318] shadow-[0_2px_0_#d8ead0] transition-all active:translate-y-0.5 active:shadow-none"
+            >
+              ‹
+            </button>
+            <h1 className="text-[22px] font-black leading-tight text-[#0f2318]">관심종목 편집</h1>
           </div>
         </div>
 
@@ -78,13 +74,13 @@ export default function V2StocksPage() {
         </div>
 
         {/* 카테고리 */}
-        <div className="flex gap-2">
+        <div className="flex gap-2 relative z-0 overflow-x-auto pb-1 -ml-5 px-5 hide-scrollbar">
           {CATEGORIES.map((cat) => (
             <button
               key={cat}
               type="button"
               onClick={() => setCategory(cat)}
-              className={`rounded-[22px] border-2 px-4 py-1.5 text-[11.5px] font-bold transition-all active:translate-y-[1.5px] ${
+              className={`shrink-0 rounded-[22px] border-2 px-4 py-1.5 text-[11.5px] font-bold transition-all active:translate-y-[1.5px] ${
                 cat === category
                   ? "border-[#1cb863] bg-[#1cb863] text-white shadow-[0_3px_0_#159e51] active:shadow-[0_1.5px_0_#159e51]"
                   : "border-[#d8f0e2] bg-white text-[#3d6b50] shadow-[0_2px_0_#d8f0e2] active:shadow-[0_0.5px_0_#d8f0e2]"
@@ -96,12 +92,12 @@ export default function V2StocksPage() {
         </div>
 
         {/* 선택 카운트 */}
-        <div className="mt-3 flex items-center justify-between">
+        <div className="mt-2 flex items-center justify-between">
           <div className="flex items-center gap-1.5 rounded-full border border-[#d0f5e0] bg-[#e8fcf0] px-3 py-1.5">
             <div className="size-1.5 rounded-full bg-[#1cb863]" />
-            <span className="text-[11px] font-black text-[#0d7a3e]">{selected.size}개 선택됨</span>
+            <span className="text-[11px] font-black text-[#0d7a3e]">{selected.size}개 담김</span>
           </div>
-          <span className="text-[10.5px] text-[#8abeaa]">최소 1개 이상</span>
+          <span className="text-[10.5px] text-[#8abeaa]">최소 1개 이상 필수</span>
         </div>
       </div>
 
@@ -153,17 +149,25 @@ export default function V2StocksPage() {
       </div>
 
       {/* 하단 CTA */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white px-5 pb-8 pt-4">
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#f0f5f2] px-5 pb-8 pt-4">
         <button
           type="button"
           disabled={selected.size === 0}
-          onClick={() => router.push("/v2/home")}
+          onClick={() => router.push("/v2/watchlist")}
           className="w-full rounded-[16px] bg-[#1cb863] px-5 py-4 text-[15px] font-black text-white shadow-[0_5px_0_#159e51] transition-all disabled:opacity-50 active:translate-y-1 active:shadow-[0_2px_0_#159e51]"
         >
-          Stocky 시작하기 ✨
+          저장 완료
         </button>
-        <p className="mt-2 text-center text-[11px] text-[#aac9b5]">나중에 설정에서 언제든 종목을 변경할 수 있습니다.</p>
       </div>
+      <style dangerouslySetInnerHTML={{__html: `
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .hide-scrollbar {
+          -ms-overflow-style: none;  /* IE and Edge */
+          scrollbar-width: none;  /* Firefox */
+        }
+      `}} />
     </div>
   );
 }

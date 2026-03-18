@@ -18,9 +18,10 @@ export default function V2WatchlistPage() {
         <h1 className="text-[20px] font-black text-[#0f2318]">내 관심종목</h1>
         <button
           type="button"
-          className="flex size-10 items-center justify-center rounded-[13px] bg-[#1cb863] text-xl font-black text-white shadow-[0_3px_0_#159e51]"
+          onClick={() => router.push("/v2/watchlist/edit")}
+          className="flex size-10 items-center justify-center rounded-[13px] bg-[#1cb863] text-lg shadow-[0_3px_0_#159e51] active:translate-y-0.5 active:shadow-[0_1.5px_0_#159e51] transition-all"
         >
-          +
+          <span className="-scale-x-100">✏️</span>
         </button>
       </header>
 

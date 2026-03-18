@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
-const COACHES = [
+export const COACHES = [
   {
     id: "value",
     emoji: "🏛️",
@@ -42,26 +42,43 @@ const COACHES = [
   },
 ];
 
-export default function V2CoachPage() {
+function CoachPageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const from = searchParams?.get("from");
   const [selectedId, setSelectedId] = useState<string>("lifestyle");
 
   const selected = COACHES.find((c) => c.id === selectedId)!;
 
+  const handleNext = () => {
+    if (from === "my") {
+      // 마이페이지에서 왔다면 수정 완료 후 바로 돌아가기
+      router.push("/v2/my");
+    } else {
+      // 그 외(온보딩 등)는 코치 인사(confirm) 페이지로 이동
+      router.push(`/v2/coach/confirm?id=${selected.id}`);
+    }
+  };
+
   return (
     <div className="flex min-h-dvh flex-col bg-white">
-      {/* 진행바 */}
-      <div className="flex gap-1 px-6 pt-6">
-        <div className="h-1.5 flex-1 rounded-full bg-[#1cb863]" />
-        <div className="h-1.5 flex-1 rounded-full bg-[#e8f5ee]" />
-      </div>
+      {/* 상단 고정 헤더 영역 (진행바 + 타이틀) */}
+      <div className="sticky top-0 z-20 bg-white pb-4">
+        {/* 진행바 (온보딩이 아닐 땐 숨기거나 유지 가능, 현재는 공통) */}
+        {!from && (
+          <div className="flex gap-1 px-6 pt-6">
+            <div className="h-1.5 flex-1 rounded-full bg-[#1cb863]" />
+            <div className="h-1.5 flex-1 rounded-full bg-[#e8f5ee]" />
+          </div>
+        )}
 
-      {/* 헤더 */}
-      <div className="px-6 pt-6 pb-4">
-        <h1 className="text-[26px] font-black leading-tight text-[#0f2318]">
-          나의 <span className="text-[#1cb863]">투자 코치</span>를<br />선택해보세요 🎯
-        </h1>
-        <p className="mt-2 text-[13px] text-[#6b9e7e]">코치마다 분석 스타일이 달라요. 언제든 변경 가능!</p>
+        {/* 헤더 */}
+        <div className={`px-6 ${from ? "pt-8" : "pt-6"}`}>
+          <h1 className="text-[26px] font-black leading-tight text-[#0f2318]">
+            나의 <span className="text-[#1cb863]">투자 코치</span>를<br />선택해보세요 🎯
+          </h1>
+          <p className="mt-2 text-[13px] text-[#6b9e7e]">코치마다 분석 스타일이 달라요. 언제든 변경 가능!</p>
+        </div>
       </div>
 
       {/* 코치 카드 목록 */}
@@ -129,7 +146,7 @@ export default function V2CoachPage() {
                   }}
                   className="flex size-6 shrink-0 items-center justify-center rounded-full bg-[#1cb863]"
                 >
-                  <span className="text-[13px] font-black text-white">✓</span>
+                  <span className="text-[15px] font-black text-white">✓</span>
                 </div>
               </div>
 
@@ -163,14 +180,24 @@ export default function V2CoachPage() {
       <div className="fixed bottom-0 left-0 right-0 bg-white px-6 pb-8 pt-4 border-t border-[#f0f0f0]">
         <button
           type="button"
-          onClick={() => router.push("/v2/coach/confirm")}
+          onClick={handleNext}
           style={{ transition: "box-shadow 0.15s ease, transform 0.15s ease" }}
           className="w-full rounded-[16px] bg-[#1cb863] px-5 py-4 text-[15px] font-black text-white shadow-[0_5px_0_#159e51] active:translate-y-1 active:shadow-[0_2px_0_#159e51]"
         >
-          {selected.name}와 다음 →
+          {from === "my" ? "변경 완료하기" : `${selected.name}와 다음 →`}
         </button>
-        <p className="mt-3 text-center text-[11px] text-[#aac9b5]">나중에 설정에서 언제든 코치를 변경할 수 있습니다.</p>
+        {!from && (
+          <p className="mt-3 text-center text-[11px] text-[#aac9b5]">나중에 설정에서 언제든 코치를 변경할 수 있습니다.</p>
+        )}
       </div>
     </div>
+  );
+}
+
+export default function V2CoachPage() {
+  return (
+    <Suspense>
+      <CoachPageContent />
+    </Suspense>
   );
 }
