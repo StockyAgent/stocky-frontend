@@ -2,17 +2,15 @@
 
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import type { SortType } from "@/types";
 import StepIndicator from "@/components/ui/StepIndicator";
 import PrimaryButton from "@/components/ui/PrimaryButton";
 import SearchBar from "@/components/ui/SearchBar";
 import CategoryButton from "@/components/ui/CategoryButton";
 import StockCard from "@/components/onboarding/StockCard";
-import { ALL_STOCKS } from "@/data/stocks";
+import { ALL_STOCKS, STOCK_CATEGORIES } from "@/data/stocks";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 
-const CATEGORIES = ["전체", "AI·반도체", "2차전지", "헬스케어", "플랫폼"];
-
-type SortType = "marketCap" | "name";
 
 export default function Step2Page() {
   const router = useRouter();
@@ -89,7 +87,7 @@ export default function Step2Page() {
 
         {/* Category Filters */}
         <div className="flex gap-2.5 py-1.5 overflow-x-auto">
-          {CATEGORIES.map((cat) => (
+          {STOCK_CATEGORIES.map((cat) => (
             <CategoryButton
               key={cat}
               label={cat}

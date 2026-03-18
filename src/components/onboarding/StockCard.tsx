@@ -11,11 +11,21 @@ interface StockCardProps {
   price?: string;
   logoSrc?: string;
   logoText?: string;
+  /** variant 방식 (권장): 명시적으로 상태를 지정 */
+  variant?: StockVariant;
+  /** 레거시 호환용 — variant가 없을 때만 activated */
   selected?: boolean;
   onClick?: () => void;
   showDetail?: boolean;
-  variant?: StockVariant;
 }
+
+/** variant → 스타일 매핑 */
+const VARIANT_CONTAINER: Record<StockVariant, string> = {
+  default: "border-[#457b9d] bg-[#e8f4f5]",
+  type2:   "border-[#e1e1e1] bg-[#f1faee]",
+  type3:   "border-[#457b9d] bg-[#e8f4f5]",
+  type4:   "border-[#457b9d] bg-[#f1faee]",
+};
 
 export default function StockCard({
   ticker,
@@ -24,71 +34,59 @@ export default function StockCard({
   price,
   logoSrc,
   logoText,
+  variant,
   selected,
   onClick,
   showDetail = false,
-  variant,
 }: StockCardProps) {
-  // Determine styles based on variant or legacy selected prop
-  const isChecked = variant === "default" || variant === "type3" || (!variant && selected);
-  const hasIndicator = variant === "type3" || variant === "type4";
-  const isDeselected = variant === "type4";
-  const isUnregistered = variant === "type2";
+  // variant 우선, 없으면 selected fallback
+  const effectiveVariant: StockVariant | "legacy-unselected" =
+    variant ?? (selected ? "default" : "legacy-unselected");
 
-  // Background & border
-  let containerClasses: string;
-  if (variant === "default" || variant === "type3") {
-    containerClasses = "border-[#457b9d] bg-[#e8f4f5]";
-  } else if (variant === "type4") {
-    containerClasses = "border-[#457b9d] bg-[#f1faee]";
-  } else if (variant === "type2") {
-    containerClasses = "border-[#e1e1e1] bg-[#f1faee]";
-  } else {
-    // Legacy fallback
-    containerClasses = selected ? "border-[#457b9d] bg-[#e8f4f5]" : "border-[#e1e1e1] bg-[#f1faee]";
-  }
+  const isChecked =
+    effectiveVariant === "default" ||
+    effectiveVariant === "type3" ||
+    (effectiveVariant === "legacy-unselected" && false); // legacy unselected = unchecked
 
-  // Determine if "자세히 >" should show
+  const hasIndicator =
+    effectiveVariant === "type3" || effectiveVariant === "type4";
+
+  const isDeselected = effectiveVariant === "type4";
+
+  const containerClass =
+    effectiveVariant === "legacy-unselected"
+      ? "border-[#e1e1e1] bg-[#f1faee]"
+      : VARIANT_CONTAINER[effectiveVariant as StockVariant];
+
   const shouldShowDetail = showDetail || !!variant;
 
   return (
     <button
       onClick={onClick}
       type="button"
-      className={`relative flex w-full items-center overflow-hidden rounded-xl border p-[17px] transition-all cursor-pointer ${containerClasses}`}
+      className={`relative flex w-full items-center overflow-hidden rounded-xl border p-[17px] transition-all cursor-pointer ${containerClass}`}
     >
       {/* Left Indicator Bar for type3/type4 */}
       {hasIndicator && (
         <div
-          className={`absolute left-0 top-0 h-full bg-[#457b9d] ${isDeselected ? "w-[7px] -ml-px" : "w-[6px]"}`}
+          className={`absolute left-0 top-0 h-full bg-[#457b9d] ${
+            isDeselected ? "w-[7px] -ml-px" : "w-[6px]"
+          }`}
         />
       )}
 
-      {/* Checkbox (not shown for type5) */}
-      {variant !== undefined ? (
-        <div className="mr-3 shrink-0">
-          {isChecked ? (
-            <div className="flex size-6 items-center justify-center rounded-md border-2 border-[#457b9d] bg-[#457b9d]">
-              <Image src="/icons/check-icon.svg" alt="Selected" width={25} height={25} />
-            </div>
-          ) : isDeselected ? (
-            <div className="size-6 rounded-md border-2 border-[rgba(160,160,160,0.4)]" />
-          ) : (
-            <div className="size-6 rounded-md border-2 border-[#e1e1e1]" />
-          )}
-        </div>
-      ) : (
-        /* Legacy mode with selected prop */
-        <div className="mr-3 shrink-0">
-          {selected ? (
-            <div className="flex size-6 items-center justify-center rounded-md border-2 border-[#457b9d] bg-[#457b9d]">
-              <Image src="/icons/check-icon.svg" alt="Selected" width={25} height={25} />
-            </div>
-          ) : (
-            <div className="size-6 rounded-md border-2 border-[#e1e1e1]" />
-          )}
-        </div>
-      )}
+      {/* Checkbox */}
+      <div className="mr-3 shrink-0">
+        {isChecked ? (
+          <div className="flex size-6 items-center justify-center rounded-md border-2 border-[#457b9d] bg-[#457b9d]">
+            <Image src="/icons/check-icon.svg" alt="Selected" width={25} height={25} />
+          </div>
+        ) : isDeselected ? (
+          <div className="size-6 rounded-md border-2 border-[rgba(160,160,160,0.4)]" />
+        ) : (
+          <div className="size-6 rounded-md border-2 border-[#e1e1e1]" />
+        )}
+      </div>
 
       {/* Logo */}
       <div className="mr-4 flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#8ecae6]">
@@ -96,7 +94,7 @@ export default function StockCard({
           <Image src={logoSrc} alt={ticker} width={20} height={20} />
         ) : (
           <span className="text-[10px] font-bold text-[#457b9d]">
-            {logoText || ticker.slice(0, 4)}
+            {logoText ?? ticker.slice(0, 2)}
           </span>
         )}
       </div>
@@ -108,7 +106,7 @@ export default function StockCard({
         <span className="pt-0.5 text-[10px] font-[350] text-[#457b9d]">{marketCap}</span>
       </div>
 
-      {/* Detail Button or Price */}
+      {/* Detail or Price */}
       {shouldShowDetail ? (
         <div className="flex items-center gap-px shrink-0">
           <span className="text-base font-bold text-[#1d3557]">자세히</span>
