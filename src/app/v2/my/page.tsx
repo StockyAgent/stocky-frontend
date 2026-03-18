@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import BottomTabBar from "@/components/v2/BottomTabBar";
 
 export default function V2MyPage() {
   const router = useRouter();
@@ -9,7 +10,7 @@ export default function V2MyPage() {
   const [isDark, setIsDark] = useState(false);
 
   return (
-    <div className={`flex min-h-dvh flex-col transition-colors duration-300 ${isDark ? "bg-[#121212]" : "bg-[#f5faf7]"}`}>
+    <main className={`flex min-h-dvh flex-col transition-colors duration-300 ${isDark ? "bg-[#121212]" : "bg-[#f5faf7]"}`}>
       {/* 헤더 */}
       <header className={`flex items-center justify-between px-5 py-4 transition-colors duration-300 ${isDark ? "bg-[#1e1e1e] border-b border-[#333]" : "bg-white shadow-sm"}`}>
         <h1 className={`text-[20px] font-black transition-colors ${isDark ? "text-white" : "text-[#0f2318]"}`}>마이페이지</h1>
@@ -22,7 +23,7 @@ export default function V2MyPage() {
       </header>
 
       {/* 내 프로필 카드 */}
-      <div className={`mx-5 mt-4 flex items-center gap-4 rounded-[20px] p-5 transition-colors duration-300 ${
+      <section className={`mx-5 mt-4 flex items-center gap-4 rounded-[20px] p-5 transition-colors duration-300 ${
         isDark ? "bg-[#1e1e1e] shadow-[0_6px_0_#111,0_8px_24px_rgba(0,0,0,0.5)]" : "bg-white shadow-[0_6px_0_#d0e8d8,0_8px_24px_rgba(0,0,0,0.06)]"
       }`}>
         <div className="flex size-[60px] shrink-0 items-center justify-center rounded-full bg-[#1cb863] text-2xl shadow-[0_3px_0_#159e51]">
@@ -32,10 +33,10 @@ export default function V2MyPage() {
           <h2 className={`text-[18px] font-black transition-colors ${isDark ? "text-white" : "text-[#0f2318]"}`}>스토키 유저</h2>
           <p className="text-[12px] text-[#8abeaa]">user@stocky.ai</p>
         </div>
-      </div>
+      </section>
 
       {/* 메뉴 리스트 */}
-      <div className="mx-5 mt-6 mb-24 flex flex-col gap-3">
+      <section className="mx-5 mt-6 mb-24 flex flex-col gap-3">
         {/* 투자 코치 설정 */}
         <button
           type="button"
@@ -102,30 +103,10 @@ export default function V2MyPage() {
             <span className="text-[13px] font-bold text-[#e84545]">로그아웃</span>
           </button>
         </div>
-      </div>
+      </section>
 
       {/* 하단 탭바 */}
-      <nav className={`fixed bottom-0 left-0 right-0 flex transition-colors duration-300 pb-safe ${
-        isDark ? "bg-[#1e1e1e] border-t border-[#333]" : "bg-white border-t border-[#eef5f2]"
-      }`}>
-        {[
-          { icon: "🏠", label: "홈", href: "/v2/home", active: false },
-          { icon: "⭐", label: "관심종목", href: "/v2/watchlist", active: false },
-          { icon: "👤", label: "MY", href: "/v2/my", active: true },
-        ].map((tab) => (
-          <button
-            key={tab.label}
-            type="button"
-            onClick={() => router.push(tab.href)}
-            className={`flex flex-1 flex-col items-center gap-1 py-3 transition-all ${isDark ? "active:bg-[#2a2a2a]" : "active:bg-[#f5faf7]"}`}
-          >
-            <span className={`text-xl transition-all ${tab.active ? "-translate-y-0.5 scale-110" : ""}`}>{tab.icon}</span>
-            <span className={`text-[10px] font-bold transition-colors ${tab.active ? "text-[#1cb863]" : "text-[#b0c8b8]"}`}>
-              {tab.label}
-            </span>
-          </button>
-        ))}
-      </nav>
-    </div>
+      <BottomTabBar isDark={isDark} />
+    </main>
   );
 }

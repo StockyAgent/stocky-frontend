@@ -1,18 +1,14 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-
-const WATCHLIST = [
-  { ticker: "NVDA", name: "엔비디아", price: "$880.45", change: "+3.2%", isUp: true, badge: "매수 추천", badgeColor: "#1cb863", logo: "NV" },
-  { ticker: "AAPL", name: "애플", price: "$193.20", change: "-0.8%", isUp: false, badge: "보유 유지", badgeColor: "#4a90d9", logo: "AA" },
-  { ticker: "TSLA", name: "테슬라", price: "$240.10", change: "+1.5%", isUp: true, badge: "관망", badgeColor: "#e8a020", logo: "TS" },
-];
+import BottomTabBar from "@/components/v2/BottomTabBar";
+import { V2_WATCHLIST } from "@/data/v2/mock";
 
 export default function V2WatchlistPage() {
   const router = useRouter();
 
   return (
-    <div className="flex min-h-dvh flex-col bg-[#f5faf7]">
+    <main className="flex min-h-dvh flex-col bg-[#f5faf7]">
       {/* 헤더 */}
       <header className="flex items-center justify-between bg-white px-5 py-4 shadow-sm">
         <h1 className="text-[20px] font-black text-[#0f2318]">내 관심종목</h1>
@@ -26,7 +22,7 @@ export default function V2WatchlistPage() {
       </header>
 
       {/* 총 평가금액 카드 */}
-      <div className="mx-5 mt-4 rounded-[20px] bg-white p-5 shadow-[0_6px_0_#d0e8d8,0_8px_24px_rgba(0,0,0,0.06)]">
+      <section className="mx-5 mt-4 rounded-[20px] bg-white p-5 shadow-[0_6px_0_#d0e8d8,0_8px_24px_rgba(0,0,0,0.06)]">
         <p className="text-[11px] font-bold text-[#8abeaa]">총 평가금액</p>
         <p className="mt-2 text-[34px] font-black text-[#0f2318]">$2,813.70</p>
         <div className="mt-2 flex items-center gap-3">
@@ -34,13 +30,13 @@ export default function V2WatchlistPage() {
           <span className="text-[13px] font-bold text-[#1cb863]">수익률 +4.6%</span>
         </div>
         <p className="mt-1 text-[11px] text-[#8abeaa]">보유 종목 3개</p>
-      </div>
+      </section>
 
       {/* 목록 */}
-      <div className="mx-5 mt-5 mb-24">
+      <section className="mx-5 mt-5 mb-24">
         <p className="mb-3 text-[11px] font-bold text-[#8abeaa]">목록</p>
         <div className="flex flex-col gap-2">
-          {WATCHLIST.map((stock) => (
+          {V2_WATCHLIST.map((stock) => (
             <button
               key={stock.ticker}
               type="button"
@@ -71,28 +67,10 @@ export default function V2WatchlistPage() {
             </button>
           ))}
         </div>
-      </div>
+      </section>
 
       {/* 하단 탭바 */}
-      <nav className="fixed bottom-0 left-0 right-0 flex border-t border-[#eef5f2] bg-white">
-        {[
-          { icon: "🏠", label: "홈", href: "/v2/home", active: false },
-          { icon: "⭐", label: "관심종목", href: "/v2/watchlist", active: true },
-          { icon: "👤", label: "MY", href: "/v2/my", active: false },
-        ].map((tab) => (
-          <button
-            key={tab.label}
-            type="button"
-            onClick={() => router.push(tab.href)}
-            className="flex flex-1 flex-col items-center gap-1 py-3"
-          >
-            <span className="text-xl">{tab.icon}</span>
-            <span className={`text-[10px] font-bold ${tab.active ? "text-[#1cb863]" : "text-[#b0c8b8]"}`}>
-              {tab.label}
-            </span>
-          </button>
-        ))}
-      </nav>
-    </div>
+      <BottomTabBar />
+    </main>
   );
 }

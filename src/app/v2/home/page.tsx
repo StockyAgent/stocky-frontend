@@ -2,12 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-
-const STOCKS = [
-  { ticker: "NVDA", name: "엔비디아", change: "+3.2%", isUp: true, brief: "AI 수요 급증, 실적 서프라이즈...", score: 92, logo: "NV" },
-  { ticker: "AAPL", name: "애플", change: "-0.8%", isUp: false, brief: "신제품 발표 앞두고 관망세...", score: 63, logo: "AA" },
-  { ticker: "TSLA", name: "테슬라", change: "+1.5%", isUp: true, brief: "자율주행 FSD 업데이트 호재...", score: 71, logo: "TS" },
-];
+import BottomTabBar from "@/components/v2/BottomTabBar";
+import { V2_HOME_STOCKS } from "@/data/v2/mock";
 
 export default function V2HomePage() {
   const router = useRouter();
@@ -15,7 +11,7 @@ export default function V2HomePage() {
   const [showCoachBriefing, setShowCoachBriefing] = useState(true);
 
   return (
-    <div className="flex min-h-dvh flex-col bg-[#f5faf7]">
+    <main className="flex min-h-dvh flex-col bg-[#f5faf7]">
       {/* 헤더 */}
       <header className="flex items-center justify-between bg-white px-5 py-4 shadow-sm">
         <span className="text-[20px] font-black tracking-wider text-[#0f2318]">STOCKY</span>
@@ -34,7 +30,7 @@ export default function V2HomePage() {
       </header>
 
       {/* 연속 리포트 스트릭 */}
-      <div className="mx-5 mt-4 flex items-center gap-2 rounded-[12px] bg-[#fff9e6] px-4 py-2.5 shadow-[0_2px_0_#f0e0b0]">
+      <section className="mx-5 mt-4 flex items-center gap-2 rounded-[12px] bg-[#fff9e6] px-4 py-2.5 shadow-[0_2px_0_#f0e0b0]">
         <span>🔥</span>
         <span className="text-[12px] font-bold text-[#c47a00]">5일 연속 리포트 확인!</span>
         <div className="ml-auto flex gap-1">
@@ -43,7 +39,7 @@ export default function V2HomePage() {
           ))}
           <div className="size-2 rounded-full bg-[#e0e0e0]" />
         </div>
-      </div>
+      </section>
 
       {/* 코치 브리핑 카드 */}
       <div 
@@ -94,7 +90,7 @@ export default function V2HomePage() {
       </div>
 
       {/* 오늘의 하이라이트 */}
-      <div className="mx-5 mt-5">
+      <section className="mx-5 mt-5">
         <p className="mb-3 text-[11px] font-bold text-[#8abeaa]">오늘의 하이라이트</p>
         <div className="rounded-[20px] bg-white p-5 shadow-[0_4px_0_#d0e8d8,0_6px_16px_rgba(0,0,0,0.05)]">
           <p className="mb-2 text-[9px] font-black tracking-widest text-[#1cb863]">TODAY&apos;S HIGHLIGHT</p>
@@ -115,13 +111,13 @@ export default function V2HomePage() {
             </button>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* 내 종목 브리핑 */}
-      <div className="mx-5 mt-5 mb-24">
+      <section className="mx-5 mt-5 mb-24">
         <p className="mb-3 text-[11px] font-bold text-[#8abeaa]">내 종목 브리핑</p>
         <div className="flex flex-col gap-2">
-          {STOCKS.map((stock) => (
+          {V2_HOME_STOCKS.map((stock) => (
             <button
               key={stock.ticker}
               type="button"
@@ -146,28 +142,10 @@ export default function V2HomePage() {
             </button>
           ))}
         </div>
-      </div>
+      </section>
 
       {/* 하단 탭바 */}
-      <nav className="fixed bottom-0 left-0 right-0 flex border-t border-[#eef5f2] bg-white pb-safe">
-        {[
-          { icon: "🏠", label: "홈", href: "/v2/home", active: true },
-          { icon: "⭐", label: "관심종목", href: "/v2/watchlist", active: false },
-          { icon: "👤", label: "MY", href: "/v2/my", active: false },
-        ].map((tab) => (
-          <button
-            key={tab.label}
-            type="button"
-            onClick={() => router.push(tab.href)}
-            className="flex flex-1 flex-col items-center gap-1 py-3"
-          >
-            <span className="text-xl">{tab.icon}</span>
-            <span className={`text-[10px] font-bold ${tab.active ? "text-[#1cb863]" : "text-[#b0c8b8]"}`}>
-              {tab.label}
-            </span>
-          </button>
-        ))}
-      </nav>
-    </div>
+      <BottomTabBar />
+    </main>
   );
 }
