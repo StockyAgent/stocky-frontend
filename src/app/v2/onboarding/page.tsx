@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function V2OnboardingPage() {
   const router = useRouter();
@@ -48,14 +49,21 @@ export default function V2OnboardingPage() {
           onClick={() => router.push("/v2/coach")}
           className="flex w-full items-center justify-center gap-3 rounded-[16px] bg-[#1cb863] px-6 py-4 text-[15px] font-bold text-white shadow-[0_5px_0_#159e51] transition-all active:translate-y-1 active:shadow-[0_2px_0_#159e51]"
         >
-          <span className="text-xl">🇬</span>
+          <div className="flex size-8 items-center justify-center rounded-full bg-white shadow-sm">
+            <Image
+              src="/icons/google-logo.svg"
+              alt="Google"
+              width={20}
+              height={20}
+            />
+          </div>
           Google로 시작하기
         </button>
 
         {/* 약관 */}
         <p className="text-center text-[11px] text-[#aac9b5]">
           계속하면{" "}
-          <span className="cursor-pointer underline">이용약관</span> 및{" "}
+          <span onClick={() => router.push('/v2/terms')} className="cursor-pointer underline">이용약관</span> 및{" "}
           <span className="cursor-pointer underline">개인정보처리방침</span>에 동의합니다.
         </p>
       </div>
