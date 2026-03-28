@@ -31,9 +31,9 @@ export const COACHES = [
     desc: "우리 일상에서 뜨는 브랜드와 소비 트렌드로 종목을 발굴해요.",
     example: "\"요즘 다들 이 앱 쓰지? 이 회사 매출이 3분기 연속 올랐어!\"",
     portfolio: [
-      { ticker: "SBUX", name: "스타벅스", percent: "+1.11%", isUp: true, style: "col-span-4 row-span-4" },
-      { ticker: "NKE", name: "나이키", percent: "-2.28%", isUp: false, style: "col-span-2 row-span-4" },
-      { ticker: "NFLX", name: "넷플릭스", percent: "+5.37%", isUp: true, style: "col-span-2 row-span-2" },
+      { ticker: "SBUX", name: "스타벅스", percent: "+1.11%", isUp: true, style: "col-span-4 row-span-3" },
+      { ticker: "NKE", name: "나이키", percent: "-2.28%", isUp: false, style: "col-span-2 row-span-5" },
+      { ticker: "NFLX", name: "넷플릭스", percent: "+5.37%", isUp: true, style: "col-span-2 row-span-3" },
       { ticker: "AAPL", name: "애플", percent: "+4.29%", isUp: true, style: "col-span-2 row-span-2" },
       { ticker: "AMZN", name: "아마존", percent: "+2.33%", isUp: true, style: "col-span-2 row-span-1" },
       { ticker: "DIS", name: "디즈니", percent: "-1.28%", isUp: false, style: "col-span-1 row-span-1" },
@@ -49,10 +49,10 @@ export const COACHES = [
     desc: "AI, 반도체, 전기차 등 미래 기술의 투자 기회를 분석해요.",
     example: "\"이 회사 AI 칩 점유율이 80%야. 경쟁사가 따라오려면 최소 2년은 걸려.\"",
     portfolio: [
-      { ticker: "NVDA", name: "엔비디아", percent: "+17.11%", isUp: true, style: "col-span-4 row-span-4" },
-      { ticker: "AAPL", name: "애플", percent: "-3.28%", isUp: false, style: "col-span-2 row-span-4" },
-      { ticker: "TSLA", name: "테슬라", percent: "-8.37%", isUp: false, style: "col-span-2 row-span-2" },
-      { ticker: "MSFT", name: "M/S", percent: "+6.28%", isUp: true, style: "col-span-2 row-span-2" },
+      { ticker: "NVDA", name: "엔비디아", percent: "+17.11%", isUp: true, style: "col-span-3 row-span-5" },
+      { ticker: "AAPL", name: "애플", percent: "-3.28%", isUp: false, style: "col-span-3 row-span-3" },
+      { ticker: "TSLA", name: "테슬라", percent: "-8.37%", isUp: false, style: "col-span-3 row-span-2" },
+      { ticker: "MSFT", name: "M/S", percent: "+6.28%", isUp: true, style: "col-span-2 row-span-1" },
       { ticker: "AMD", name: "AMD", percent: "-4.29%", isUp: false, style: "col-span-2 row-span-1" },
       { ticker: "GOOG", name: "구글", percent: "+5.33%", isUp: true, style: "col-span-1 row-span-1" },
       { ticker: "META", name: "메타", percent: "+3.86%", isUp: true, style: "col-span-1 row-span-1" }
@@ -67,8 +67,8 @@ export const COACHES = [
     desc: "경제 전체의 큰 흐름을 읽고 어떤 섹터가 유리한지 알려줘요.",
     example: "\"연준이 금리를 내리면 어떤 업종이 먼저 올라? 같이 정리해보자.\"",
     portfolio: [
-      { ticker: "SPY", name: "S&P 500", percent: "+2.11%", isUp: true, style: "col-span-4 row-span-4" },
-      { ticker: "TLT", name: "미 국채", percent: "-1.28%", isUp: false, style: "col-span-2 row-span-4" },
+      { ticker: "SPY", name: "S&P 500", percent: "+2.11%", isUp: true, style: "col-span-3 row-span-4" },
+      { ticker: "TLT", name: "미 국채", percent: "-1.28%", isUp: false, style: "col-span-3 row-span-4" },
       { ticker: "GLD", name: "금 ETF", percent: "+5.37%", isUp: true, style: "col-span-2 row-span-2" },
       { ticker: "QQQ", name: "나스닥", percent: "+3.28%", isUp: true, style: "col-span-2 row-span-2" },
       { ticker: "USO", name: "유가", percent: "-2.29%", isUp: false, style: "col-span-2 row-span-1" },
@@ -259,7 +259,7 @@ function CoachPageContent() {
       {/* 플로팅 인트로 (Confirm) 확대 모달 */}
       <div 
         style={{ transformOrigin: `${clickOrigin.x} ${clickOrigin.y}` }}
-        className={`fixed top-6 bottom-6 left-5 right-5 z-50 flex flex-col overflow-hidden rounded-[32px] bg-[#f5faf7] shadow-[0_20px_40px_rgba(0,0,0,0.2)] transition-all duration-[600ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${
+        className={`fixed top-6 bottom-6 left-5 right-5 z-50 flex flex-col overflow-hidden rounded-[32px] bg-[#f5faf7] shadow-[0_20px_40px_rgba(0,0,0,0.2)] transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
           isConfirmOpen ? "scale-100 opacity-100 translate-y-0" : "scale-[0.8] opacity-0 translate-y-0 pointer-events-none"
         }`}
       >
@@ -318,7 +318,7 @@ function CoachPageContent() {
                     {!stock.style.includes("col-span-1 row-span-1") && (
                       <span className="text-[11px] font-bold tracking-tight opacity-90">{stock.percent}</span>
                     )}
-                    {stock.style.includes("span-4") && (
+                    {!stock.style.includes("span-1") && (
                       <span className="text-[10px] opacity-80 mt-1">{stock.name}</span>
                     )}
                   </div>
