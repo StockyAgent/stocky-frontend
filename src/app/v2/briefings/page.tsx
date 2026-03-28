@@ -12,6 +12,7 @@ export default function V2BriefingsHistoryPage() {
       content: "NVDA가 실적 서프라이즈를 냈어! AI 칩 수요가 예상보다 40% 높았는데, 이게 네 포트폴리오에 어떤 의미인지 같이 볼까?",
       isNew: true,
       ticker: "NVDA",
+      tags: ["#실적발표", "#어닝서프라이즈", "#AI반도체"],
     },
     {
       id: 2,
@@ -19,6 +20,7 @@ export default function V2BriefingsHistoryPage() {
       content: "FOMC 금리 동결! 연준의 매파적 발언에도 빅테크 주가는 선방 중. 핵심 포인트는 다음 분기 AI 서버 증설 계획이야.",
       isNew: false,
       ticker: "MSFT",
+      tags: ["#FOMC", "#금리동결", "#빅테크", "#서버증설"],
     },
     {
       id: 3,
@@ -26,6 +28,7 @@ export default function V2BriefingsHistoryPage() {
       content: "TSLA 중국 시장 점유율 하락에 주가 주춤. 하지만 새 FSD 버전 배포가 예정되어 있어 단기 반등 모멘텀은 존재해.",
       isNew: false,
       ticker: "TSLA",
+      tags: ["#시장점유율", "#FSD", "#모멘텀", "#전기차", "#중국시장"],
     },
     {
       id: 4,
@@ -33,6 +36,7 @@ export default function V2BriefingsHistoryPage() {
       content: "AAPL이 드디어 생성형 AI 관련 로드맵을 발표했어. 아이폰 교체 사이클과 맞물리면 큰 파급력이 예상돼.",
       isNew: false,
       ticker: "AAPL",
+      tags: ["#생성형AI", "#아이폰", "#교체사이클"],
     },
   ];
 
@@ -84,13 +88,14 @@ export default function V2BriefingsHistoryPage() {
             </p>
 
             <div className="flex items-center justify-between border-t border-[#f0f5f2] pt-4">
-              <div className="flex items-center gap-2">
-                <span className="flex size-6 items-center justify-center rounded-[6px] bg-[#e8f0ec] text-[9px] font-black text-[#3d6b50]">
-                  티커
-                </span>
-                <span className="text-[12px] font-black text-[#0f2318]">{b.ticker}</span>
+              <div className="flex items-center gap-1.5 flex-wrap flex-1 mr-4">
+                {b.tags.map((tag, idx) => (
+                  <span key={idx} className="rounded-[6px] bg-[#e8f0ec] px-2 py-1 text-[10px] font-bold text-[#3d6b50]">
+                    {tag}
+                  </span>
+                ))}
               </div>
-              <span className="text-[11px] font-bold text-[#1cb863]">리포트 보기 ›</span>
+              <span className="shrink-0 text-[11px] font-bold text-[#1cb863]">리포트 보기 ›</span>
             </div>
           </div>
         ))}
