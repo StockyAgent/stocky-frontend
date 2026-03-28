@@ -12,6 +12,8 @@ export default function V2BriefingsHistoryPage() {
       content: "NVDA가 실적 서프라이즈를 냈어! AI 칩 수요가 예상보다 40% 높았는데, 이게 네 포트폴리오에 어떤 의미인지 같이 볼까?",
       isRead: false,
       ticker: "NVDA",
+      coachName: "테크 트렌드 코치",
+      coachEmoji: "🚀",
       tags: ["#실적발표", "#어닝서프라이즈", "#AI반도체"],
     },
     {
@@ -20,6 +22,8 @@ export default function V2BriefingsHistoryPage() {
       content: "FOMC 금리 동결! 연준의 매파적 발언에도 빅테크 주가는 선방 중. 핵심 포인트는 다음 분기 AI 서버 증설 계획이야.",
       isRead: true,
       ticker: "MSFT",
+      coachName: "매크로 경제 코치",
+      coachEmoji: "🌍",
       tags: ["#FOMC", "#금리동결", "#빅테크", "#서버증설"],
     },
     {
@@ -28,6 +32,8 @@ export default function V2BriefingsHistoryPage() {
       content: "TSLA 중국 시장 점유율 하락에 주가 주춤. 하지만 새 FSD 버전 배포가 예정되어 있어 단기 반등 모멘텀은 존재해.",
       isRead: true,
       ticker: "TSLA",
+      coachName: "테크 트렌드 코치",
+      coachEmoji: "🚀",
       tags: ["#시장점유율", "#FSD", "#모멘텀", "#전기차", "#중국시장"],
     },
     {
@@ -36,6 +42,8 @@ export default function V2BriefingsHistoryPage() {
       content: "AAPL이 드디어 생성형 AI 관련 로드맵을 발표했어. 아이폰 교체 사이클과 맞물리면 큰 파급력이 예상돼.",
       isRead: true,
       ticker: "AAPL",
+      coachName: "테크 트렌드 코치",
+      coachEmoji: "🚀",
       tags: ["#생성형AI", "#아이폰", "#교체사이클"],
     },
   ];
@@ -58,7 +66,7 @@ export default function V2BriefingsHistoryPage() {
 
       {/* 리스트 본문 */}
       <div className="flex flex-col gap-4 px-5 py-6 pb-12">
-        <p className="text-[14px] font-black text-[#0f2318]">테크 트렌드 코치의 지난 분석들 📝</p>
+        <p className="text-[14px] font-black text-[#0f2318]">코치들의 지난 분석들 📝</p>
 
         {briefings.map((b) => (
           <div
@@ -71,12 +79,15 @@ export default function V2BriefingsHistoryPage() {
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <div className="relative flex size-7 items-center justify-center rounded-[8px] bg-[#1cb863] text-[13px] shadow-[0_2px_0_#159e51]">
-                  🚀
+                  {b.coachEmoji}
                   {!b.isRead && (
                     <span className="absolute -right-1 -top-1 size-2.5 rounded-full bg-[#ff4a4a] ring-[1.5px] ring-white" />
                   )}
                 </div>
-                <span className="text-[11.5px] font-bold text-[#8abeaa]">{b.date}</span>
+                <div className="flex flex-col">
+                  <span className="text-[12px] font-black text-[#0f2318]">{b.coachName}</span>
+                  <span className="text-[10px] text-[#8abeaa]">{b.date}</span>
+                </div>
               </div>
             </div>
 
