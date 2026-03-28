@@ -54,9 +54,6 @@ export default function V2BriefingsHistoryPage() {
           </button>
           <h1 className="text-[18px] font-black text-[#0f2318]">브리핑 보관함</h1>
         </div>
-        <div className="flex size-9 items-center justify-center rounded-[10px] bg-[#edfaf3] text-[16px] text-[#1cb863]">
-          🚀
-        </div>
       </header>
 
       {/* 리스트 본문 */}
