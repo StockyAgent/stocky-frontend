@@ -12,7 +12,6 @@ export default function BottomTabBar({ isDark = false }: BottomTabBarProps) {
 
   const tabs = [
     { icon: "🏠", label: "홈", href: "/v2/home" },
-    { icon: "⭐", label: "관심종목", href: "/v2/watchlist" },
     { icon: "👤", label: "MY", href: "/v2/my" },
   ];
 

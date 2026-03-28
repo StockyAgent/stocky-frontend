@@ -55,6 +55,26 @@ export default function V2MyPage() {
 
       {/* 메뉴 리스트 */}
       <section className="mx-5 mt-6 mb-24 flex flex-col gap-3">
+        {/* 관심종목 관리 */}
+        <button
+          type="button"
+          onClick={() => router.push("/v2/watchlist/edit")}
+          className={`flex w-full items-center justify-between rounded-[16px] p-4 transition-all active:translate-y-0.5 ${
+            isDark ? "bg-[#1e1e1e] shadow-[0_4px_0_#111] active:shadow-[0_1.5px_0_#111]" : "bg-white shadow-[0_4px_0_#e8f0ec] active:shadow-[0_1.5px_0_#e8f0ec]"
+          }`}
+        >
+          <div className="flex items-center gap-3">
+            <div className={`flex size-10 items-center justify-center rounded-[12px] text-lg transition-colors ${isDark ? "bg-[#2a2a2a] shadow-[0_2px_0_#111]" : "bg-[#fffcf0] shadow-[0_2px_0_#f0e8d8]"}`}>
+              ⭐
+            </div>
+            <div className="text-left">
+              <p className={`text-[14px] font-black transition-colors ${isDark ? "text-white" : "text-[#0f2318]"}`}>관심종목 관리</p>
+              <p className="text-[11px] text-[#8abeaa]">내 포트폴리오 및 수익률 요약</p>
+            </div>
+          </div>
+          <span className="text-[14px] font-black text-[#8abeaa]">›</span>
+        </button>
+
         {/* 투자 코치 설정 */}
         <button
           type="button"
