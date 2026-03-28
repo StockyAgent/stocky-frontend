@@ -31,7 +31,7 @@ function CoachConfirmContent() {
           {coach.emoji}
         </div>
         <div className="absolute -bottom-2 -right-2 flex size-7 items-center justify-center rounded-full bg-[#1cb863] shadow-[0_3px_0_#159e51]">
-          <span className="text-[14px] text-white">✓</span>
+          <span className="text-[23px] text-white">✓</span>
         </div>
       </div>
 
@@ -59,6 +59,29 @@ function CoachConfirmContent() {
           </span>
         ))}
       </div>
+
+      {/* 종목 포트폴리오 힌트 (트리맵 스타일) */}
+      {coach.portfolio && (
+        <div className="mt-8 w-full text-center">
+          <p className="text-[12px] font-bold text-[#8abeaa] mb-4">코치가 지켜보는 대표 종목 맵 👀</p>
+          <div className="grid grid-cols-6 grid-rows-4 gap-1 h-[220px] w-full grid-flow-row-dense">
+            {coach.portfolio.map((stock: any, idx: number) => (
+              <div
+                key={idx}
+                className={`flex flex-col items-center justify-center rounded-[8px] text-white overflow-hidden transition-all shadow-[inset_0_0_0_1.5px_rgba(255,255,255,0.15)] ${
+                  stock.style
+                } ${stock.isUp ? "bg-[#1cb863]" : "bg-[#e84545]"}`}
+              >
+                <span className="text-[14px] font-black leading-tight tracking-tight">{stock.ticker}</span>
+                <span className="text-[11px] font-bold tracking-tight opacity-90">{stock.percent}</span>
+                {stock.style.includes("span-4") && (
+                  <span className="text-[10px] opacity-80 mt-1">{stock.name}</span>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* 하단 버튼 */}
       <div className="mt-auto w-full pt-10">
