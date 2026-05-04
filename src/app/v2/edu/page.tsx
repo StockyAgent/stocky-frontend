@@ -2,23 +2,23 @@
 
 import { useState, type ReactNode } from "react";
 
-const BG = "#FBF2E7";
+const BG = "#FAFAF7";
 const SURFACE = "#FFFFFF";
-const HERO = "#F8D2B0";
-const APRICOT = "#F5A573";
-const APRICOT_SOFT = "#FFE6D5";
-const APRICOT_DEEP = "#B96C3D";
-const LINE = "#F2E3D2";
-const TEXT = "#1A1A1C";
-const SUB = "#8A8A90";
+const HERO = "#F2EFE8";
+const ACCENT = "#FF6B3D";
+const ACCENT_SOFT = "#FFE7DC";
+const ACCENT_DEEP = "#C13E10";
+const LINE = "#ECECE8";
+const TEXT = "#0A0A0B";
+const SUB = "#6B6B70";
 // 한국 증권 관행: 빨강 상승 / 파랑 하락
 const UP = "#E54848";
 const DOWN = "#2B6FE6";
 
 const SHADOW =
-  "0 4px 16px rgba(190, 130, 80, 0.08), 0 1px 3px rgba(0, 0, 0, 0.03)";
+  "0 4px 16px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.03)";
 const SHADOW_HERO =
-  "0 8px 28px rgba(190, 110, 60, 0.18), 0 2px 6px rgba(0, 0, 0, 0.04)";
+  "0 8px 28px rgba(0, 0, 0, 0.06), 0 2px 6px rgba(0, 0, 0, 0.04)";
 
 type Tab = "home" | "issue" | "stocks" | "my" | "settings";
 
@@ -1044,8 +1044,8 @@ function StockLogo({ symbol, size }: { symbol: string; size: number }) {
         style={{
           width: size,
           height: size,
-          background: APRICOT_SOFT,
-          color: APRICOT_DEEP,
+          background: ACCENT_SOFT,
+          color: ACCENT_DEEP,
           fontSize: Math.round(size * 0.3),
         }}
       >
@@ -1145,7 +1145,7 @@ function Mascot({
       {withPencil && (
         <g transform="rotate(-18 30 86)">
           <rect x="10" y="82" width="34" height="8" rx="2" fill="#F4C99B" />
-          <rect x="10" y="82" width="5" height="8" fill={APRICOT_DEEP} />
+          <rect x="10" y="82" width="5" height="8" fill={ACCENT_DEEP} />
           <polygon points="44,82 52,86 44,90" fill="#FFE3C7" />
           <polygon points="50,85 52,86 50,87" fill="#1A1A1C" />
         </g>
@@ -1165,7 +1165,7 @@ function CategoryChip({
   return (
     <span
       className={`rounded-full ${padding} text-[10.5px] font-bold`}
-      style={{ background: APRICOT_SOFT, color: APRICOT_DEEP }}
+      style={{ background: ACCENT_SOFT, color: ACCENT_DEEP }}
     >
       {CATEGORY_LABEL[category]}
     </span>
@@ -1184,7 +1184,7 @@ function TierStars({ tier, size = 11 }: { tier: Tier; size?: number }) {
           className="leading-none"
           style={{
             fontSize: size,
-            color: APRICOT,
+            color: ACCENT,
             opacity: i <= tier ? 1 : 0.22,
           }}
         >
@@ -1314,7 +1314,7 @@ function TopBar({ streak }: { streak: number }) {
       >
         <span
           className="flex h-7 w-7 items-center justify-center rounded-full text-[14px]"
-          style={{ background: APRICOT, color: "#fff" }}
+          style={{ background: ACCENT, color: "#fff" }}
         >
           🔥
         </span>
@@ -1349,7 +1349,7 @@ function HomeScreen({
       >
         <div
           className="text-[12px] font-bold"
-          style={{ color: APRICOT_DEEP, letterSpacing: -0.1 }}
+          style={{ color: ACCENT_DEEP, letterSpacing: -0.1 }}
         >
           오늘의 시장 브리핑
         </div>
@@ -1371,7 +1371,7 @@ function HomeScreen({
         <button
           type="button"
           className="mt-5 inline-flex items-center gap-1.5 rounded-full px-5 py-2.5 text-[13px] font-extrabold"
-          style={{ background: APRICOT, color: "#fff", boxShadow: SHADOW }}
+          style={{ background: ACCENT, color: "#fff", boxShadow: SHADOW }}
         >
           보러가기 <span style={{ fontSize: 11 }}>▶</span>
         </button>
@@ -1449,7 +1449,7 @@ function DailyCard({ card }: { card: (typeof dailyCards)[number] }) {
           <span
             key={k}
             className="text-[12px] font-bold"
-            style={{ color: APRICOT_DEEP }}
+            style={{ color: ACCENT_DEEP }}
           >
             #{k}
           </span>
@@ -1465,7 +1465,7 @@ function DailyCard({ card }: { card: (typeof dailyCards)[number] }) {
 
       <div
         className="flex gap-2 rounded-xl p-3"
-        style={{ background: APRICOT_SOFT }}
+        style={{ background: ACCENT_SOFT }}
       >
         <Mascot size={32} />
         <p className="text-[12.5px] leading-relaxed" style={{ color: TEXT }}>
@@ -1582,7 +1582,7 @@ function IssueItem({
               <span
                 key={sym}
                 className="rounded-md px-1.5 py-0.5 text-[10.5px] font-bold"
-                style={{ background: APRICOT_SOFT, color: APRICOT_DEEP }}
+                style={{ background: ACCENT_SOFT, color: ACCENT_DEEP }}
               >
                 {sym}
               </span>
@@ -1652,7 +1652,7 @@ function GeneralGroupedList({
             <header className="mb-2 flex items-center gap-2.5 px-1">
               <span
                 className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-[14px]"
-                style={{ background: APRICOT_SOFT }}
+                style={{ background: ACCENT_SOFT }}
               >
                 {meta.icon}
               </span>
@@ -1664,7 +1664,7 @@ function GeneralGroupedList({
               </span>
               <span
                 className="ml-auto text-[11px] font-bold"
-                style={{ color: APRICOT_DEEP }}
+                style={{ color: ACCENT_DEEP }}
               >
                 {topicIssues.length}건
               </span>
@@ -1726,7 +1726,7 @@ function SectorGroupedList({
             <header className="mb-2 flex items-center gap-2.5 px-1">
               <span
                 className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-[14px]"
-                style={{ background: APRICOT_SOFT }}
+                style={{ background: ACCENT_SOFT }}
               >
                 {icon}
               </span>
@@ -1738,7 +1738,7 @@ function SectorGroupedList({
               </span>
               <span
                 className="ml-auto text-[11px] font-bold"
-                style={{ color: APRICOT_DEEP }}
+                style={{ color: ACCENT_DEEP }}
               >
                 {sectorIssues.length}건
               </span>
@@ -1800,7 +1800,7 @@ function MineGroupedList({
             </div>
             <span
               className="ml-auto text-[11px] font-bold"
-              style={{ color: APRICOT_DEEP }}
+              style={{ color: ACCENT_DEEP }}
             >
               {issues.length}건
             </span>
@@ -1917,8 +1917,8 @@ function StockDetailMain({
         >
           <defs>
             <linearGradient id="apri" x1="0" x2="0" y1="0" y2="1">
-              <stop offset="0%" stopColor={APRICOT} stopOpacity="0.35" />
-              <stop offset="100%" stopColor={APRICOT} stopOpacity="0" />
+              <stop offset="0%" stopColor={ACCENT} stopOpacity="0.35" />
+              <stop offset="100%" stopColor={ACCENT} stopOpacity="0" />
             </linearGradient>
           </defs>
           <path
@@ -1928,7 +1928,7 @@ function StockDetailMain({
           <path
             d="M0,55 C40,50 60,60 90,42 C120,28 150,38 180,30 C210,24 240,40 270,22 C290,12 310,18 320,14"
             fill="none"
-            stroke={APRICOT_DEEP}
+            stroke={ACCENT_DEEP}
             strokeWidth="2"
             strokeLinecap="round"
           />
@@ -1968,7 +1968,7 @@ function StockDetailMain({
             <li key={axis.key} className="flex items-center gap-3">
               <span
                 className="flex w-5 items-center justify-center"
-                style={{ color: APRICOT_DEEP }}
+                style={{ color: ACCENT_DEEP }}
               >
                 <AxisIcon axisKey={axis.key} size={18} />
               </span>
@@ -1984,7 +1984,7 @@ function StockDetailMain({
               >
                 <div
                   className="h-full rounded-full"
-                  style={{ width: `${axis.score}%`, background: APRICOT }}
+                  style={{ width: `${axis.score}%`, background: ACCENT }}
                 />
               </div>
               <span
@@ -2001,7 +2001,7 @@ function StockDetailMain({
         type="button"
         onClick={onSeeScores}
         className="mb-2 flex w-full items-center justify-center gap-1 rounded-xl py-3.5 text-[14px] font-bold"
-        style={{ background: APRICOT_SOFT, color: APRICOT_DEEP }}
+        style={{ background: ACCENT_SOFT, color: ACCENT_DEEP }}
       >
         자세히 보기 →
       </button>
@@ -2103,8 +2103,8 @@ function LineMini({
       <svg viewBox={`0 0 ${W} ${H}`} className="w-full">
         <defs>
           <linearGradient id="line-fill" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%" stopColor={APRICOT} stopOpacity="0.3" />
-            <stop offset="100%" stopColor={APRICOT} stopOpacity="0" />
+            <stop offset="0%" stopColor={ACCENT} stopOpacity="0.3" />
+            <stop offset="100%" stopColor={ACCENT} stopOpacity="0" />
           </linearGradient>
         </defs>
         {avg !== undefined && (
@@ -2136,13 +2136,13 @@ function LineMini({
         <path
           d={path}
           fill="none"
-          stroke={APRICOT_DEEP}
+          stroke={ACCENT_DEEP}
           strokeWidth="2"
           strokeLinejoin="round"
           strokeLinecap="round"
         />
         {xy.map((p, i) => (
-          <circle key={i} cx={p[0]} cy={p[1]} r="2.5" fill={APRICOT_DEEP} />
+          <circle key={i} cx={p[0]} cy={p[1]} r="2.5" fill={ACCENT_DEEP} />
         ))}
         <text
           x={xy[xy.length - 1][0]}
@@ -2205,7 +2205,7 @@ function BarMini({
                 className="w-full rounded-t-md"
                 style={{
                   height: `${h}%`,
-                  background: `linear-gradient(180deg, ${APRICOT}, ${APRICOT_DEEP})`,
+                  background: `linear-gradient(180deg, ${ACCENT}, ${ACCENT_DEEP})`,
                   minHeight: 4,
                   marginTop: 14,
                 }}
@@ -2252,7 +2252,7 @@ function ScoreAxisCard({ axis }: { axis: ScoreAxis }) {
       <header className="mb-4 flex items-center gap-3">
         <span
           className="flex h-10 w-10 items-center justify-center rounded-2xl"
-          style={{ background: APRICOT_SOFT, color: APRICOT_DEEP }}
+          style={{ background: ACCENT_SOFT, color: ACCENT_DEEP }}
         >
           <AxisIcon axisKey={axis.key} size={22} />
         </span>
@@ -2267,7 +2267,7 @@ function ScoreAxisCard({ axis }: { axis: ScoreAxis }) {
         <div
           className="flex h-9 min-w-[44px] items-center justify-center rounded-xl px-2 text-[14px] font-extrabold"
           style={{
-            background: APRICOT,
+            background: ACCENT,
             color: "#fff",
             fontVariantNumeric: "tabular-nums",
           }}
@@ -2279,7 +2279,7 @@ function ScoreAxisCard({ axis }: { axis: ScoreAxis }) {
       {axis.chart && (
         <section
           className="mb-4 rounded-2xl p-3"
-          style={{ background: APRICOT_SOFT }}
+          style={{ background: ACCENT_SOFT }}
         >
           <ScoreChart chart={axis.chart} />
         </section>
@@ -2300,7 +2300,7 @@ function ScoreAxisCard({ axis }: { axis: ScoreAxis }) {
             </div>
             <div
               className="text-[15px] font-extrabold leading-none"
-              style={{ color: APRICOT_DEEP, fontVariantNumeric: "tabular-nums" }}
+              style={{ color: ACCENT_DEEP, fontVariantNumeric: "tabular-nums" }}
             >
               {ind.value}
             </div>
@@ -2318,7 +2318,7 @@ function ScoreAxisCard({ axis }: { axis: ScoreAxis }) {
 
       <div
         className="mb-3 flex gap-2 rounded-2xl p-3"
-        style={{ background: APRICOT_SOFT }}
+        style={{ background: ACCENT_SOFT }}
       >
         <Mascot size={28} />
         <p className="text-[12.5px] leading-relaxed" style={{ color: TEXT }}>
@@ -2329,7 +2329,7 @@ function ScoreAxisCard({ axis }: { axis: ScoreAxis }) {
       <div className="rounded-2xl p-3" style={{ background: HERO, color: TEXT }}>
         <div
           className="mb-1 flex items-center gap-1.5 text-[11px] font-extrabold"
-          style={{ color: APRICOT_DEEP, letterSpacing: 0.3 }}
+          style={{ color: ACCENT_DEEP, letterSpacing: 0.3 }}
         >
           💡 학습 포인트
         </div>
@@ -2374,7 +2374,7 @@ function StockScoresScreen({ onBack }: { onBack: () => void }) {
             <div className="text-[18px] font-extrabold" style={{ color: TEXT }}>
               {d.name}
             </div>
-            <div className="text-[11px]" style={{ color: APRICOT_DEEP }}>
+            <div className="text-[11px]" style={{ color: ACCENT_DEEP }}>
               5가지 관점 자세히
             </div>
           </div>
@@ -2391,7 +2391,7 @@ function StockScoresScreen({ onBack }: { onBack: () => void }) {
           </span>
           <span
             className="ml-2 text-[12.5px] font-bold"
-            style={{ color: APRICOT_DEEP }}
+            style={{ color: ACCENT_DEEP }}
           >
             5개 관점 평균
           </span>
@@ -2416,7 +2416,7 @@ function StockScoresScreen({ onBack }: { onBack: () => void }) {
               >
                 <span
                   className="flex items-center"
-                  style={{ color: active ? "#fff" : APRICOT_DEEP }}
+                  style={{ color: active ? "#fff" : ACCENT_DEEP }}
                 >
                   <AxisIcon axisKey={axis.key} size={14} />
                 </span>
@@ -2424,7 +2424,7 @@ function StockScoresScreen({ onBack }: { onBack: () => void }) {
                 <span
                   className="text-[11px] font-extrabold"
                   style={{
-                    color: active ? "rgba(255,255,255,0.7)" : APRICOT_DEEP,
+                    color: active ? "rgba(255,255,255,0.7)" : ACCENT_DEEP,
                     fontVariantNumeric: "tabular-nums",
                   }}
                 >
@@ -2451,7 +2451,7 @@ function MyScreen({ onSelectStock }: { onSelectStock: () => void }) {
         <Mascot size={140} withPencil />
         <div
           className="mt-3 rounded-full px-3 py-1 text-[12px] font-bold"
-          style={{ background: APRICOT_SOFT, color: APRICOT_DEEP }}
+          style={{ background: ACCENT_SOFT, color: ACCENT_DEEP }}
         >
           🔥 7일 연속 학습 중
         </div>
@@ -2509,7 +2509,7 @@ function MyScreen({ onSelectStock }: { onSelectStock: () => void }) {
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl px-3 py-3" style={{ background: APRICOT_SOFT }}>
+    <div className="rounded-xl px-3 py-3" style={{ background: ACCENT_SOFT }}>
       <div className="text-[11px]" style={{ color: SUB }}>
         {label}
       </div>
@@ -2732,9 +2732,9 @@ const TIER_HEAD: Record<
   3: { eyebrow: "지금 가장 흔들리는 이슈", bg: "#FDECEC", fg: UP, barBg: UP },
   2: {
     eyebrow: "주목할 이슈",
-    bg: APRICOT_SOFT,
-    fg: APRICOT_DEEP,
-    barBg: APRICOT,
+    bg: ACCENT_SOFT,
+    fg: ACCENT_DEEP,
+    barBg: ACCENT,
   },
   1: { eyebrow: "오늘의 학습 이슈", bg: SURFACE, fg: SUB, barBg: LINE },
 };
@@ -2842,13 +2842,13 @@ function CoachOneLiner({ line }: { line: string }) {
         <span
           aria-hidden
           className="absolute left-0 top-0 h-full w-1.5"
-          style={{ background: APRICOT }}
+          style={{ background: ACCENT }}
         />
         <Mascot size={36} />
         <div className="flex-1">
           <div
             className="mb-0.5 text-[10.5px] font-extrabold uppercase"
-            style={{ color: APRICOT_DEEP, letterSpacing: 0.4 }}
+            style={{ color: ACCENT_DEEP, letterSpacing: 0.4 }}
           >
             스토키 한마디
           </div>
@@ -3008,7 +3008,7 @@ function TermSlider({
               <div className="mb-2 flex items-center gap-2">
                 <span
                   className="flex h-7 w-7 items-center justify-center rounded-full text-[14px]"
-                  style={{ background: APRICOT_SOFT }}
+                  style={{ background: ACCENT_SOFT }}
                 >
                   📖
                 </span>
@@ -3189,7 +3189,7 @@ function RippleGraph({
         <defs>
           <radialGradient id="ripple-issue-fill" cx="0.35" cy="0.3" r="0.85">
             <stop offset="0" stopColor="#FFD7B0" />
-            <stop offset="1" stopColor={APRICOT} />
+            <stop offset="1" stopColor={ACCENT} />
           </radialGradient>
         </defs>
 
@@ -3230,7 +3230,7 @@ function RippleGraph({
             cy={issueY}
             r={issueR + 2}
             fill="none"
-            stroke={APRICOT}
+            stroke={ACCENT}
             strokeWidth={1}
             opacity={0.35}
           />
