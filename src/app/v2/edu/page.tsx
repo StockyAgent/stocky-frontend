@@ -1087,69 +1087,25 @@ function StockLogo({ symbol, size }: { symbol: string; size: number }) {
 
 function Mascot({
   size = 96,
-  withPencil = false,
+  withPencil: _withPencil = false,
 }: {
   size?: number;
   withPencil?: boolean;
 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 120 120" fill="none">
-      <ellipse cx="60" cy="114" rx="32" ry="3.5" fill="rgba(0,0,0,0.14)" />
+      {/* 그림자 */}
+      <ellipse cx="60" cy="114" rx="32" ry="3.5" fill="rgba(0,0,0,0.12)" />
+      {/* 몸통 */}
       <path
         d="M28 94 Q28 72 44 70 Q60 68 76 70 Q92 72 92 94 Q92 110 60 110 Q28 110 28 94 Z"
         fill="#1A1A1C"
       />
-      <ellipse cx="48" cy="84" rx="14" ry="5" fill="#3A3A3F" opacity="0.45" />
+      {/* 귀(뿔) */}
       <path d="M34 30 Q32 14 44 20 Q48 26 46 32 Z" fill="#1A1A1C" />
       <path d="M86 30 Q88 14 76 20 Q72 26 74 32 Z" fill="#1A1A1C" />
+      {/* 머리 */}
       <circle cx="60" cy="50" r="32" fill="#1A1A1C" />
-      <ellipse cx="48" cy="40" rx="13" ry="7" fill="#3A3A3F" opacity="0.4" />
-      <ellipse cx="48" cy="50" rx="7" ry="8" fill="#fff" />
-      <ellipse cx="72" cy="50" rx="7" ry="8" fill="#fff" />
-      <ellipse cx="48.5" cy="51" rx="4" ry="5.6" fill="#1A1A1C" />
-      <ellipse cx="72.5" cy="51" rx="4" ry="5.6" fill="#1A1A1C" />
-      <circle cx="50" cy="48" r="1.4" fill="#fff" />
-      <circle cx="74" cy="48" r="1.4" fill="#fff" />
-      <path d="M57 60 L63 60 L60 63.5 Z" fill="#FFB892" />
-      <path
-        d="M60 63.5 L60 66"
-        stroke="#3A3A3F"
-        strokeWidth="0.9"
-        strokeLinecap="round"
-      />
-      <path
-        d="M55 67.5 Q57.5 69.5 60 66.5"
-        stroke="#3A3A3F"
-        strokeWidth="1.1"
-        strokeLinecap="round"
-        fill="none"
-      />
-      <path
-        d="M65 67.5 Q62.5 69.5 60 66.5"
-        stroke="#3A3A3F"
-        strokeWidth="1.1"
-        strokeLinecap="round"
-        fill="none"
-      />
-      <path d="M50 78 L60 84 L70 78 L67 88 L53 88 Z" fill="#fff" />
-      <rect x="55.5" y="81" width="9" height="7" rx="1.5" fill="#fff" />
-      <line
-        x1="60"
-        y1="82.5"
-        x2="60"
-        y2="86.5"
-        stroke="#1A1A1C"
-        strokeWidth="0.6"
-        opacity="0.35"
-      />
-      {withPencil && (
-        <g transform="rotate(-18 30 86)">
-          <rect x="10" y="82" width="34" height="8" rx="2" fill="#F4C99B" />
-          <rect x="10" y="82" width="5" height="8" fill={ACCENT_DEEP} />
-          <polygon points="44,82 52,86 44,90" fill="#FFE3C7" />
-          <polygon points="50,85 52,86 50,87" fill="#1A1A1C" />
-        </g>
-      )}
     </svg>
   );
 }
