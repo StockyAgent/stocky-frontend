@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useState, useRef, useEffect, type ReactNode } from "react";
 
 const BG = "#FAFAF7";
 const SURFACE = "#FFFFFF";
@@ -20,7 +20,7 @@ const SHADOW =
 const SHADOW_HERO =
   "0 8px 28px rgba(0, 0, 0, 0.06), 0 2px 6px rgba(0, 0, 0, 0.04)";
 
-type Tab = "home" | "issue" | "stocks" | "my" | "settings";
+type Tab = "home" | "issue" | "my" | "settings";
 
 type Tier = 1 | 2 | 3;
 type Category = "general" | "sector" | "mine";
@@ -1290,96 +1290,260 @@ function TopBar({ streak }: { streak: number }) {
 }
 
 function HomeScreen({
-  onSeeAllStocks,
+  onGoToIssues,
+  onOpenIssue,
+  onStartLesson,
   onSelectStock,
+  lessonStep,
 }: {
-  onSeeAllStocks: () => void;
+  onGoToIssues: () => void;
+  onOpenIssue: (issue: Issue) => void;
+  onStartLesson: () => void;
   onSelectStock: () => void;
+  lessonStep: number;
 }) {
-  const top = dailyCards[0];
-  return (
-    <div className="px-5 pt-2">
-      <article
-        className="relative mb-3 overflow-hidden rounded-[28px] p-6 pr-4"
-        style={{ background: HERO, boxShadow: SHADOW_HERO, minHeight: 200 }}
-      >
-        <div
-          className="text-[12px] font-bold"
-          style={{ color: ACCENT_DEEP, letterSpacing: -0.1 }}
-        >
-          오늘의 시장 브리핑
-        </div>
-        <h2
-          className="mt-1 text-[22px] font-extrabold leading-tight"
-          style={{ color: TEXT, letterSpacing: -0.4 }}
-        >
-          {top.headline}
-        </h2>
-        <div
-          className="mt-1.5 flex items-center gap-2 text-[13px] font-medium"
-          style={{ color: TEXT, opacity: 0.7 }}
-        >
-          <TierStars tier={top.tier} size={12} />
-          <span>
-            {CATEGORY_LABEL[top.category]} · {top.time}
-          </span>
-        </div>
-        <button
-          type="button"
-          className="mt-5 inline-flex items-center gap-1.5 rounded-full px-5 py-2.5 text-[13px] font-extrabold"
-          style={{ background: ACCENT, color: "#fff", boxShadow: SHADOW }}
-        >
-          보러가기 <span style={{ fontSize: 11 }}>▶</span>
-        </button>
-        <div className="absolute" style={{ right: -6, bottom: -10 }}>
-          <Mascot size={150} withPencil />
-        </div>
-      </article>
+  const [current, setCurrent] = useState(0);
+  const sliderRef = useRef<HTMLDivElement>(null);
 
-      <SectionHeader title="더 많은 이슈" cta="전체보기 →" />
+  const handleScroll = () => {
+    const el = sliderRef.current;
+    if (!el) return;
+    const idx = Math.round(el.scrollLeft / el.offsetWidth);
+    setCurrent(idx);
+  };
+
+  const firstCard = dailyCards[0];
+  const inProgress = lessonStep > 0 && lessonStep < 4;
+  const totalSteps = 4;
+  const issueCards = dailyCards.slice(1);
+
+  return (
+    <div className="pt-2">
+      {/* ── 오늘의 학습 카드 (독립 배치) ── */}
+      <div className="px-5 mb-5">
+        <article
+          className="relative overflow-hidden rounded-[28px] p-6 pr-4"
+          style={{ background: HERO, boxShadow: SHADOW_HERO, minHeight: 180 }}
+        >
+          <div
+            className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold"
+            style={{ background: ACCENT_SOFT, color: ACCENT_DEEP }}
+          >
+            {inProgress ? "📝 학습 중" : "📖 오늘의 학습"}
+          </div>
+          <h2
+            className="mt-2 text-[20px] font-extrabold leading-tight"
+            style={{ color: TEXT }}
+          >
+            {firstCard.headline}
+          </h2>
+
+          {inProgress ? (
+            <>
+              <div className="mt-3 flex items-center gap-2">
+                <div
+                  className="h-2 flex-1 overflow-hidden rounded-full"
+                  style={{ background: LINE }}
+                >
+                  <div
+                    className="h-full rounded-full"
+                    style={{
+                      width: `${(lessonStep / totalSteps) * 100}%`,
+                      background: ACCENT,
+                      transition: "width 400ms ease-out",
+                    }}
+                  />
+                </div>
+                <span
+                  className="text-[11px] font-bold"
+                  style={{ color: ACCENT_DEEP }}
+                >
+                  {lessonStep}/{totalSteps}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={onStartLesson}
+                className="mt-3 inline-flex items-center gap-1.5 rounded-full px-5 py-2.5 text-[13px] font-extrabold active:opacity-80"
+                style={{ background: ACCENT, color: "#fff", boxShadow: SHADOW }}
+              >
+                이어서 학습하기 <span style={{ fontSize: 11 }}>▶</span>
+              </button>
+            </>
+          ) : (
+            <>
+              <div
+                className="mt-1.5 text-[12.5px] leading-snug"
+                style={{ color: SUB }}
+              >
+                배경부터 파급효과까지, 4단계로 이해해보자
+              </div>
+              <button
+                type="button"
+                onClick={onStartLesson}
+                className="mt-4 inline-flex items-center gap-1.5 rounded-full px-5 py-2.5 text-[13px] font-extrabold active:opacity-80"
+                style={{ background: ACCENT, color: "#fff", boxShadow: SHADOW }}
+              >
+                학습 시작하기 <span style={{ fontSize: 11 }}>▶</span>
+              </button>
+            </>
+          )}
+          <div className="absolute" style={{ right: -6, bottom: -10 }}>
+            <Mascot size={150} withPencil />
+          </div>
+        </article>
+      </div>
+
+      {/* ── 오늘의 이슈 슬라이더 ── */}
+      <div className="px-5 mb-2">
+        <SectionHeader title="오늘의 이슈" />
+      </div>
       <div
-        className="-mx-5 mb-7 overflow-x-auto pb-1"
-        style={{ scrollbarWidth: "none" }}
+        ref={sliderRef}
+        onScroll={handleScroll}
+        className="flex overflow-x-auto"
+        style={{ scrollSnapType: "x mandatory", scrollbarWidth: "none" }}
       >
-        <div className="flex gap-3 px-5">
-          {dailyCards.slice(1).map((card) => (
-            <DailyCard key={card.id} card={card} />
-          ))}
+        {issueCards.map((card) => {
+          const issue = issueList.find((i) => i.id === card.id);
+          return (
+            <div
+              key={card.id}
+              className="w-full flex-shrink-0 px-5"
+              style={{ scrollSnapAlign: "start" }}
+            >
+              <article
+                className="flex cursor-pointer flex-col gap-3 rounded-[22px] p-4 active:opacity-90"
+                style={{ background: SURFACE, boxShadow: SHADOW, minHeight: 180 }}
+                onClick={() => {
+                  if (issue) onOpenIssue(issue);
+                  else onGoToIssues();
+                }}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <CategoryChip category={card.category} />
+                    <TierStars tier={card.tier} />
+                  </div>
+                  <span className="text-[11px]" style={{ color: SUB }}>
+                    {card.time}
+                  </span>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {card.keywords.map((k) => (
+                    <span
+                      key={k}
+                      className="text-[12px] font-bold"
+                      style={{ color: ACCENT_DEEP }}
+                    >
+                      #{k}
+                    </span>
+                  ))}
+                </div>
+                <h3
+                  className="text-[15px] font-extrabold leading-snug"
+                  style={{ color: TEXT }}
+                >
+                  {card.headline}
+                </h3>
+                <div
+                  className="flex gap-2 rounded-xl p-3"
+                  style={{ background: ACCENT_SOFT }}
+                >
+                  <Mascot size={32} />
+                  <p className="text-[12.5px] leading-relaxed" style={{ color: TEXT }}>
+                    {card.coachLine}
+                  </p>
+                </div>
+              </article>
+            </div>
+          );
+        })}
+
+        {/* ── 마지막: 더 많은 이슈 보기 ── */}
+        <div
+          className="w-full flex-shrink-0 px-5"
+          style={{ scrollSnapAlign: "start" }}
+        >
+          <article
+            className="flex flex-col items-center justify-center gap-4 rounded-[22px] p-8 text-center"
+            style={{ background: SURFACE, boxShadow: SHADOW, minHeight: 180 }}
+          >
+            <div
+              className="flex h-12 w-12 items-center justify-center rounded-full text-[24px]"
+              style={{ background: ACCENT_SOFT }}
+            >
+              📰
+            </div>
+            <div>
+              <div className="text-[17px] font-extrabold" style={{ color: TEXT }}>
+                더 많은 이슈
+              </div>
+              <div className="mt-1 text-[13px]" style={{ color: SUB }}>
+                오늘 {issueList.length}개의 이슈가 등록됐어요
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={onGoToIssues}
+              className="inline-flex items-center gap-1.5 rounded-full px-5 py-2.5 text-[13px] font-extrabold active:opacity-80"
+              style={{ background: ACCENT, color: "#fff", boxShadow: SHADOW }}
+            >
+              전체 이슈 보기 →
+            </button>
+          </article>
         </div>
       </div>
 
-      <SectionHeader
-        title="나의 관심 종목"
-        cta={`전체 ${watchlist.length}개 →`}
-        onCta={onSeeAllStocks}
-      />
-      <ul
-        className="overflow-hidden rounded-[24px]"
-        style={{ background: SURFACE, boxShadow: SHADOW }}
-      >
-        {watchlist.slice(0, 3).map((s, i) => (
-          <li key={s.symbol}>
-            <StockRow
-              stock={s}
-              divided={i > 0}
-              onClick={onSelectStock}
-              trailing={
-                <div className="text-right">
-                  <div
-                    className="text-[14px] font-extrabold"
-                    style={{ color: TEXT, fontVariantNumeric: "tabular-nums" }}
-                  >
-                    {s.price}
-                  </div>
-                  <div className="text-[12px] font-bold">
-                    <PriceChange change={s.change} />
-                  </div>
-                </div>
-              }
-            />
-          </li>
+      {/* 페이지네이션 닷 — 이슈 슬라이더용 */}
+      <div className="mb-6 mt-3 flex justify-center gap-1.5">
+        {Array.from({ length: issueCards.length + 1 }).map((_, i) => (
+          <div
+            key={i}
+            className="rounded-full"
+            style={{
+              width: i === current ? 16 : 6,
+              height: 6,
+              background: i === current ? ACCENT : LINE,
+              transition: "width 200ms, background 200ms",
+            }}
+          />
         ))}
-      </ul>
+      </div>
+
+
+
+      {/* 관심 종목 */}
+      <div className="px-5 mt-5">
+        <SectionHeader title="나의 관심 종목" />
+        <ul
+          className="overflow-hidden rounded-[22px]"
+          style={{ background: SURFACE, boxShadow: SHADOW }}
+        >
+          {watchlist.slice(0, 3).map((s, i) => (
+            <li key={s.symbol}>
+              <StockRow
+                stock={s}
+                divided={i > 0}
+                onClick={onSelectStock}
+                trailing={
+                  <div className="text-right">
+                    <div
+                      className="text-[14px] font-extrabold"
+                      style={{ color: TEXT, fontVariantNumeric: "tabular-nums" }}
+                    >
+                      {s.price}
+                    </div>
+                    <div className="text-[12px] font-bold">
+                      <PriceChange change={s.change} />
+                    </div>
+                  </div>
+                }
+              />
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }
@@ -1432,49 +1596,117 @@ function DailyCard({ card }: { card: (typeof dailyCards)[number] }) {
   );
 }
 
-function IssueScreen() {
-  const [filter, setFilter] = useState<Filter>("general");
-  const [active, setActive] = useState<Issue | null>(null);
-  const visible = issueList.filter((i) => i.category === filter);
+function IssueScreen({
+  active,
+  onSetActive,
+}: {
+  active: Issue | null;
+  onSetActive: (issue: Issue | null) => void;
+}) {
+  const [highlight, setHighlight] = useState<Category>("general");
+  const generalRef = useRef<HTMLElement>(null);
+  const sectorRef = useRef<HTMLElement>(null);
+  const mineRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const targets = [
+      { ref: generalRef, cat: "general" as Category },
+      { ref: sectorRef, cat: "sector" as Category },
+      { ref: mineRef, cat: "mine" as Category },
+    ];
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            const found = targets.find((t) => t.ref.current === entry.target);
+            if (found) setHighlight(found.cat);
+          }
+        }
+      },
+      { rootMargin: "-40% 0px -55% 0px", threshold: 0 },
+    );
+    targets.forEach(({ ref }) => {
+      if (ref.current) observer.observe(ref.current);
+    });
+    return () => observer.disconnect();
+  }, []);
+
+  const scrollToSection = (cat: Category) => {
+    const refMap: Record<Category, React.RefObject<HTMLElement | null>> = {
+      general: generalRef,
+      sector: sectorRef,
+      mine: mineRef,
+    };
+    const el = refMap[cat].current;
+    if (!el) return;
+    const offset = 152;
+    const top = el.getBoundingClientRect().top + window.scrollY - offset;
+    window.scrollTo({ top, behavior: "smooth" });
+    setHighlight(cat);
+  };
 
   if (active) {
-    return <IssueDetail issue={active} onBack={() => setActive(null)} />;
+    return <IssueDetail issue={active} onBack={() => onSetActive(null)} />;
   }
 
+  const generalIssues = issueList.filter((i) => i.category === "general");
+  const sectorIssues = issueList.filter((i) => i.category === "sector");
+  const mineIssues = issueList.filter((i) => i.category === "mine");
+
   return (
-    <div className="px-5 pt-4">
-      <h1 className="mb-3 text-[20px] font-extrabold" style={{ color: TEXT }}>
-        오늘의 이슈
-      </h1>
-      <div className="mb-4 flex gap-2">
-        {FILTERS.map((f) => {
-          const active = filter === f;
-          return (
-            <button
-              key={f}
-              type="button"
-              onClick={() => setFilter(f)}
-              className="rounded-full px-3.5 py-1.5 text-[12px] font-bold transition"
-              style={{
-                background: active ? TEXT : SURFACE,
-                color: active ? "#fff" : SUB,
-                border: `1px solid ${active ? TEXT : LINE}`,
-              }}
-            >
-              {CATEGORY_LABEL[f]}
-            </button>
-          );
-        })}
+    <>
+      <div
+        className="sticky z-30 px-5 pb-3 pt-4"
+        style={{ top: 56, background: BG }}
+      >
+        <h1 className="mb-3 text-[20px] font-extrabold" style={{ color: TEXT }}>
+          오늘의 이슈
+        </h1>
+        <div className="flex gap-2">
+          {FILTERS.map((f) => {
+            const isActive = highlight === f;
+            return (
+              <button
+                key={f}
+                type="button"
+                onClick={() => scrollToSection(f)}
+                className="rounded-full px-3.5 py-1.5 text-[12px] font-bold transition"
+                style={{
+                  background: isActive ? TEXT : SURFACE,
+                  color: isActive ? "#fff" : SUB,
+                  border: `1px solid ${isActive ? TEXT : LINE}`,
+                }}
+              >
+                {CATEGORY_LABEL[f]}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
-      {filter === "mine" ? (
-        <MineGroupedList items={visible} onOpen={setActive} />
-      ) : filter === "sector" ? (
-        <SectorGroupedList items={visible} onOpen={setActive} />
-      ) : (
-        <GeneralGroupedList items={visible} onOpen={setActive} />
-      )}
-    </div>
+      <div className="flex flex-col gap-10 px-5 pb-4">
+        <section ref={generalRef}>
+          <h2 className="mb-3 text-[15px] font-extrabold" style={{ color: SUB }}>
+            시장 전반
+          </h2>
+          <GeneralGroupedList items={generalIssues} onOpen={onSetActive} />
+        </section>
+
+        <section ref={sectorRef}>
+          <h2 className="mb-3 text-[15px] font-extrabold" style={{ color: SUB }}>
+            섹터
+          </h2>
+          <SectorGroupedList items={sectorIssues} onOpen={onSetActive} />
+        </section>
+
+        <section ref={mineRef}>
+          <h2 className="mb-3 text-[15px] font-extrabold" style={{ color: SUB }}>
+            내 종목
+          </h2>
+          <MineGroupedList items={mineIssues} onOpen={onSetActive} />
+        </section>
+      </div>
+    </>
   );
 }
 
@@ -1586,6 +1818,9 @@ function GeneralGroupedList({
   const order = (Object.keys(GENERAL_META) as GeneralTopic[]).filter((topic) =>
     items.some((i) => i.topic === topic),
   );
+  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
+  const toggle = (key: string) =>
+    setCollapsed((prev) => ({ ...prev, [key]: !prev[key] }));
 
   if (order.length === 0) {
     return (
@@ -1603,6 +1838,7 @@ function GeneralGroupedList({
       {order.map((topic) => {
         const topicIssues = items.filter((i) => i.topic === topic);
         const meta = GENERAL_META[topic];
+        const isCollapsed = collapsed[topic] ?? false;
         return (
           <section key={topic}>
             <header className="mb-2 flex items-center gap-2.5 px-1">
@@ -1612,24 +1848,33 @@ function GeneralGroupedList({
               >
                 {meta.icon}
               </span>
-              <span
-                className="text-[15px] font-extrabold"
-                style={{ color: TEXT }}
-              >
+              <span className="text-[15px] font-extrabold" style={{ color: TEXT }}>
                 {meta.label}
               </span>
-              <span
-                className="ml-auto text-[11px] font-bold"
-                style={{ color: ACCENT_DEEP }}
-              >
+              <span className="ml-auto text-[11px] font-bold" style={{ color: ACCENT_DEEP }}>
                 {topicIssues.length}건
               </span>
+              <button
+                type="button"
+                onClick={() => toggle(topic)}
+                aria-label={isCollapsed ? "펼치기" : "접기"}
+                className="ml-1 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full"
+                style={{ background: ACCENT_SOFT, color: ACCENT_DEEP }}
+              >
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none"
+                  style={{ transform: isCollapsed ? "rotate(0deg)" : "rotate(180deg)", transition: "transform 200ms" }}
+                >
+                  <path d="M2 4 L5 7 L8 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
             </header>
-            <ul className="flex flex-col gap-2">
-              {topicIssues.map((i) => (
-                <IssueItem key={i.id} issue={i} onOpen={onOpen} />
-              ))}
-            </ul>
+            {!isCollapsed && (
+              <ul className="flex flex-col gap-2">
+                {topicIssues.map((i) => (
+                  <IssueItem key={i.id} issue={i} onOpen={onOpen} />
+                ))}
+              </ul>
+            )}
           </section>
         );
       })}
@@ -1660,6 +1905,9 @@ function SectorGroupedList({
       seen.add(i.sector);
     }
   }
+  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
+  const toggle = (key: string) =>
+    setCollapsed((prev) => ({ ...prev, [key]: !prev[key] }));
 
   if (order.length === 0) {
     return (
@@ -1677,6 +1925,7 @@ function SectorGroupedList({
       {order.map((sector) => {
         const sectorIssues = items.filter((i) => i.sector === sector);
         const icon = SECTOR_META[sector]?.icon ?? "📊";
+        const isCollapsed = collapsed[sector] ?? false;
         return (
           <section key={sector}>
             <header className="mb-2 flex items-center gap-2.5 px-1">
@@ -1686,24 +1935,33 @@ function SectorGroupedList({
               >
                 {icon}
               </span>
-              <span
-                className="text-[15px] font-extrabold"
-                style={{ color: TEXT }}
-              >
+              <span className="text-[15px] font-extrabold" style={{ color: TEXT }}>
                 {sector}
               </span>
-              <span
-                className="ml-auto text-[11px] font-bold"
-                style={{ color: ACCENT_DEEP }}
-              >
+              <span className="ml-auto text-[11px] font-bold" style={{ color: ACCENT_DEEP }}>
                 {sectorIssues.length}건
               </span>
+              <button
+                type="button"
+                onClick={() => toggle(sector)}
+                aria-label={isCollapsed ? "펼치기" : "접기"}
+                className="ml-1 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full"
+                style={{ background: ACCENT_SOFT, color: ACCENT_DEEP }}
+              >
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none"
+                  style={{ transform: isCollapsed ? "rotate(0deg)" : "rotate(180deg)", transition: "transform 200ms" }}
+                >
+                  <path d="M2 4 L5 7 L8 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
             </header>
-            <ul className="flex flex-col gap-2">
-              {sectorIssues.map((i) => (
-                <IssueItem key={i.id} issue={i} onOpen={onOpen} />
-              ))}
-            </ul>
+            {!isCollapsed && (
+              <ul className="flex flex-col gap-2">
+                {sectorIssues.map((i) => (
+                  <IssueItem key={i.id} issue={i} onOpen={onOpen} />
+                ))}
+              </ul>
+            )}
           </section>
         );
       })}
@@ -1725,6 +1983,9 @@ function MineGroupedList({
       issues: items.filter((i) => i.symbol === stock.symbol),
     }))
     .filter((g) => g.issues.length > 0);
+  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
+  const toggle = (key: string) =>
+    setCollapsed((prev) => ({ ...prev, [key]: !prev[key] }));
 
   if (groups.length === 0) {
     return (
@@ -1739,40 +2000,62 @@ function MineGroupedList({
 
   return (
     <div className="flex flex-col gap-5">
-      {groups.map(({ stock, issues }) => (
-        <section key={stock.symbol}>
-          <header className="mb-2 flex items-center gap-2.5 px-1">
-            <StockLogo symbol={stock.symbol} size={28} />
-            <div className="flex items-baseline gap-1.5">
-              <span
-                className="text-[15px] font-extrabold"
-                style={{ color: TEXT }}
+      {groups.map(({ stock, issues }) => {
+        const isCollapsed = collapsed[stock.symbol] ?? false;
+        return (
+          <section key={stock.symbol}>
+            <header className="mb-2 flex items-center gap-2.5 px-1">
+              <StockLogo symbol={stock.symbol} size={28} />
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-[15px] font-extrabold" style={{ color: TEXT }}>
+                  {stock.name}
+                </span>
+                <span className="text-[11px]" style={{ color: SUB }}>
+                  {stock.symbol}
+                </span>
+              </div>
+              <span className="ml-auto text-[11px] font-bold" style={{ color: ACCENT_DEEP }}>
+                {issues.length}건
+              </span>
+              <button
+                type="button"
+                onClick={() => toggle(stock.symbol)}
+                aria-label={isCollapsed ? "펼치기" : "접기"}
+                className="ml-1 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full"
+                style={{ background: ACCENT_SOFT, color: ACCENT_DEEP }}
               >
-                {stock.name}
-              </span>
-              <span className="text-[11px]" style={{ color: SUB }}>
-                {stock.symbol}
-              </span>
-            </div>
-            <span
-              className="ml-auto text-[11px] font-bold"
-              style={{ color: ACCENT_DEEP }}
-            >
-              {issues.length}건
-            </span>
-          </header>
-          <ul className="flex flex-col gap-2">
-            {issues.map((i) => (
-              <IssueItem key={i.id} issue={i} onOpen={onOpen} />
-            ))}
-          </ul>
-        </section>
-      ))}
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none"
+                  style={{ transform: isCollapsed ? "rotate(0deg)" : "rotate(180deg)", transition: "transform 200ms" }}
+                >
+                  <path d="M2 4 L5 7 L8 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+            </header>
+            {!isCollapsed && (
+              <ul className="flex flex-col gap-2">
+                {issues.map((i) => (
+                  <IssueItem key={i.id} issue={i} onOpen={onOpen} />
+                ))}
+              </ul>
+            )}
+          </section>
+        );
+      })}
     </div>
   );
 }
 
 function StocksScreen({ onSelectStock }: { onSelectStock: () => void }) {
+  const [query, setQuery] = useState("");
+  const trimmed = query.trim();
+  const filtered = trimmed
+    ? watchlist.filter(
+        (s) =>
+          s.name.includes(trimmed) ||
+          s.symbol.toLowerCase().includes(trimmed.toLowerCase()),
+      )
+    : watchlist;
+
   return (
     <div className="px-5 pt-4">
       <h1 className="mb-3 text-[20px] font-extrabold" style={{ color: TEXT }}>
@@ -1781,32 +2064,42 @@ function StocksScreen({ onSelectStock }: { onSelectStock: () => void }) {
       <input
         type="search"
         placeholder="종목명·티커 검색"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
         className="mb-5 w-full rounded-xl px-4 py-3 text-[14px] outline-none"
         style={{ background: SURFACE, boxShadow: SHADOW, color: TEXT }}
       />
-
       <div className="mb-2 text-[12px] font-bold" style={{ color: SUB }}>
-        최근 본 종목
+        {trimmed ? `"${trimmed}" 검색 결과 ${filtered.length}개` : "최근 본 종목"}
       </div>
-      <ul className="flex flex-col gap-2">
-        {watchlist.map((s) => (
-          <li
-            key={s.symbol}
-            className="rounded-[22px]"
-            style={{ background: SURFACE, boxShadow: SHADOW }}
-          >
-            <StockRow
-              stock={s}
-              onClick={onSelectStock}
-              trailing={
-                <span className="text-[18px]" style={{ color: SUB }}>
-                  ☆
-                </span>
-              }
-            />
-          </li>
-        ))}
-      </ul>
+      {filtered.length === 0 ? (
+        <p
+          className="rounded-[22px] px-5 py-8 text-center text-[13px]"
+          style={{ background: SURFACE, boxShadow: SHADOW, color: SUB }}
+        >
+          검색 결과가 없어요
+        </p>
+      ) : (
+        <ul className="flex flex-col gap-2">
+          {filtered.map((s) => (
+            <li
+              key={s.symbol}
+              className="rounded-[22px]"
+              style={{ background: SURFACE, boxShadow: SHADOW }}
+            >
+              <StockRow
+                stock={s}
+                onClick={onSelectStock}
+                trailing={
+                  <span className="text-[18px]" style={{ color: SUB }}>
+                    ☆
+                  </span>
+                }
+              />
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
@@ -2023,6 +2316,104 @@ function AxisIcon({ axisKey, size = 20 }: { axisKey: string; size?: number }) {
       );
   }
   return null;
+}
+
+function MyScreen({ onSelectStock }: { onSelectStock: () => void }) {
+  const recentIssues = issueList.slice(0, 3);
+  return (
+    <div className="px-5 pt-4">
+      {/* 프로필 히어로 */}
+      <div
+        className="mb-6 flex flex-col items-center rounded-[28px] p-6"
+        style={{ background: HERO, boxShadow: SHADOW_HERO }}
+      >
+        <Mascot size={140} withPencil />
+        <div
+          className="mt-3 rounded-full px-3 py-1 text-[12px] font-bold"
+          style={{ background: ACCENT_SOFT, color: ACCENT_DEEP }}
+        >
+          🔥 7일 연속 학습 중
+        </div>
+        <div className="mt-3 text-[15px] font-bold" style={{ color: TEXT }}>
+          오늘도 보러 와줘서 고마워
+        </div>
+        <div className="mt-1 text-[12.5px]" style={{ color: SUB }}>
+          이 속도면 한 달 안에 시장 보는 눈 생겨
+        </div>
+      </div>
+
+      {/* 학습 통계 */}
+      <SectionHeader title="학습 통계" />
+      <div
+        className="mb-6 grid grid-cols-3 gap-2"
+      >
+        <Stat label="이번 주" value="5일" />
+        <Stat label="총 학습 이슈" value="42건" />
+        <Stat label="연속 일수" value="7일" />
+      </div>
+
+      {/* 최근 학습 이슈 */}
+      <SectionHeader title="최근 학습한 이슈" />
+      <ul
+        className="mb-6 overflow-hidden rounded-[22px]"
+        style={{ background: SURFACE, boxShadow: SHADOW }}
+      >
+        {recentIssues.map((issue, i) => (
+          <li key={issue.id}>
+            <div
+              className="flex items-center gap-3 px-4 py-3"
+              style={{ borderTop: i > 0 ? `1px solid ${LINE}` : "none" }}
+            >
+              <div
+                className="flex h-8 w-8 items-center justify-center rounded-full text-[12px] font-bold"
+                style={{ background: ACCENT_SOFT, color: ACCENT_DEEP }}
+              >
+                ✓
+              </div>
+              <div className="flex-1">
+                <div className="text-[13px] font-bold" style={{ color: TEXT }}>
+                  {issue.title}
+                </div>
+                <div className="mt-0.5 text-[11px]" style={{ color: SUB }}>
+                  {CATEGORY_LABEL[issue.category]} · {issue.time}
+                </div>
+              </div>
+            </div>
+          </li>
+        ))}
+      </ul>
+
+      {/* 관심 종목 관리 */}
+      <SectionHeader title="관심 종목 관리" />
+      <ul
+        className="overflow-hidden rounded-[22px]"
+        style={{ background: SURFACE, boxShadow: SHADOW }}
+      >
+        {watchlist.map((s, i) => (
+          <li key={s.symbol}>
+            <StockRow
+              stock={s}
+              divided={i > 0}
+              onClick={onSelectStock}
+              trailing={
+                <div className="text-right">
+                  <div
+                    className="text-[14px] font-extrabold"
+                    style={{ color: TEXT, fontVariantNumeric: "tabular-nums" }}
+                  >
+                    {s.price}
+                  </div>
+                  <div className="text-[12px] font-bold">
+                    <PriceChange change={s.change} />
+                  </div>
+                </div>
+              }
+            />
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
 }
 
 function LineMini({
@@ -2397,71 +2788,7 @@ function StockScoresScreen({ onBack }: { onBack: () => void }) {
   );
 }
 
-function MyScreen({ onSelectStock }: { onSelectStock: () => void }) {
-  return (
-    <div className="px-5 pt-4">
-      <div
-        className="mb-6 flex flex-col items-center rounded-[28px] p-6"
-        style={{ background: HERO, boxShadow: SHADOW_HERO }}
-      >
-        <Mascot size={140} withPencil />
-        <div
-          className="mt-3 rounded-full px-3 py-1 text-[12px] font-bold"
-          style={{ background: ACCENT_SOFT, color: ACCENT_DEEP }}
-        >
-          🔥 7일 연속 학습 중
-        </div>
-        <div className="mt-3 text-[15px] font-bold" style={{ color: TEXT }}>
-          오늘도 보러 와줬구나
-        </div>
-        <div className="mt-1 text-[12.5px]" style={{ color: SUB }}>
-          이 속도면 한 달 안에 시장 보는 눈 생겨
-        </div>
 
-        <div className="mt-5 grid w-full grid-cols-2 gap-2">
-          <Stat label="오늘 학습한 이슈" value="7건" />
-          <Stat label="누적 학습일" value="38일" />
-        </div>
-      </div>
-
-      <div className="mb-2 flex items-baseline gap-1.5">
-        <h2 className="text-[15px] font-extrabold" style={{ color: TEXT }}>
-          내 관심 종목
-        </h2>
-        <span className="text-[12px] font-bold" style={{ color: SUB }}>
-          {watchlist.length}
-        </span>
-      </div>
-      <ul
-        className="overflow-hidden rounded-[22px]"
-        style={{ background: SURFACE, boxShadow: SHADOW }}
-      >
-        {watchlist.map((s, i) => (
-          <li key={s.symbol}>
-            <StockRow
-              stock={s}
-              divided={i > 0}
-              onClick={onSelectStock}
-              trailing={
-                <div className="text-right">
-                  <div
-                    className="text-[14px] font-extrabold"
-                    style={{ color: TEXT, fontVariantNumeric: "tabular-nums" }}
-                  >
-                    {s.price}
-                  </div>
-                  <div className="text-[12px] font-bold">
-                    <PriceChange change={s.change} />
-                  </div>
-                </div>
-              }
-            />
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
@@ -2479,37 +2806,48 @@ function Stat({ label, value }: { label: string; value: string }) {
   );
 }
 
-const SETTINGS_ITEMS = [
-  "회원 정보 수정",
-  "알림 시간 설정",
-  "관심 종목 관리",
-  "이용 약관",
-  "개인정보 처리방침",
-  "버전 정보",
-  "로그아웃",
+const SETTINGS_ITEMS: { label: string; danger?: boolean }[] = [
+  { label: "회원 정보 수정" },
+  { label: "알림 시간 설정" },
+  { label: "관심 종목 관리" },
+  { label: "이용 약관" },
+  { label: "개인정보 처리방침" },
+  { label: "버전 정보" },
+  { label: "로그아웃", danger: true },
 ];
 
 function SettingsScreen() {
+  const handleItem = (label: string) => {
+    if (label === "로그아웃") {
+      if (window.confirm("로그아웃 하시겠어요?")) {
+        // TODO: 로그아웃 처리
+      }
+    }
+  };
+
   return (
     <div className="px-5 pt-4">
       <h1 className="mb-3 text-[20px] font-extrabold" style={{ color: TEXT }}>
         설정
       </h1>
       <ul
-        className="rounded-[22px]"
+        className="overflow-hidden rounded-[22px]"
         style={{ background: SURFACE, boxShadow: SHADOW }}
       >
         {SETTINGS_ITEMS.map((it, i) => (
-          <li
-            key={it}
-            className="flex items-center justify-between px-4 py-4 text-[14px]"
-            style={{
-              color: TEXT,
-              ...(i > 0 ? { borderTop: `1px solid ${LINE}` } : {}),
-            }}
-          >
-            <span>{it}</span>
-            <span style={{ color: SUB }}>›</span>
+          <li key={it.label}>
+            <button
+              type="button"
+              onClick={() => handleItem(it.label)}
+              className="flex w-full items-center justify-between px-4 py-4 text-[14px] active:opacity-60"
+              style={{
+                color: it.danger ? UP : TEXT,
+                ...(i > 0 ? { borderTop: `1px solid ${LINE}` } : {}),
+              }}
+            >
+              <span>{it.label}</span>
+              <span style={{ color: SUB }}>›</span>
+            </button>
           </li>
         ))}
       </ul>
@@ -2577,7 +2915,6 @@ function IconSettings({ active }: TabIconProps) {
 const TABS: { id: Tab; label: string; Icon: (p: TabIconProps) => React.JSX.Element }[] = [
   { id: "home", label: "홈", Icon: IconHome },
   { id: "issue", label: "이슈", Icon: IconIssue },
-  { id: "stocks", label: "종목", Icon: IconStocks },
   { id: "my", label: "마이", Icon: IconMy },
   { id: "settings", label: "설정", Icon: IconSettings },
 ];
@@ -2634,6 +2971,15 @@ export default function EduPage() {
   // 어느 탭에서든 종목을 누르면 상세로 진입 — 탭 전환 없이 상세를 위에 덮어 띄움
   const [showDetail, setShowDetail] = useState(false);
   const openDetail = () => setShowDetail(true);
+  // 이슈 상세 상태 — 홈에서 직접 진입 가능하도록 상위로 끌어올림
+  const [activeIssue, setActiveIssue] = useState<Issue | null>(null);
+  const openIssue = (issue: Issue) => {
+    setActiveIssue(issue);
+    setTab("issue");
+  };
+  // 학습 플로우 상태
+  const [showLesson, setShowLesson] = useState(false);
+  const [lessonStep, setLessonStep] = useState(0);
 
   return (
     <div
@@ -2647,18 +2993,35 @@ export default function EduPage() {
     >
       <TopBar streak={7} />
       <main className="pb-24 pt-14">
-        {showDetail ? (
+        {showLesson ? (
+          <LessonFlow
+            issue={issueList[0]}
+            onComplete={() => {
+              setShowLesson(false);
+              setLessonStep(0);
+            }}
+            onBack={(currentStep) => {
+              setShowLesson(false);
+              setLessonStep(currentStep);
+            }}
+            initialStep={lessonStep}
+          />
+        ) : showDetail ? (
           <StockDetail onBack={() => setShowDetail(false)} />
         ) : (
           <>
             {tab === "home" && (
               <HomeScreen
-                onSeeAllStocks={() => setTab("stocks")}
+                onGoToIssues={() => setTab("issue")}
+                onOpenIssue={openIssue}
+                onStartLesson={() => setShowLesson(true)}
                 onSelectStock={openDetail}
+                lessonStep={lessonStep}
               />
             )}
-            {tab === "issue" && <IssueScreen />}
-            {tab === "stocks" && <StocksScreen onSelectStock={openDetail} />}
+            {tab === "issue" && (
+              <IssueScreen active={activeIssue} onSetActive={setActiveIssue} />
+            )}
             {tab === "my" && <MyScreen onSelectStock={openDetail} />}
             {tab === "settings" && <SettingsScreen />}
           </>
@@ -2669,7 +3032,9 @@ export default function EduPage() {
         setTab={(t) => {
           // 상세 화면에서 탭 누르면 상세 닫고 해당 탭으로 — 안 그러면 상세에 갇힘
           setShowDetail(false);
+          setActiveIssue(null);
           setTab(t);
+          window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
         }}
       />
     </div>
@@ -2882,35 +3247,173 @@ function tokenizeWithTerms(
   return tokens;
 }
 
+/* ── 본문 내 용어 하이라이트 + 팝오버 ── */
+function HighlightedText({ text }: { text: string }) {
+  const [openTerm, setOpenTerm] = useState<string | null>(null);
+  const tokens = tokenizeWithTerms(text);
+
+  return (
+    <span>
+      {tokens.map((tk, i) => {
+        if (tk.type === "text") return <span key={i}>{tk.value}</span>;
+        const isOpen = openTerm === tk.value;
+        return (
+          <span key={i} className="relative inline">
+            <button
+              type="button"
+              onClick={() => setOpenTerm(isOpen ? null : tk.value)}
+              className="relative font-bold"
+              style={{
+                color: ACCENT_DEEP,
+                textDecoration: "underline",
+                textDecorationColor: ACCENT + "60",
+                textUnderlineOffset: 2,
+                background: isOpen ? ACCENT_SOFT : "transparent",
+                borderRadius: 4,
+                padding: "0 2px",
+                transition: "background 150ms",
+              }}
+            >
+              {tk.value}
+            </button>
+            {isOpen && GLOSSARY[tk.value] && (
+              <span
+                className="absolute left-0 top-full z-50 mt-1 block rounded-xl p-3 text-left"
+                style={{
+                  width: 220,
+                  background: SURFACE,
+                  boxShadow: "0 4px 20px rgba(0,0,0,.15)",
+                  border: `1px solid ${LINE}`,
+                }}
+              >
+                <span
+                  className="mb-1 block text-[11px] font-extrabold"
+                  style={{ color: ACCENT_DEEP }}
+                >
+                  📖 {tk.value}
+                </span>
+                <span
+                  className="block text-[12px] leading-relaxed"
+                  style={{ color: TEXT }}
+                >
+                  {GLOSSARY[tk.value]}
+                </span>
+              </span>
+            )}
+          </span>
+        );
+      })}
+    </span>
+  );
+}
+
+/* ── BodyBlocks — kind별 시각 차별화 ── */
 function BodyBlocks({ blocks }: { blocks: NonNullable<IssueDetail["body"]> }) {
   return (
     <section className="mb-5">
       <SectionHeader title="설명" />
-      <div
-        className="rounded-[20px] p-5"
-        style={{ background: SURFACE, boxShadow: SHADOW }}
-      >
-        {blocks.map((b, i) => (
-          <div key={i} className={i > 0 ? "mt-4" : ""}>
-            {b.title && (
+      <div className="flex flex-col gap-3">
+        {blocks.map((b, i) => {
+          /* lead — 인트로 카드 */
+          if (b.kind === "lead") {
+            return (
               <div
-                className="mb-1.5 text-[13px] font-extrabold"
+                key={i}
+                className="rounded-[20px] p-5"
+                style={{ background: HERO, boxShadow: SHADOW_HERO }}
+              >
+                <div
+                  className="text-[14.5px] font-medium leading-[1.75]"
+                  style={{ color: TEXT }}
+                >
+                  <HighlightedText text={b.text} />
+                </div>
+              </div>
+            );
+          }
+
+          /* analogy — 비유 박스 */
+          if (b.kind === "analogy") {
+            return (
+              <div
+                key={i}
+                className="rounded-[20px] p-5"
+                style={{ background: ACCENT_SOFT, boxShadow: SHADOW }}
+              >
+                <div className="mb-2 flex items-center gap-1.5">
+                  <span className="text-[16px]">💡</span>
+                  <span
+                    className="text-[12px] font-extrabold"
+                    style={{ color: ACCENT_DEEP }}
+                  >
+                    {b.title || "쉽게 말하면"}
+                  </span>
+                </div>
+                <div
+                  className="text-[13.5px] leading-[1.75]"
+                  style={{ color: TEXT }}
+                >
+                  <HighlightedText text={b.text} />
+                </div>
+              </div>
+            );
+          }
+
+          /* callout — 강조 박스 */
+          if (b.kind === "callout") {
+            return (
+              <div
+                key={i}
+                className="relative overflow-hidden rounded-[20px] p-5 pl-6"
+                style={{ background: SURFACE, boxShadow: SHADOW }}
+              >
+                <span
+                  className="absolute bottom-4 left-0 top-4 w-1 rounded-r-full"
+                  style={{ background: UP }}
+                />
+                <div className="mb-2 flex items-center gap-1.5">
+                  <span className="text-[14px]">⚠️</span>
+                  <span
+                    className="text-[12px] font-extrabold"
+                    style={{ color: UP }}
+                  >
+                    {b.title || "주의"}
+                  </span>
+                </div>
+                <div
+                  className="text-[13.5px] leading-[1.75]"
+                  style={{ color: TEXT }}
+                >
+                  <HighlightedText text={b.text} />
+                </div>
+              </div>
+            );
+          }
+
+          /* paragraph — 일반 본문 */
+          return (
+            <div
+              key={i}
+              className="rounded-[20px] p-5"
+              style={{ background: SURFACE, boxShadow: SHADOW }}
+            >
+              {b.title && (
+                <div
+                  className="mb-2 text-[13px] font-extrabold"
+                  style={{ color: TEXT }}
+                >
+                  {b.title}
+                </div>
+              )}
+              <div
+                className="text-[13.5px] leading-[1.75]"
                 style={{ color: TEXT }}
               >
-                {b.title}
+                <HighlightedText text={b.text} />
               </div>
-            )}
-            <div
-              className="text-[13.5px] leading-relaxed"
-              style={{
-                color: TEXT,
-                fontWeight: b.kind === "lead" ? 500 : 400,
-              }}
-            >
-              {b.text}
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </section>
   );
@@ -3301,4 +3804,420 @@ function RippleGraph({
     </div>
   );
 }
+
+// ============= Phase 3: 듀오링고 스타일 학습 플로우 =============
+
+function LessonProgress({
+  current,
+  total,
+}: {
+  current: number;
+  total: number;
+}) {
+  return (
+    <div className="flex gap-1.5">
+      {Array.from({ length: total }).map((_, i) => (
+        <div
+          key={i}
+          className="h-1.5 flex-1 overflow-hidden rounded-full"
+          style={{ background: LINE }}
+        >
+          <div
+            className="h-full rounded-full"
+            style={{
+              width: i < current ? "100%" : i === current ? "50%" : "0%",
+              background: ACCENT,
+              transition: "width 400ms ease-out",
+            }}
+          />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function LessonFlow({
+  issue,
+  onComplete,
+  onBack,
+  initialStep = 0,
+}: {
+  issue: Issue;
+  onComplete: () => void;
+  onBack: (currentStep: number) => void;
+  initialStep?: number;
+}) {
+  const [step, setStep] = useState(initialStep);
+  const detail = issue.detail;
+  const body = detail?.body || [];
+
+  const leadBlock = body.find((b) => b.kind === "lead");
+  const coreBlocks = body.filter(
+    (b) => b.kind === "analogy" || b.kind === "paragraph",
+  );
+  const ripple = detail?.ripple;
+  const terms = collectGlossaryTerms(body);
+
+  const STEPS = [
+    { label: "배경", icon: "📖" },
+    { label: "핵심", icon: "💡" },
+    { label: "파급효과", icon: "🌊" },
+    { label: "정리", icon: "✅" },
+  ];
+
+  const totalSteps = STEPS.length;
+  const isLast = step >= totalSteps - 1;
+  const isComplete = step >= totalSteps;
+
+  const handleNext = () => {
+    if (isLast) setStep(totalSteps);
+    else setStep(step + 1);
+  };
+
+  if (isComplete) {
+    return (
+      <div className="flex min-h-[70vh] flex-col items-center justify-center px-5 text-center">
+        <div
+          className="mb-4 flex h-20 w-20 items-center justify-center rounded-full text-[40px]"
+          style={{ background: ACCENT_SOFT }}
+        >
+          🎉
+        </div>
+        <h2 className="text-[22px] font-extrabold" style={{ color: TEXT }}>
+          학습 완료!
+        </h2>
+        <p className="mt-2 text-[14px]" style={{ color: SUB }}>
+          &ldquo;{issue.title}&rdquo; 이슈를 학습했어요
+        </p>
+        <div
+          className="mt-4 rounded-full px-4 py-1.5 text-[13px] font-bold"
+          style={{ background: ACCENT_SOFT, color: ACCENT_DEEP }}
+        >
+          🔥 학습 스트릭 +1
+        </div>
+        <button
+          type="button"
+          onClick={onComplete}
+          className="mt-8 rounded-full px-8 py-3 text-[15px] font-extrabold active:opacity-80"
+          style={{ background: ACCENT, color: "#fff", boxShadow: SHADOW }}
+        >
+          홈으로 돌아가기
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex min-h-[70vh] flex-col px-5 pt-2">
+      {/* 헤더 */}
+      <div className="mb-4 flex items-center gap-3">
+        <button
+          type="button"
+          onClick={() => onBack(step)}
+          className="text-[14px] font-medium"
+          style={{ color: SUB }}
+        >
+          ✕
+        </button>
+        <div className="flex-1">
+          <LessonProgress current={step} total={totalSteps} />
+        </div>
+        <span className="text-[12px] font-bold" style={{ color: SUB }}>
+          {step + 1}/{totalSteps}
+        </span>
+      </div>
+
+      {/* 스텝 라벨 */}
+      <div className="mb-3 flex items-center gap-2">
+        <span className="text-[18px]">{STEPS[step].icon}</span>
+        <span
+          className="text-[11px] font-extrabold uppercase tracking-wide"
+          style={{ color: ACCENT_DEEP }}
+        >
+          STEP {step + 1} — {STEPS[step].label}
+        </span>
+      </div>
+
+      {/* 스텝 내용 */}
+      <div className="flex-1">
+        {step === 0 && (
+          <div>
+            <h2
+              className="mb-4 text-[20px] font-extrabold leading-tight"
+              style={{ color: TEXT }}
+            >
+              {issue.title}
+            </h2>
+            <div className="mb-3 flex flex-wrap gap-1.5">
+              {issue.keywords?.map((k) => (
+                <span
+                  key={k}
+                  className="rounded-full px-2.5 py-1 text-[11px] font-bold"
+                  style={{ background: ACCENT_SOFT, color: ACCENT_DEEP }}
+                >
+                  #{k}
+                </span>
+              ))}
+            </div>
+            {leadBlock && (
+              <div
+                className="rounded-[20px] p-5"
+                style={{ background: HERO, boxShadow: SHADOW_HERO }}
+              >
+                <div
+                  className="text-[14.5px] font-medium leading-[1.85]"
+                  style={{ color: TEXT }}
+                >
+                  <HighlightedText text={leadBlock.text} />
+                </div>
+              </div>
+            )}
+            <div
+              className="mt-4 flex gap-3 rounded-[18px] p-4"
+              style={{ background: ACCENT_SOFT }}
+            >
+              <Mascot size={36} />
+              <div className="flex-1">
+                <div
+                  className="mb-0.5 text-[10.5px] font-extrabold uppercase"
+                  style={{ color: ACCENT_DEEP, letterSpacing: 0.3 }}
+                >
+                  스토키
+                </div>
+                <p
+                  className="text-[12.5px] leading-relaxed"
+                  style={{ color: TEXT }}
+                >
+                  이 이슈가 왜 중요한지 차근차근 알아보자!
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {step === 1 && (
+          <div>
+            <h2
+              className="mb-4 text-[18px] font-extrabold leading-tight"
+              style={{ color: TEXT }}
+            >
+              그래서 뭐가 중요해?
+            </h2>
+            <div className="flex flex-col gap-3">
+              {coreBlocks.map((block, i) => (
+                <div
+                  key={i}
+                  className="rounded-[20px] p-5"
+                  style={{
+                    background:
+                      block.kind === "analogy" ? ACCENT_SOFT : SURFACE,
+                    boxShadow: SHADOW,
+                  }}
+                >
+                  {block.kind === "analogy" && (
+                    <div className="mb-2 flex items-center gap-1.5">
+                      <span className="text-[16px]">💡</span>
+                      <span
+                        className="text-[12px] font-extrabold"
+                        style={{ color: ACCENT_DEEP }}
+                      >
+                        {block.title || "쉽게 말하면"}
+                      </span>
+                    </div>
+                  )}
+                  {block.kind === "paragraph" && block.title && (
+                    <div
+                      className="mb-2 text-[13px] font-extrabold"
+                      style={{ color: TEXT }}
+                    >
+                      {block.title}
+                    </div>
+                  )}
+                  <div
+                    className="text-[13.5px] leading-[1.75]"
+                    style={{ color: TEXT }}
+                  >
+                    <HighlightedText text={block.text} />
+                  </div>
+                </div>
+              ))}
+              {coreBlocks.length === 0 && (
+                <div
+                  className="rounded-[20px] p-5 text-center"
+                  style={{ background: SURFACE, boxShadow: SHADOW }}
+                >
+                  <p className="text-[14px]" style={{ color: SUB }}>
+                    이 이슈의 핵심은 배경에서 확인할 수 있어요
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {step === 2 && (
+          <div>
+            <h2
+              className="mb-4 text-[18px] font-extrabold leading-tight"
+              style={{ color: TEXT }}
+            >
+              그러면 뭐가 흔들려?
+            </h2>
+            {ripple ? (
+              <>
+                <p className="mb-3 text-[13px]" style={{ color: SUB }}>
+                  {ripple.summary}
+                </p>
+                <div className="flex flex-col gap-2">
+                  {ripple.affected.map((a) => (
+                    <div
+                      key={a.sym}
+                      className="flex items-center gap-3 rounded-[16px] p-4"
+                      style={{ background: SURFACE, boxShadow: SHADOW }}
+                    >
+                      <div
+                        className="flex h-10 w-10 items-center justify-center rounded-full text-[13px] font-extrabold"
+                        style={{
+                          background:
+                            a.polarity === "positive"
+                              ? UP + "18"
+                              : a.polarity === "negative"
+                                ? DOWN + "18"
+                                : LINE,
+                          color:
+                            a.polarity === "positive"
+                              ? UP
+                              : a.polarity === "negative"
+                                ? DOWN
+                                : SUB,
+                        }}
+                      >
+                        {a.polarity === "positive"
+                          ? "▲"
+                          : a.polarity === "negative"
+                            ? "▼"
+                            : "—"}
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-baseline gap-1.5">
+                          <span
+                            className="text-[14px] font-extrabold"
+                            style={{ color: TEXT }}
+                          >
+                            {a.name}
+                          </span>
+                          <span className="text-[11px]" style={{ color: SUB }}>
+                            {a.sym}
+                          </span>
+                        </div>
+                        <div
+                          className="mt-0.5 text-[12px] leading-snug"
+                          style={{ color: SUB }}
+                        >
+                          {a.reason}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div
+                className="rounded-[20px] p-5 text-center"
+                style={{ background: SURFACE, boxShadow: SHADOW }}
+              >
+                <p className="text-[14px]" style={{ color: SUB }}>
+                  이 이슈는 특정 종목에 직접적인 파급효과가 크지 않아요
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {step === 3 && (
+          <div>
+            <h2
+              className="mb-4 text-[18px] font-extrabold leading-tight"
+              style={{ color: TEXT }}
+            >
+              한 줄로 정리하면
+            </h2>
+            {issue.coachLine && (
+              <div
+                className="relative mb-5 flex gap-3 overflow-hidden rounded-[20px] p-5 pl-6"
+                style={{ background: SURFACE, boxShadow: SHADOW }}
+              >
+                <span
+                  aria-hidden
+                  className="absolute left-0 top-0 h-full w-1.5"
+                  style={{ background: ACCENT }}
+                />
+                <Mascot size={40} />
+                <div className="flex-1">
+                  <div
+                    className="mb-1 text-[10.5px] font-extrabold uppercase"
+                    style={{ color: ACCENT_DEEP, letterSpacing: 0.3 }}
+                  >
+                    스토키 한마디
+                  </div>
+                  <p
+                    className="text-[13.5px] leading-[1.75]"
+                    style={{ color: TEXT }}
+                  >
+                    <HighlightedText text={issue.coachLine} />
+                  </p>
+                </div>
+              </div>
+            )}
+            {terms.length > 0 && (
+              <>
+                <div
+                  className="mb-2 text-[12px] font-extrabold"
+                  style={{ color: SUB }}
+                >
+                  이 이슈의 핵심 용어
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {terms.slice(0, 6).map((term) => (
+                    <div
+                      key={term}
+                      className="rounded-xl px-3 py-2"
+                      style={{ background: ACCENT_SOFT }}
+                    >
+                      <div
+                        className="text-[12px] font-extrabold"
+                        style={{ color: ACCENT_DEEP }}
+                      >
+                        {term}
+                      </div>
+                      <div
+                        className="mt-0.5 text-[11px] leading-snug"
+                        style={{ color: SUB }}
+                      >
+                        {GLOSSARY[term]?.slice(0, 40)}…
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* 하단 버튼 */}
+      <div className="mt-6 pb-4">
+        <button
+          type="button"
+          onClick={handleNext}
+          className="w-full rounded-full py-3.5 text-[15px] font-extrabold active:opacity-80"
+          style={{ background: ACCENT, color: "#fff", boxShadow: SHADOW }}
+        >
+          {isLast ? "학습 완료 🎉" : "다음 →"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 
