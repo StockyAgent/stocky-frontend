@@ -20,7 +20,7 @@ const SHADOW =
 const SHADOW_HERO =
   "0 8px 28px rgba(0, 0, 0, 0.06), 0 2px 6px rgba(0, 0, 0, 0.04)";
 
-type Tab = "home" | "issue" | "my" | "settings";
+type Tab = "home" | "issue" | "stocks" | "my" | "settings";
 
 type Tier = 1 | 2 | 3;
 type Category = "general" | "sector" | "mine";
@@ -2384,7 +2384,7 @@ function MyScreen({ onSelectStock }: { onSelectStock: () => void }) {
       </ul>
 
       {/* 관심 종목 관리 */}
-      <SectionHeader title="관심 종목 관리" />
+      {/* <SectionHeader title="관심 종목 관리" />
       <ul
         className="overflow-hidden rounded-[22px]"
         style={{ background: SURFACE, boxShadow: SHADOW }}
@@ -2411,7 +2411,7 @@ function MyScreen({ onSelectStock }: { onSelectStock: () => void }) {
             />
           </li>
         ))}
-      </ul>
+      </ul> */}
     </div>
   );
 }
@@ -2915,6 +2915,7 @@ function IconSettings({ active }: TabIconProps) {
 const TABS: { id: Tab; label: string; Icon: (p: TabIconProps) => React.JSX.Element }[] = [
   { id: "home", label: "홈", Icon: IconHome },
   { id: "issue", label: "이슈", Icon: IconIssue },
+  { id: "stocks", label: "종목", Icon: IconStocks },
   { id: "my", label: "마이", Icon: IconMy },
   { id: "settings", label: "설정", Icon: IconSettings },
 ];
@@ -3021,6 +3022,9 @@ export default function EduPage() {
             )}
             {tab === "issue" && (
               <IssueScreen active={activeIssue} onSetActive={setActiveIssue} />
+            )}
+            {tab === "stocks" && (
+              <StocksScreen onSelectStock={openDetail} />
             )}
             {tab === "my" && <MyScreen onSelectStock={openDetail} />}
             {tab === "settings" && <SettingsScreen />}
