@@ -1023,6 +1023,286 @@ const stockDetail: {
   ],
 };
 
+// ═══════ 차트용 Mock 데이터 ═══════
+type EduPeriodKey = "1W" | "1M" | "3M" | "1Y";
+const EDU_PERIODS: EduPeriodKey[] = ["1W", "1M", "3M", "1Y"];
+
+const EDU_PRICE_HISTORY: Record<EduPeriodKey, { date: string; price: number }[]> = {
+  "1W": [
+    { date: "월", price: 250.2 }, { date: "화", price: 252.5 }, { date: "수", price: 254.1 },
+    { date: "목", price: 253.3 }, { date: "금", price: 256.8 }, { date: "토", price: 257.2 }, { date: "일", price: 257.5 },
+  ],
+  "1M": [
+    { date: "2/17", price: 242.3 }, { date: "2/24", price: 245.1 }, { date: "3/3", price: 243.8 },
+    { date: "3/10", price: 247.5 }, { date: "3/17", price: 250.2 }, { date: "3/24", price: 253.8 },
+    { date: "3/31", price: 255.1 }, { date: "4/7", price: 257.5 },
+  ],
+  "3M": [
+    { date: "1월", price: 228.2 }, { date: "1/3주", price: 232.9 }, { date: "2/1주", price: 238.3 },
+    { date: "2/3주", price: 242.5 }, { date: "3/1주", price: 245.1 }, { date: "3/3주", price: 250.2 },
+    { date: "4/1주", price: 255.1 }, { date: "4/2주", price: 257.5 },
+  ],
+  "1Y": [
+    { date: "5월", price: 189.8 }, { date: "7월", price: 215.3 }, { date: "9월", price: 235.8 },
+    { date: "11월", price: 248.5 }, { date: "1월", price: 228.2 }, { date: "3월", price: 245.1 },
+    { date: "4월", price: 257.5 },
+  ],
+};
+
+const EDU_EPS_DATA = [
+  { quarter: "Q1'24", estimated: 1.50, actual: 1.53 },
+  { quarter: "Q2'24", estimated: 1.35, actual: 1.40 },
+  { quarter: "Q3'24", estimated: 1.45, actual: 1.46 },
+  { quarter: "Q4'24", estimated: 2.10, actual: 2.18 },
+];
+
+const EDU_REVENUE_BREAKDOWN = [
+  { label: "iPhone", value: 52, color: ACCENT },
+  { label: "서비스", value: 22, color: "#4A90D9" },
+  { label: "Mac", value: 10, color: "#E5A820" },
+  { label: "iPad", value: 8, color: "#9B59B6" },
+  { label: "웨어러블", value: 8, color: UP },
+];
+
+const ISSUE_SPARKLINES: Record<string, number[]> = {
+  USO: [72, 74, 73, 78, 80, 82, 85], XOM: [108, 109, 107, 110, 112, 114, 116],
+  DAL: [48, 47, 45, 44, 42, 41, 40], QQQ: [420, 418, 415, 412, 410, 408, 405],
+  CVX: [158, 160, 159, 162, 164, 166, 168], AAL: [16, 15.5, 15, 14.5, 14, 13.5, 13],
+  GLD: [195, 196, 198, 200, 202, 204, 207], SPY: [505, 503, 500, 498, 496, 495, 493],
+  TLT: [95, 94, 93, 92, 91, 90, 89], NVDA: [820, 835, 842, 838, 855, 870, 880],
+  TSM: [142, 144, 143, 146, 148, 150, 152], AAPL: [250, 252, 254, 253, 256, 257, 257.5],
+  TSLA: [255, 248, 242, 238, 235, 237, 240], F: [12, 12.2, 12.1, 12.4, 12.5, 12.6, 12.8],
+  ALB: [112, 114, 113, 116, 118, 120, 122], "005930": [76, 77, 76.5, 78, 78.5, 79, 78.4],
+  "000660": [178, 180, 179, 182, 183, 184, 182.5],
+};
+
+// ═══════ 차트 컴포넌트 ═══════
+
+function EduPriceChart({ data, period }: { data: { date: string; price: number }[]; period: EduPeriodKey }) {
+  const [show, setShow] = useState(false);
+  useEffect(() => { setShow(false); const t = setTimeout(() => setShow(true), 80); return () => clearTimeout(t); }, [period]);
+  const prices = data.map((d) => d.price);
+  const minP = Math.min(...prices) * 0.98; const maxP = Math.max(...prices) * 1.02;
+  const range = maxP - minP; const w = 300; const h = 150; const pl = 40; const pb = 20;
+  const chartW = w - pl; const chartH = h - pb;
+  const isUp = prices[prices.length - 1] >= prices[0];
+  const lineColor = isUp ? UP : DOWN;
+  const pts = data.map((d, i) => ({ x: pl + (i / (data.length - 1)) * chartW, y: chartH - ((d.price - minP) / range) * chartH, price: d.price, label: d.date }));
+  const anim = pts.map((pt) => ({ ...pt, y: show ? pt.y : chartH }));
+  const pathD = anim.reduce((acc, pt, i) => { if (i === 0) return `M ${pt.x} ${pt.y}`; const prev = anim[i - 1]; const cx = (prev.x + pt.x) / 2; return `${acc} C ${cx} ${prev.y} ${cx} ${pt.y} ${pt.x} ${pt.y}`; }, "");
+  const fillD = `${pathD} L ${anim[anim.length - 1].x} ${chartH} L ${pl} ${chartH} Z`;
+  const yTicks = Array.from({ length: 4 }, (_, i) => minP + (range / 3) * i);
+  return (
+    <svg width="100%" viewBox={`0 0 ${w} ${h}`} className="overflow-visible">
+      <defs><linearGradient id={`eduPF-${period}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={lineColor} stopOpacity="0.18" /><stop offset="100%" stopColor={lineColor} stopOpacity="0.01" /></linearGradient></defs>
+      {yTicks.map((tick) => { const y = chartH - ((tick - minP) / range) * chartH; return (<g key={tick}><line x1={pl} y1={y} x2={w} y2={y} stroke={LINE} strokeWidth="0.5" strokeDasharray="3,3" /><text x={pl - 4} y={y + 3} textAnchor="end" fontSize="7" fill={SUB}>${tick.toFixed(0)}</text></g>); })}
+      {pts.map((pt, i) => { if (data.length > 8 && i % 2 !== 0) return null; return <text key={pt.label} x={pt.x} y={h - 3} textAnchor="middle" fontSize="6.5" fill={SUB}>{pt.label}</text>; })}
+      <path d={fillD} fill={`url(#eduPF-${period})`} style={{ transition: "d 0.8s cubic-bezier(0.2,0.8,0.2,1)" }} />
+      <path d={pathD} fill="none" stroke={lineColor} strokeWidth="2" strokeLinecap="round" style={{ transition: "d 0.8s cubic-bezier(0.2,0.8,0.2,1)" }} />
+      {anim.map((pt) => <circle key={pt.label} cx={pt.x} cy={pt.y} r="3" fill={lineColor} stroke={SURFACE} strokeWidth="1.5" style={{ transition: "cy 0.8s cubic-bezier(0.2,0.8,0.2,1)" }} />)}
+      {show && anim.length > 0 && (<g><rect x={anim[anim.length - 1].x - 22} y={anim[anim.length - 1].y - 18} width="44" height="14" rx="4" fill={lineColor} /><text x={anim[anim.length - 1].x} y={anim[anim.length - 1].y - 8} textAnchor="middle" fontSize="7" fill="#fff" fontWeight="700">${anim[anim.length - 1].price.toFixed(1)}</text></g>)}
+    </svg>
+  );
+}
+
+function EduRadar({ scores, animate }: { scores: { key: string; score: number }[]; animate: boolean }) {
+  const cx = 90; const cy = 90; const maxR = 60; const levels = 4; const n = scores.length;
+  const angleStep = (Math.PI * 2) / n;
+  const getPoint = (index: number, value: number) => { const angle = angleStep * index - Math.PI / 2; const r = (value / 100) * maxR; return { x: cx + r * Math.cos(angle), y: cy + r * Math.sin(angle) }; };
+  const gridPolygons = Array.from({ length: levels }, (_, lvl) => { const r = ((lvl + 1) / levels) * 100; return scores.map((_, i) => getPoint(i, r)).map((p) => `${p.x},${p.y}`).join(" "); });
+  const dataPoints = scores.map((s, i) => getPoint(i, animate ? s.score : 0));
+  const dataPolygon = dataPoints.map((p) => `${p.x},${p.y}`).join(" ");
+  return (
+    <svg width="100%" viewBox="0 0 180 180" className="overflow-visible">
+      <defs><linearGradient id="eduRadarFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={ACCENT} stopOpacity="0.3" /><stop offset="100%" stopColor={ACCENT} stopOpacity="0.05" /></linearGradient></defs>
+      {gridPolygons.map((pts, i) => <polygon key={i} points={pts} fill="none" stroke={LINE} strokeWidth="0.5" />)}
+      {scores.map((_, i) => { const outer = getPoint(i, 100); return <line key={i} x1={cx} y1={cy} x2={outer.x} y2={outer.y} stroke={LINE} strokeWidth="0.5" />; })}
+      <polygon points={dataPolygon} fill="url(#eduRadarFill)" stroke={ACCENT} strokeWidth="2" className="transition-all duration-1000 ease-out" />
+      {dataPoints.map((pt, i) => <circle key={i} cx={pt.x} cy={pt.y} r="3.5" fill={ACCENT} stroke={SURFACE} strokeWidth="1.5" className="transition-all duration-1000 ease-out" />)}
+      {scores.map((s, i) => { const labelPt = getPoint(i, 118); return <text key={i} x={labelPt.x} y={labelPt.y} textAnchor="middle" dominantBaseline="central" fontSize="8" fill={TEXT} fontWeight="700">{s.key}</text>; })}
+    </svg>
+  );
+}
+
+function EduDonut({ segments, animate }: { segments: { label: string; value: number; color: string }[]; animate: boolean }) {
+  const cx = 55; const cy = 55; const r = 38; const strokeW = 14;
+  const circumference = 2 * Math.PI * r; let cumulativeOffset = 0;
+  return (
+    <div className="flex items-center gap-4">
+      <svg width="110" height="110" viewBox="0 0 110 110" className="shrink-0">
+        {segments.map((seg) => { const segLen = (seg.value / 100) * circumference; const rotation = (cumulativeOffset / 100) * 360 - 90; cumulativeOffset += seg.value; return <circle key={seg.label} cx={cx} cy={cy} r={r} fill="none" stroke={seg.color} strokeWidth={strokeW} strokeDasharray={`${animate ? segLen : 0} ${circumference}`} strokeLinecap="butt" transform={`rotate(${rotation} ${cx} ${cy})`} className="transition-all duration-1000 ease-out" />; })}
+        <circle cx={cx} cy={cy} r={r - strokeW / 2 + 1} fill={SURFACE} />
+      </svg>
+      <div className="flex flex-col gap-1.5">
+        {segments.map((seg) => (<div key={seg.label} className="flex items-center gap-2"><div className="size-2 rounded-full shrink-0" style={{ backgroundColor: seg.color }} /><span className="text-[10px]" style={{ color: TEXT }}>{seg.label}</span><span className="text-[10px] font-extrabold ml-auto" style={{ color: TEXT }}>{seg.value}%</span></div>))}
+      </div>
+    </div>
+  );
+}
+
+function EduEpsBars({ data, animate }: { data: { quarter: string; estimated: number; actual: number }[]; animate: boolean }) {
+  const maxEps = Math.max(...data.flatMap((d) => [d.estimated, d.actual])) * 1.15;
+  return (
+    <div className="flex items-end gap-3 h-[110px]">
+      {data.map((d) => { const estH = (d.estimated / maxEps) * 90; const actH = (d.actual / maxEps) * 90; const beat = d.actual >= d.estimated; return (
+        <div key={d.quarter} className="flex-1 flex flex-col items-center gap-1">
+          <div className="flex items-end gap-[3px] h-[90px]">
+            <div className="w-[12px] rounded-t-[3px] transition-all duration-700 ease-out" style={{ height: animate ? `${estH}px` : "0px", background: LINE }} />
+            <div className="w-[12px] rounded-t-[3px] transition-all duration-700 ease-out" style={{ height: animate ? `${actH}px` : "0px", background: beat ? UP : DOWN }} />
+          </div>
+          <span className="text-[8px]" style={{ color: SUB }}>{d.quarter}</span>
+        </div>
+      ); })}
+    </div>
+  );
+}
+
+function EduRange52W({ low, high, current }: { low: number; high: number; current: number }) {
+  const pct = ((current - low) / (high - low)) * 100;
+  return (
+    <div>
+      <div className="flex items-center justify-between text-[9px] mb-1" style={{ color: SUB }}>
+        <span>52주 최저 ${low.toFixed(0)}</span>
+        <span>52주 최고 ${high.toFixed(0)}</span>
+      </div>
+      <div className="relative h-[6px] w-full rounded-full" style={{ background: LINE }}>
+        <div className="absolute left-0 top-0 h-full rounded-full" style={{ width: `${pct}%`, background: `linear-gradient(90deg, ${DOWN}40, ${ACCENT}, ${UP}40)` }} />
+        <div className="absolute top-1/2 size-3 rounded-full border-2 shadow-sm transition-all duration-700" style={{ left: `${pct}%`, transform: "translate(-50%, -50%)", borderColor: SURFACE, background: ACCENT }} />
+      </div>
+    </div>
+  );
+}
+
+function EduSparkline({ data, polarity }: { data: number[]; polarity: Polarity }) {
+  const w = 64; const h = 22; const pad = 2;
+  const min = Math.min(...data) - 1; const max = Math.max(...data) + 1; const range = max - min;
+  const pts = data.map((v, i) => ({ x: pad + (i / (data.length - 1)) * (w - pad * 2), y: pad + (1 - (v - min) / range) * (h - pad * 2) }));
+  const pathD = pts.reduce((acc, pt, i) => { if (i === 0) return `M ${pt.x} ${pt.y}`; const prev = pts[i - 1]; const cx = (prev.x + pt.x) / 2; return `${acc} C ${cx} ${prev.y} ${cx} ${pt.y} ${pt.x} ${pt.y}`; }, "");
+  const color = polarity === "positive" ? UP : polarity === "negative" ? DOWN : SUB;
+  return (
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} className="shrink-0">
+      <path d={pathD} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
+      <circle cx={pts[pts.length - 1].x} cy={pts[pts.length - 1].y} r="2" fill={color} />
+    </svg>
+  );
+}
+
+function EduImpactMeter({ tier }: { tier: Tier }) {
+  const [anim, setAnim] = useState(false);
+  useEffect(() => { const t = setTimeout(() => setAnim(true), 200); return () => clearTimeout(t); }, []);
+  const score = tier === 3 ? 92 : tier === 2 ? 65 : 35;
+  const label = tier === 3 ? "긴급" : tier === 2 ? "주목" : "참고";
+  const color = tier === 3 ? UP : tier === 2 ? ACCENT : SUB;
+  const radius = 18; const circumference = 2 * Math.PI * radius;
+  const offset = anim ? circumference - (score / 100) * circumference : circumference;
+  return (
+    <div className="flex items-center gap-2">
+      <div className="relative flex size-11 items-center justify-center">
+        <svg className="absolute inset-0 size-full -rotate-90" viewBox="0 0 40 40"><circle cx="20" cy="20" r={radius} fill="none" stroke={LINE} strokeWidth="3" /><circle cx="20" cy="20" r={radius} fill="none" stroke={color} strokeWidth="3" strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={offset} className="transition-all duration-1000 ease-out" /></svg>
+        <span className="text-[10px] font-extrabold" style={{ color }}>{score}</span>
+      </div>
+      <span className="text-[10px] font-extrabold" style={{ color }}>{label}</span>
+    </div>
+  );
+}
+
+function EduSentimentDonut({ affected }: { affected: { polarity: Polarity }[] }) {
+  const [anim, setAnim] = useState(false);
+  useEffect(() => { const t = setTimeout(() => setAnim(true), 300); return () => clearTimeout(t); }, []);
+  const pos = affected.filter((a) => a.polarity === "positive").length;
+  const neg = affected.filter((a) => a.polarity === "negative").length;
+  const neu = affected.filter((a) => a.polarity === "neutral").length;
+  const total = affected.length || 1;
+  const segments = [
+    { label: "수혜", value: (pos / total) * 100, color: UP },
+    { label: "피해", value: (neg / total) * 100, color: DOWN },
+    { label: "중립", value: (neu / total) * 100, color: SUB },
+  ].filter((s) => s.value > 0);
+  const cx = 28; const cy = 28; const r = 20; const strokeW = 8;
+  const circumference = 2 * Math.PI * r; let cumOffset = 0;
+  return (
+    <div className="flex items-center gap-3">
+      <svg width="56" height="56" viewBox="0 0 56 56" className="shrink-0">
+        {segments.map((seg) => { const segLen = (seg.value / 100) * circumference; const rotation = (cumOffset / 100) * 360 - 90; cumOffset += seg.value; return <circle key={seg.label} cx={cx} cy={cy} r={r} fill="none" stroke={seg.color} strokeWidth={strokeW} strokeDasharray={`${anim ? segLen : 0} ${circumference}`} transform={`rotate(${rotation} ${cx} ${cy})`} className="transition-all duration-700 ease-out" />; })}
+        <circle cx={cx} cy={cy} r={r - strokeW / 2 + 1} fill={SURFACE} />
+      </svg>
+      <div className="flex flex-col gap-1">
+        {segments.map((s) => <div key={s.label} className="flex items-center gap-1.5"><div className="size-1.5 rounded-full" style={{ background: s.color }} /><span className="text-[9px]" style={{ color: TEXT }}>{s.label} {Math.round(s.value)}%</span></div>)}
+      </div>
+    </div>
+  );
+}
+
+function EduAffectedBars({ affected }: { affected: { sym: string; name: string; polarity: Polarity }[] }) {
+  const [anim, setAnim] = useState(false);
+  useEffect(() => { const t = setTimeout(() => setAnim(true), 250); return () => clearTimeout(t); }, []);
+  return (
+    <div className="flex flex-col gap-2">
+      {affected.slice(0, 6).map((a) => {
+        const color = a.polarity === "positive" ? UP : a.polarity === "negative" ? DOWN : SUB;
+        const label = a.polarity === "positive" ? "수혜" : a.polarity === "negative" ? "피해" : "중립";
+        const w = a.polarity === "neutral" ? 40 : a.polarity === "positive" ? 70 : 55;
+        return (
+          <div key={a.sym} className="flex items-center gap-2">
+            <span className="w-12 text-[9px] font-extrabold text-right" style={{ color: TEXT }}>{a.sym.length > 5 ? a.sym.slice(0, 5) : a.sym}</span>
+            <div className="flex-1 h-[5px] rounded-full overflow-hidden" style={{ background: LINE }}>
+              <div className="h-full rounded-full transition-all duration-700 ease-out" style={{ width: anim ? `${w}%` : "0%", background: color }} />
+            </div>
+            <span className="w-6 text-[8px] font-bold" style={{ color }}>{label}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function IssueChartsSection({ issue }: { issue: Issue }) {
+  const affected = issue.detail?.ripple?.affected;
+  if (!affected || affected.length === 0) return null;
+  return (
+    <section className="mb-5">
+      <SectionHeader title="시각 분석" />
+      <div className="flex flex-col gap-3">
+        {/* 임팩트 + 센티먼트 */}
+        <div className="flex gap-3">
+          <div className="flex-1 rounded-[20px] p-4" style={{ background: SURFACE, boxShadow: SHADOW }}>
+            <div className="mb-2 text-[10px] font-extrabold" style={{ color: SUB }}>이슈 임팩트</div>
+            <EduImpactMeter tier={issue.tier} />
+          </div>
+          <div className="flex-1 rounded-[20px] p-4" style={{ background: SURFACE, boxShadow: SHADOW }}>
+            <div className="mb-2 text-[10px] font-extrabold" style={{ color: SUB }}>센티먼트</div>
+            <EduSentimentDonut affected={affected} />
+          </div>
+        </div>
+        {/* 영향 종목 바 차트 */}
+        <div className="rounded-[20px] p-4" style={{ background: SURFACE, boxShadow: SHADOW }}>
+          <div className="mb-3 text-[11px] font-extrabold" style={{ color: TEXT }}>📊 영향 종목 방향성</div>
+          <EduAffectedBars affected={affected} />
+        </div>
+        {/* 스파크라인 그리드 */}
+        <div className="rounded-[20px] p-4" style={{ background: SURFACE, boxShadow: SHADOW }}>
+          <div className="mb-3 text-[11px] font-extrabold" style={{ color: TEXT }}>📈 관련 종목 최근 추이</div>
+          <div className="grid grid-cols-2 gap-2">
+            {affected.slice(0, 4).map((a) => {
+              const sparkData = ISSUE_SPARKLINES[a.sym];
+              if (!sparkData) return null;
+              return (
+                <div key={a.sym} className="flex items-center gap-2 rounded-xl p-2" style={{ background: BG }}>
+                  <div className="min-w-0">
+                    <div className="text-[10px] font-extrabold" style={{ color: TEXT }}>{a.sym}</div>
+                    <div className="text-[8px]" style={{ color: SUB }}>{a.name}</div>
+                  </div>
+                  <EduSparkline data={sparkData} polarity={a.polarity} />
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 const STOCK_LOGOS: Record<string, { src: string; color: string }> = {
   AAPL: { src: "/logos/apple.svg", color: "#000000" },
   NVDA: { src: "/logos/nvidia.svg", color: "#76B900" },
@@ -1313,8 +1593,8 @@ function HomeScreen({
   };
 
   const firstCard = dailyCards[0];
-  const inProgress = lessonStep > 0 && lessonStep < 4;
-  const totalSteps = 4;
+  const inProgress = lessonStep > 0 && lessonStep < 5;
+  const totalSteps = 5;
   const issueCards = dailyCards.slice(1);
 
   return (
@@ -2124,6 +2404,11 @@ function StockDetailMain({
   onBack: () => void;
   onSeeScores: () => void;
 }) {
+  const [pricePeriod, setPricePeriod] = useState<EduPeriodKey>("1M");
+  const [animCharts, setAnimCharts] = useState(false);
+  useEffect(() => { const t = setTimeout(() => setAnimCharts(true), 200); return () => clearTimeout(t); }, []);
+  const totalScore = Math.round(d.scoreDetails.reduce((s, a) => s + a.score, 0) / d.scoreDetails.length);
+
   return (
     <div className="px-5 pt-2">
       <button
@@ -2155,36 +2440,47 @@ function StockDetailMain({
         </span>
       </div>
 
-      <div
-        className="mb-6 rounded-[22px] p-4"
-        style={{ background: SURFACE, boxShadow: SHADOW }}
-      >
-        <svg
-          viewBox="0 0 320 80"
-          className="w-full"
-          preserveAspectRatio="none"
-        >
-          <defs>
-            <linearGradient id="apri" x1="0" x2="0" y1="0" y2="1">
-              <stop offset="0%" stopColor={ACCENT} stopOpacity="0.35" />
-              <stop offset="100%" stopColor={ACCENT} stopOpacity="0" />
-            </linearGradient>
-          </defs>
-          <path
-            d="M0,55 C40,50 60,60 90,42 C120,28 150,38 180,30 C210,24 240,40 270,22 C290,12 310,18 320,14 L320,80 L0,80 Z"
-            fill="url(#apri)"
-          />
-          <path
-            d="M0,55 C40,50 60,60 90,42 C120,28 150,38 180,30 C210,24 240,40 270,22 C290,12 310,18 320,14"
-            fill="none"
-            stroke={ACCENT_DEEP}
-            strokeWidth="2"
-            strokeLinecap="round"
-          />
-        </svg>
-        <div className="mt-2 text-[11px]" style={{ color: SUB }}>
-          최근 한 달 동향 — 자세한 가격은 추후
+      {/* 52주 레인지 */}
+      <div className="mb-4 rounded-[22px] p-4" style={{ background: SURFACE, boxShadow: SHADOW }}>
+        <EduRange52W low={164.08} high={260.10} current={parseFloat(d.price)} />
+      </div>
+
+      {/* 인터랙티브 주가 차트 */}
+      <div className="mb-4 rounded-[22px] p-4" style={{ background: SURFACE, boxShadow: SHADOW }}>
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-[13px] font-extrabold" style={{ color: TEXT }}>📈 주가 추이</span>
+          <div className="flex gap-1">
+            {EDU_PERIODS.map((p) => (
+              <button key={p} type="button" onClick={() => setPricePeriod(p)}
+                className="rounded-lg px-2.5 py-1 text-[10px] font-bold transition-all"
+                style={{ background: p === pricePeriod ? TEXT : BG, color: p === pricePeriod ? "#fff" : SUB }}
+              >{p}</button>
+            ))}
+          </div>
         </div>
+        <EduPriceChart data={EDU_PRICE_HISTORY[pricePeriod]} period={pricePeriod} />
+      </div>
+
+      {/* 레이더 차트 */}
+      <div className="mb-4 rounded-[22px] p-4" style={{ background: SURFACE, boxShadow: SHADOW }}>
+        <span className="text-[13px] font-extrabold" style={{ color: TEXT }}>🎯 종합 평가 · {totalScore}점</span>
+        <EduRadar scores={d.scoreDetails} animate={animCharts} />
+      </div>
+
+      {/* 매출 구성비 */}
+      <div className="mb-4 rounded-[22px] p-4" style={{ background: SURFACE, boxShadow: SHADOW }}>
+        <div className="mb-3 text-[13px] font-extrabold" style={{ color: TEXT }}>🍩 매출 구성비</div>
+        <EduDonut segments={EDU_REVENUE_BREAKDOWN} animate={animCharts} />
+      </div>
+
+      {/* EPS 비교 */}
+      <div className="mb-6 rounded-[22px] p-4" style={{ background: SURFACE, boxShadow: SHADOW }}>
+        <div className="mb-1 text-[13px] font-extrabold" style={{ color: TEXT }}>💹 EPS 실적 vs 예상</div>
+        <div className="flex items-center gap-3 mb-3">
+          <div className="flex items-center gap-1"><div className="size-2 rounded-full" style={{ background: LINE }} /><span className="text-[9px]" style={{ color: SUB }}>예상</span></div>
+          <div className="flex items-center gap-1"><div className="size-2 rounded-full" style={{ background: UP }} /><span className="text-[9px]" style={{ color: SUB }}>서프라이즈</span></div>
+        </div>
+        <EduEpsBars data={EDU_EPS_DATA} animate={animCharts} />
       </div>
 
       <h2 className="mb-2 text-[15px] font-extrabold" style={{ color: TEXT }}>
@@ -3087,6 +3383,8 @@ function IssueDetail({ issue, onBack }: { issue: Issue; onBack: () => void }) {
         <RippleSection data={detail.ripple} tier={issue.tier} issue={issue} />
       )}
 
+      <IssueChartsSection issue={issue} />
+
       {detail?.body && <BodyBlocks blocks={detail.body} />}
 
       {detail?.body && <TermSlider blocks={detail.body} />}
@@ -3840,6 +4138,361 @@ function LessonProgress({
   );
 }
 
+type RippleAffected = NonNullable<IssueDetail["ripple"]>["affected"][number];
+type LessonRippleStep = { label: string; text: string };
+
+function splitReason(reason: string) {
+  return reason
+    .split(/—|→/)
+    .map((part) => part.trim())
+    .filter(Boolean);
+}
+
+function inferIssueMechanism(issue: Issue, summary: string): LessonRippleStep[] {
+  const haystack = [
+    issue.title,
+    issue.summary,
+    issue.sector,
+    issue.topic,
+    ...(issue.keywords ?? []),
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  if (/호르무즈|OPEC|원유|유가|에너지|산유/.test(haystack)) {
+    return [
+      {
+        label: "공급 경로 변화",
+        text: "원유가 지나가는 길목이나 산유국 공급 결정이 흔들리면 시장은 먼저 공급 부족 가능성을 가격에 반영해.",
+      },
+      {
+        label: "가격 전달",
+        text: "유가가 움직이면 항공·운송 비용, 정유 마진, 인플레이션 기대까지 차례로 영향을 받아.",
+      },
+    ];
+  }
+
+  if (/연준|한은|금리|기준금리|인하|동결|채권/.test(haystack)) {
+    return [
+      {
+        label: "정책 신호",
+        text: "중앙은행이 금리를 유지하거나 바꾸면 시장은 경기와 물가를 어떻게 보는지 먼저 해석해.",
+      },
+      {
+        label: "할인율 변화",
+        text: "금리 기대가 달라지면 성장주의 미래 이익, 채권 가격, 대출 비용이 동시에 다시 계산돼.",
+      },
+    ];
+  }
+
+  if (/관세|미중|중국|제재|BYD|보조금|정책/.test(haystack)) {
+    return [
+      {
+        label: "정책 장벽",
+        text: "정부 정책은 제품 가격, 시장 진입 가능성, 경쟁 구도를 한 번에 바꿔.",
+      },
+      {
+        label: "수요 재배치",
+        text: "비용이 오르거나 경쟁자가 막히면 매출은 줄 수도 있고, 반대로 대체 공급자에게 기회가 갈 수도 있어.",
+      },
+    ];
+  }
+
+  if (/AI|HBM|Blackwell|반도체|TSMC|CoWoS|파운드리|데이터센터/.test(haystack)) {
+    return [
+      {
+        label: "수요 압력",
+        text: "AI 인프라 투자가 늘면 칩, 메모리, 패키징 같은 병목 부품부터 주문이 몰려.",
+      },
+      {
+        label: "공급망 연결",
+        text: "누가 핵심 부품을 만들고 누가 생산 능력을 갖고 있는지에 따라 수혜 종목이 갈려.",
+      },
+    ];
+  }
+
+  if (/환율|외국인|코스피|코스닥|수급/.test(haystack)) {
+    return [
+      {
+        label: "자금 흐름",
+        text: "환율과 외국인 매매는 시장 전체 수급을 흔들어서 지수와 대형주에 먼저 반영돼.",
+      },
+      {
+        label: "심리 전이",
+        text: "자금이 빠지거나 들어온다는 신호가 나오면 같은 업종 안에서도 민감한 종목부터 움직여.",
+      },
+    ];
+  }
+
+  return [
+    {
+      label: "시장 해석",
+      text: summary,
+    },
+  ];
+}
+
+function buildLessonRippleSteps({
+  issue,
+  summary,
+  item,
+  toneLabel,
+}: {
+  issue: Issue;
+  summary: string;
+  item: RippleAffected;
+  toneLabel: string;
+}): LessonRippleStep[] {
+  const reasonParts = splitReason(item.reason);
+  const steps: LessonRippleStep[] = [
+    {
+      label: "출발점",
+      text: issue.title,
+    },
+    ...inferIssueMechanism(issue, summary),
+  ];
+
+  if (reasonParts[0]) {
+    steps.push({
+      label: "종목 연결",
+      text: `${item.name}은 ${reasonParts[0]} 때문에 이 이슈와 연결돼.`,
+    });
+  }
+
+  if (reasonParts[1]) {
+    steps.push({
+      label: "핵심 근거",
+      text: reasonParts[1],
+    });
+  }
+
+  steps.push({
+    label: "판단",
+    text: `${item.sym}에는 최종적으로 ${toneLabel}으로 해석돼.`,
+  });
+
+  return steps;
+}
+
+function LessonRippleFlow({
+  issue,
+  summary,
+  item,
+}: {
+  issue: Issue;
+  summary: string;
+  item: RippleAffected;
+}) {
+  const tone =
+    item.polarity === "positive"
+      ? { color: UP, label: "상승 압력", mark: "▲" }
+      : item.polarity === "negative"
+        ? { color: DOWN, label: "하락 압력", mark: "▼" }
+        : { color: SUB, label: "중립 영향", mark: "—" };
+  const steps = buildLessonRippleSteps({
+    issue,
+    summary,
+    item,
+    toneLabel: tone.label,
+  });
+
+  return (
+    <div
+      className="mt-3 rounded-[16px] p-4"
+      style={{ background: BG, border: `1px solid ${LINE}` }}
+    >
+      <div className="relative">
+        <span
+          aria-hidden
+          className="absolute bottom-4 left-[15px] top-4 w-px"
+          style={{ background: LINE }}
+        />
+        <div className="flex flex-col gap-3">
+          {steps.map((flowStep, i) => (
+            <div
+              key={flowStep.label}
+              className="relative flex gap-3"
+              style={{
+                animation: "lessonFlowIn 260ms ease-out both",
+                animationDelay: `${i * 80}ms`,
+              }}
+            >
+              <span
+                className="z-10 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-[11px] font-extrabold"
+                style={{
+                  background: i === steps.length - 1 ? tone.color : SURFACE,
+                  color: i === steps.length - 1 ? "#fff" : ACCENT_DEEP,
+                  border: `1px solid ${i === steps.length - 1 ? tone.color : ACCENT_SOFT}`,
+                }}
+              >
+                {i === steps.length - 1 ? tone.mark : i + 1}
+              </span>
+              <div className="min-w-0 flex-1 pb-1">
+                <div
+                  className="text-[11px] font-extrabold"
+                  style={{
+                    color: i === steps.length - 1 ? tone.color : ACCENT_DEEP,
+                  }}
+                >
+                  {flowStep.label}
+                </div>
+                <p
+                  className="mt-0.5 text-[12.5px] leading-relaxed"
+                  style={{ color: TEXT }}
+                >
+                  {flowStep.text}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      <style jsx>{`
+        @keyframes lessonFlowIn {
+          from {
+            opacity: 0;
+            transform: translateY(5px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+function lessonTopicText(issue: Issue) {
+  return [
+    issue.title,
+    issue.summary,
+    issue.sector,
+    issue.topic,
+    ...(issue.keywords ?? []),
+  ]
+    .filter(Boolean)
+    .join(" ");
+}
+
+function getLessonIntroPoints(issue: Issue) {
+  const haystack = lessonTopicText(issue);
+  if (/호르무즈|OPEC|원유|유가|에너지|산유/.test(haystack)) {
+    return [
+      {
+        label: "가격의 시작점",
+        text: "원유는 운송·전기·화학제품 원가의 출발점이라 한 번 뛰면 여러 업종의 비용표가 동시에 바뀌어.",
+      },
+      {
+        label: "시장 반응 속도",
+        text: "실제 공급 차질이 나기 전에도 선물 가격과 항공·정유주가 먼저 움직이는 경우가 많아.",
+      },
+    ];
+  }
+  if (/연준|한은|금리|기준금리|인하|동결|채권/.test(haystack)) {
+    return [
+      {
+        label: "돈의 가격",
+        text: "금리는 기업이 돈을 빌리는 비용이자, 투자자가 미래 이익을 현재 가치로 계산할 때 쓰는 기준이야.",
+      },
+      {
+        label: "기대의 재조정",
+        text: "동결·인하·인상 자체보다 시장이 기대했던 경로와 얼마나 달라졌는지가 주가를 흔들어.",
+      },
+    ];
+  }
+  if (/AI|HBM|Blackwell|반도체|TSMC|CoWoS|파운드리|데이터센터/.test(haystack)) {
+    return [
+      {
+        label: "병목 확인",
+        text: "AI 수요가 커질수록 모두가 좋아지는 게 아니라, 부족한 부품이나 생산 능력을 가진 회사가 먼저 주목받아.",
+      },
+      {
+        label: "공급망 지도",
+        text: "칩 설계, 메모리, 파운드리, 패키징 중 어디가 막혔는지 보면 수혜 종목을 더 빨리 좁힐 수 있어.",
+      },
+    ];
+  }
+  if (/관세|미중|중국|제재|BYD|보조금|정책/.test(haystack)) {
+    return [
+      {
+        label: "정책은 가격을 바꿈",
+        text: "관세·보조금·제재는 제품 경쟁력을 단번에 바꿔서 수요와 점유율을 다시 나누게 만들어.",
+      },
+      {
+        label: "승자와 패자 분리",
+        text: "같은 정책 뉴스라도 직접 타격을 받는 회사와 반사이익을 받는 회사가 갈릴 수 있어.",
+      },
+    ];
+  }
+  return [
+    {
+      label: "핵심 변수",
+      text: "이 이슈가 실적, 비용, 수급, 투자심리 중 어디를 건드리는지 먼저 잡아야 해.",
+    },
+    {
+      label: "다음 반응",
+      text: "뉴스 자체보다 시장이 어떤 종목에 먼저 반응하는지 보는 게 학습 포인트야.",
+    },
+  ];
+}
+
+function getLessonBackgroundPoints(issue: Issue) {
+  const categoryText =
+    issue.category === "general"
+      ? "시장 전반에 번질 수 있는 이슈라 지수와 금리, 환율 같은 큰 변수까지 같이 봐야 해."
+      : issue.category === "sector"
+        ? "특정 섹터 안에서 수요·공급·정책 변화가 어떤 기업에 유리한지 비교해야 해."
+        : "내 관심 종목과 직접 연결된 뉴스라 기존 보유 논리가 바뀌는지 확인해야 해.";
+  const intensityText =
+    issue.tier === 3
+      ? "중요도 3단계라 단기 가격 반응뿐 아니라 2차 파급효과까지 확인해야 하는 뉴스야."
+      : issue.tier === 2
+        ? "중요도 2단계라 관련 종목의 방향성은 흔들 수 있지만, 실제 수치 확인이 필요해."
+        : "중요도 1단계라 시장 전체보다 특정 맥락을 이해하는 학습용 이슈에 가까워.";
+  return [
+    { label: "범위", text: categoryText },
+    { label: "강도", text: intensityText },
+  ];
+}
+
+function getLessonAnalysisFrames(issue: Issue) {
+  const haystack = lessonTopicText(issue);
+  if (/호르무즈|OPEC|원유|유가|에너지|산유/.test(haystack)) {
+    return [
+      "먼저 원유 공급이 실제로 줄어드는지, 아니면 위험 프리미엄만 붙은 건지 구분해.",
+      "그다음 유가 상승이 비용 증가인지, 판매가 상승인지 업종별로 나눠 봐.",
+      "마지막으로 인플레 우려가 커지면 금리 인하 기대가 밀릴 수 있다는 2차 효과를 확인해.",
+    ];
+  }
+  if (/연준|한은|금리|기준금리|인하|동결|채권/.test(haystack)) {
+    return [
+      "시장 예상과 실제 발표가 얼마나 달랐는지 먼저 봐.",
+      "성장주는 할인율, 금융주는 예대마진, 채권은 금리 방향에 각각 다르게 반응해.",
+      "발표 직후 반응보다 다음 인하·인상 시점에 대한 기대가 더 중요할 때가 많아.",
+    ];
+  }
+  if (/AI|HBM|Blackwell|반도체|TSMC|CoWoS|파운드리|데이터센터/.test(haystack)) {
+    return [
+      "수요가 늘었다는 말보다 어느 부품이 부족한지를 먼저 찾아.",
+      "공급 능력을 가진 회사와 단순 기대감만 있는 회사를 나눠 봐.",
+      "양산 일정, 수율, 고객사 인증 같은 단어는 실제 매출 전환 가능성을 보여줘.",
+    ];
+  }
+  if (/관세|미중|중국|제재|BYD|보조금|정책/.test(haystack)) {
+    return [
+      "정책이 가격을 올리는지, 진입을 막는지, 보조를 줄이는지부터 구분해.",
+      "직접 피해 기업과 반사이익 기업을 나눠서 봐야 해.",
+      "정책 뉴스는 발표 직후보다 시행 시점과 예외 조항에서 방향이 바뀔 수 있어.",
+    ];
+  }
+  return [
+    "이슈가 매출, 비용, 밸류에이션, 투자심리 중 무엇을 건드리는지 분류해.",
+    "직접 영향과 간접 영향을 나눠서 관련 종목을 봐.",
+    "단기 가격 반응과 중장기 실적 영향이 같은 방향인지 확인해.",
+  ];
+}
+
 function LessonFlow({
   issue,
   onComplete,
@@ -3852,21 +4505,33 @@ function LessonFlow({
   initialStep?: number;
 }) {
   const [step, setStep] = useState(initialStep);
+  const [openRippleSym, setOpenRippleSym] = useState<string | null>(null);
+  const [quizAnswer, setQuizAnswer] = useState<"o" | "x" | null>(null);
+  const [vote, setVote] = useState<"buy" | "watch" | "pass" | null>(null);
   const detail = issue.detail;
   const body = detail?.body || [];
 
   const leadBlock = body.find((b) => b.kind === "lead");
-  const coreBlocks = body.filter(
-    (b) => b.kind === "analogy" || b.kind === "paragraph",
-  );
+  const analogyBlocks = body.filter((b) => b.kind === "analogy");
+  const analysisBlocks = body.filter((b) => b.kind === "paragraph");
+  const calloutBlock = body.find((b) => b.kind === "callout");
   const ripple = detail?.ripple;
   const terms = collectGlossaryTerms(body);
+  const hasMixedRipple =
+    ripple?.affected.some((a) => a.polarity !== ripple.affected[0]?.polarity) ??
+    false;
+  const quizCorrect = hasMixedRipple ? "x" : "o";
+  const quizDone = quizAnswer !== null;
+  const introPoints = getLessonIntroPoints(issue);
+  const backgroundPoints = getLessonBackgroundPoints(issue);
+  const analysisFrames = getLessonAnalysisFrames(issue);
 
   const STEPS = [
+    { label: "요약/서론", icon: "🧭" },
     { label: "배경", icon: "📖" },
-    { label: "핵심", icon: "💡" },
-    { label: "파급효과", icon: "🌊" },
-    { label: "정리", icon: "✅" },
+    { label: "원인/분석", icon: "🔎" },
+    { label: "쟁점", icon: "⚖️" },
+    { label: "퀴즈/투표", icon: "✅" },
   ];
 
   const totalSteps = STEPS.length;
@@ -3963,19 +4628,80 @@ function LessonFlow({
                 </span>
               ))}
             </div>
-            {leadBlock && (
+            {issue.summary && (
               <div
                 className="rounded-[20px] p-5"
                 style={{ background: HERO, boxShadow: SHADOW_HERO }}
               >
                 <div
+                  className="mb-2 text-[11px] font-extrabold uppercase"
+                  style={{ color: ACCENT_DEEP, letterSpacing: 0.4 }}
+                >
+                  오늘 잡고 갈 핵심
+                </div>
+                <div
                   className="text-[14.5px] font-medium leading-[1.85]"
                   style={{ color: TEXT }}
                 >
-                  <HighlightedText text={leadBlock.text} />
+                  <HighlightedText text={issue.summary} />
                 </div>
               </div>
             )}
+            <div className="mt-4 grid grid-cols-1 gap-2">
+              {introPoints.map((point) => (
+                <div
+                  key={point.label}
+                  className="rounded-[18px] p-4"
+                  style={{ background: SURFACE, boxShadow: SHADOW }}
+                >
+                  <div
+                    className="mb-1 text-[11px] font-extrabold"
+                    style={{ color: ACCENT_DEEP }}
+                  >
+                    {point.label}
+                  </div>
+                  <p
+                    className="text-[12.5px] leading-relaxed"
+                    style={{ color: TEXT }}
+                  >
+                    {point.text}
+                  </p>
+                </div>
+              ))}
+            </div>
+            <div
+              className="mt-4 rounded-[18px] p-4"
+              style={{ background: SURFACE, boxShadow: SHADOW }}
+            >
+              <div
+                className="mb-2 text-[11px] font-extrabold"
+                style={{ color: SUB }}
+              >
+                이번 학습에서 확인할 것
+              </div>
+              <div className="flex flex-col gap-2">
+                {[
+                  "뉴스가 어떤 시장 변수를 건드렸는지",
+                  "그 변수가 어떤 종목으로 전달되는지",
+                  "내 판단은 매수·관망·패스 중 어디에 가까운지",
+                ].map((text, i) => (
+                  <div key={text} className="flex gap-2">
+                    <span
+                      className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full text-[10px] font-extrabold"
+                      style={{ background: ACCENT_SOFT, color: ACCENT_DEEP }}
+                    >
+                      {i + 1}
+                    </span>
+                    <span
+                      className="text-[12.5px] leading-relaxed"
+                      style={{ color: TEXT }}
+                    >
+                      {text}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
             <div
               className="mt-4 flex gap-3 rounded-[18px] p-4"
               style={{ background: ACCENT_SOFT }}
@@ -3992,7 +4718,7 @@ function LessonFlow({
                   className="text-[12.5px] leading-relaxed"
                   style={{ color: TEXT }}
                 >
-                  이 이슈가 왜 중요한지 차근차근 알아보자!
+                  먼저 결론부터 잡고, 배경과 판단 포인트를 차례대로 뜯어보자.
                 </p>
               </div>
             </div>
@@ -4005,10 +4731,135 @@ function LessonFlow({
               className="mb-4 text-[18px] font-extrabold leading-tight"
               style={{ color: TEXT }}
             >
-              그래서 뭐가 중요해?
+              이 일이 터지기 전, 시장은 어떤 분위기였을까?
             </h2>
+            {leadBlock ? (
+              <div
+                className="rounded-[20px] p-5"
+                style={{ background: HERO, boxShadow: SHADOW_HERO }}
+              >
+                <div
+                  className="text-[14.5px] font-medium leading-[1.85]"
+                  style={{ color: TEXT }}
+                >
+                  <HighlightedText text={leadBlock.text} />
+                </div>
+              </div>
+            ) : (
+              <div
+                className="rounded-[20px] p-5"
+                style={{ background: SURFACE, boxShadow: SHADOW }}
+              >
+                <p className="text-[14px] leading-relaxed" style={{ color: SUB }}>
+                  이 이슈는 시장 상황 설명 없이도 바로 핵심을 볼 수 있어요.
+                </p>
+              </div>
+            )}
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              {backgroundPoints.map((point) => (
+                <div
+                  key={point.label}
+                  className="rounded-[18px] p-4"
+                  style={{ background: SURFACE, boxShadow: SHADOW }}
+                >
+                  <div
+                    className="mb-1 text-[11px] font-extrabold"
+                    style={{ color: ACCENT_DEEP }}
+                  >
+                    {point.label}
+                  </div>
+                  <p
+                    className="text-[12px] leading-relaxed"
+                    style={{ color: TEXT }}
+                  >
+                    {point.text}
+                  </p>
+                </div>
+              ))}
+            </div>
+            <div
+              className="mt-4 rounded-[18px] p-4"
+              style={{ background: ACCENT_SOFT }}
+            >
+              <div
+                className="mb-1 text-[11px] font-extrabold"
+                style={{ color: ACCENT_DEEP }}
+              >
+                배경을 읽는 순서
+              </div>
+              <p
+                className="text-[12.5px] leading-relaxed"
+                style={{ color: TEXT }}
+              >
+                먼저 사건이 나온 맥락을 보고, 그다음 시장이 이미 걱정하던 변수가 무엇이었는지 확인해. 같은 뉴스라도 시장이 긴장한 상태였는지, 안심하던 상태였는지에 따라 반응이 달라져.
+              </p>
+            </div>
+            {terms.length > 0 && (
+              <div className="mt-4">
+                <div
+                  className="mb-2 text-[12px] font-extrabold"
+                  style={{ color: SUB }}
+                >
+                  배경을 이해하는 핵심 용어
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {terms.slice(0, 4).map((term) => (
+                    <span
+                      key={term}
+                      className="rounded-full px-3 py-1.5 text-[12px] font-bold"
+                      style={{ background: ACCENT_SOFT, color: ACCENT_DEEP }}
+                    >
+                      {term}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {step === 2 && (
+          <div>
+            <h2
+              className="mb-4 text-[18px] font-extrabold leading-tight"
+              style={{ color: TEXT }}
+            >
+              왜 이런 이슈가 생겼을까?
+            </h2>
+            <div
+              className="mb-4 rounded-[20px] p-5"
+              style={{ background: HERO, boxShadow: SHADOW_HERO }}
+            >
+              <div
+                className="mb-2 text-[11px] font-extrabold"
+                style={{ color: ACCENT_DEEP }}
+              >
+                분석 프레임
+              </div>
+              <div className="flex flex-col gap-2">
+                {analysisFrames.map((text, i) => (
+                  <div key={text} className="flex gap-2">
+                    <span
+                      className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full text-[10px] font-extrabold"
+                      style={{
+                        background: i === 0 ? ACCENT : SURFACE,
+                        color: i === 0 ? "#fff" : ACCENT_DEEP,
+                      }}
+                    >
+                      {i + 1}
+                    </span>
+                    <span
+                      className="text-[12.5px] leading-relaxed"
+                      style={{ color: TEXT }}
+                    >
+                      {text}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
             <div className="flex flex-col gap-3">
-              {coreBlocks.map((block, i) => (
+              {[...analogyBlocks, ...analysisBlocks].map((block, i) => (
                 <div
                   key={i}
                   className="rounded-[20px] p-5"
@@ -4045,7 +4896,7 @@ function LessonFlow({
                   </div>
                 </div>
               ))}
-              {coreBlocks.length === 0 && (
+              {analogyBlocks.length + analysisBlocks.length === 0 && (
                 <div
                   className="rounded-[20px] p-5 text-center"
                   style={{ background: SURFACE, boxShadow: SHADOW }}
@@ -4059,70 +4910,125 @@ function LessonFlow({
           </div>
         )}
 
-        {step === 2 && (
+        {step === 3 && (
           <div>
             <h2
               className="mb-4 text-[18px] font-extrabold leading-tight"
               style={{ color: TEXT }}
             >
-              그러면 뭐가 흔들려?
+              어떤 관점에서 오르고 내릴까?
             </h2>
+            {calloutBlock && (
+              <div
+                className="relative mb-4 overflow-hidden rounded-[20px] p-5 pl-6"
+                style={{ background: SURFACE, boxShadow: SHADOW }}
+              >
+                <span
+                  className="absolute bottom-4 left-0 top-4 w-1 rounded-r-full"
+                  style={{ background: UP }}
+                />
+                <div
+                  className="mb-2 text-[12px] font-extrabold"
+                  style={{ color: UP }}
+                >
+                  {calloutBlock.title || "판단 포인트"}
+                </div>
+                <div
+                  className="text-[13.5px] leading-[1.75]"
+                  style={{ color: TEXT }}
+                >
+                  <HighlightedText text={calloutBlock.text} />
+                </div>
+              </div>
+            )}
             {ripple ? (
               <>
                 <p className="mb-3 text-[13px]" style={{ color: SUB }}>
                   {ripple.summary}
                 </p>
                 <div className="flex flex-col gap-2">
-                  {ripple.affected.map((a) => (
-                    <div
-                      key={a.sym}
-                      className="flex items-center gap-3 rounded-[16px] p-4"
-                      style={{ background: SURFACE, boxShadow: SHADOW }}
-                    >
-                      <div
-                        className="flex h-10 w-10 items-center justify-center rounded-full text-[13px] font-extrabold"
-                        style={{
-                          background:
-                            a.polarity === "positive"
-                              ? UP + "18"
-                              : a.polarity === "negative"
-                                ? DOWN + "18"
-                                : LINE,
-                          color:
-                            a.polarity === "positive"
-                              ? UP
-                              : a.polarity === "negative"
-                                ? DOWN
-                                : SUB,
-                        }}
+                  {ripple.affected.map((a) => {
+                    const isOpen = openRippleSym === a.sym;
+                    const marker =
+                      a.polarity === "positive"
+                        ? "▲"
+                        : a.polarity === "negative"
+                          ? "▼"
+                          : "—";
+                    const markerColor =
+                      a.polarity === "positive"
+                        ? UP
+                        : a.polarity === "negative"
+                          ? DOWN
+                          : SUB;
+                    return (
+                      <article
+                        key={a.sym}
+                        className="rounded-[16px] p-4"
+                        style={{ background: SURFACE, boxShadow: SHADOW }}
                       >
-                        {a.polarity === "positive"
-                          ? "▲"
-                          : a.polarity === "negative"
-                            ? "▼"
-                            : "—"}
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-baseline gap-1.5">
-                          <span
-                            className="text-[14px] font-extrabold"
-                            style={{ color: TEXT }}
-                          >
-                            {a.name}
-                          </span>
-                          <span className="text-[11px]" style={{ color: SUB }}>
-                            {a.sym}
-                          </span>
-                        </div>
-                        <div
-                          className="mt-0.5 text-[12px] leading-snug"
-                          style={{ color: SUB }}
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setOpenRippleSym(isOpen ? null : a.sym)
+                          }
+                          className="flex w-full items-center gap-3 text-left active:opacity-80"
                         >
-                          {a.reason}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                          <div
+                            className="flex h-10 w-10 items-center justify-center rounded-full text-[13px] font-extrabold"
+                            style={{
+                              background:
+                                a.polarity === "positive"
+                                  ? UP + "18"
+                                  : a.polarity === "negative"
+                                    ? DOWN + "18"
+                                    : LINE,
+                              color: markerColor,
+                            }}
+                          >
+                            {marker}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-baseline gap-1.5">
+                              <span
+                                className="text-[14px] font-extrabold"
+                                style={{ color: TEXT }}
+                              >
+                                {a.name}
+                              </span>
+                              <span className="text-[11px]" style={{ color: SUB }}>
+                                {a.sym}
+                              </span>
+                            </div>
+                            <div
+                              className="mt-0.5 text-[12px] leading-snug"
+                              style={{ color: SUB }}
+                            >
+                              {a.reason}
+                            </div>
+                          </div>
+                          <span
+                            className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-[12px] font-extrabold"
+                            style={{
+                              background: isOpen ? ACCENT_SOFT : BG,
+                              color: isOpen ? ACCENT_DEEP : SUB,
+                              transform: isOpen ? "rotate(180deg)" : "none",
+                              transition: "transform 180ms",
+                            }}
+                          >
+                            ⌄
+                          </span>
+                        </button>
+                        {isOpen && (
+                          <LessonRippleFlow
+                            issue={issue}
+                            summary={ripple.summary}
+                            item={a}
+                          />
+                        )}
+                      </article>
+                    );
+                  })}
                 </div>
               </>
             ) : (
@@ -4138,13 +5044,13 @@ function LessonFlow({
           </div>
         )}
 
-        {step === 3 && (
+        {step === 4 && (
           <div>
             <h2
               className="mb-4 text-[18px] font-extrabold leading-tight"
               style={{ color: TEXT }}
             >
-              한 줄로 정리하면
+              마지막으로 네 판단을 찍어보자
             </h2>
             {issue.coachLine && (
               <div
@@ -4173,38 +5079,111 @@ function LessonFlow({
                 </div>
               </div>
             )}
-            {terms.length > 0 && (
-              <>
-                <div
-                  className="mb-2 text-[12px] font-extrabold"
-                  style={{ color: SUB }}
-                >
-                  이 이슈의 핵심 용어
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {terms.slice(0, 6).map((term) => (
-                    <div
-                      key={term}
-                      className="rounded-xl px-3 py-2"
-                      style={{ background: ACCENT_SOFT }}
+
+            <div
+              className="mb-4 rounded-[20px] p-5"
+              style={{ background: HERO, boxShadow: SHADOW_HERO }}
+            >
+              <div
+                className="mb-2 text-[12px] font-extrabold"
+                style={{ color: ACCENT_DEEP }}
+              >
+                OX 퀴즈
+              </div>
+              <p
+                className="mb-4 text-[14px] font-bold leading-relaxed"
+                style={{ color: TEXT }}
+              >
+                이 이슈는 관련 종목에 모두 같은 방향으로만 작용한다.
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                {(["o", "x"] as const).map((answer) => {
+                  const selected = quizAnswer === answer;
+                  return (
+                    <button
+                      key={answer}
+                      type="button"
+                      onClick={() => setQuizAnswer(answer)}
+                      className="rounded-2xl py-3 text-[15px] font-extrabold active:opacity-80"
+                      style={{
+                        background: selected ? ACCENT : SURFACE,
+                        color: selected ? "#fff" : TEXT,
+                        border: `1px solid ${selected ? ACCENT : LINE}`,
+                      }}
                     >
-                      <div
-                        className="text-[12px] font-extrabold"
-                        style={{ color: ACCENT_DEEP }}
+                      {answer === "o" ? "O" : "X"}
+                    </button>
+                  );
+                })}
+              </div>
+              {quizDone && (
+                <p
+                  className="mt-3 text-[12.5px] leading-relaxed"
+                  style={{ color: quizAnswer === quizCorrect ? UP : DOWN }}
+                >
+                  {quizAnswer === quizCorrect
+                    ? "정답! 이슈의 영향 방향을 구분해서 보는 게 핵심이야."
+                    : "아쉬워. 같은 뉴스라도 수혜 종목과 피해 종목이 갈릴 수 있어."}
+                </p>
+              )}
+            </div>
+
+            <div
+              className="rounded-[20px] p-5"
+              style={{ background: SURFACE, boxShadow: SHADOW }}
+            >
+              <div
+                className="mb-2 text-[12px] font-extrabold"
+                style={{ color: SUB }}
+              >
+                내 판단
+              </div>
+              <p className="mb-3 text-[13px] leading-relaxed" style={{ color: TEXT }}>
+                지금 이 이슈를 보고 관련 종목을 어떻게 볼래?
+              </p>
+              <div className="flex flex-col gap-2">
+                {[
+                  { id: "buy" as const, label: "매수 쪽으로 본다", desc: "수혜가 더 크다고 판단" },
+                  { id: "watch" as const, label: "일단 지켜본다", desc: "방향은 보이지만 확인 필요" },
+                  { id: "pass" as const, label: "매수하지 않는다", desc: "위험이 더 크다고 판단" },
+                ].map((option) => {
+                  const selected = vote === option.id;
+                  return (
+                    <button
+                      key={option.id}
+                      type="button"
+                      onClick={() => setVote(option.id)}
+                      className="flex items-center justify-between rounded-2xl p-3 text-left active:opacity-80"
+                      style={{
+                        background: selected ? ACCENT_SOFT : BG,
+                        border: `1px solid ${selected ? ACCENT : LINE}`,
+                      }}
+                    >
+                      <span>
+                        <span
+                          className="block text-[13px] font-extrabold"
+                          style={{ color: TEXT }}
+                        >
+                          {option.label}
+                        </span>
+                        <span className="mt-0.5 block text-[11.5px]" style={{ color: SUB }}>
+                          {option.desc}
+                        </span>
+                      </span>
+                      <span
+                        className="flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-extrabold"
+                        style={{
+                          background: selected ? ACCENT : LINE,
+                          color: selected ? "#fff" : SUB,
+                        }}
                       >
-                        {term}
-                      </div>
-                      <div
-                        className="mt-0.5 text-[11px] leading-snug"
-                        style={{ color: SUB }}
-                      >
-                        {GLOSSARY[term]?.slice(0, 40)}…
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </>
-            )}
+                        {selected ? "✓" : ""}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           </div>
         )}
       </div>
@@ -4217,11 +5196,9 @@ function LessonFlow({
           className="w-full rounded-full py-3.5 text-[15px] font-extrabold active:opacity-80"
           style={{ background: ACCENT, color: "#fff", boxShadow: SHADOW }}
         >
-          {isLast ? "학습 완료 🎉" : "다음 →"}
+          {isLast ? "참여하고 완료하기 🎉" : "다음 →"}
         </button>
       </div>
     </div>
   );
 }
-
-
