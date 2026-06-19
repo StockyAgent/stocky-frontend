@@ -1242,6 +1242,21 @@ type StockKGFlow = {
   learningPoint: string;
 };
 
+type StockKGNode = {
+  sym: string;
+  name: string;
+  polarity: Polarity;
+  relation: string;
+  reason: string;
+  learningPoint?: string;
+};
+
+type StockKGNetworkData = {
+  title: string;
+  scenario: string;
+  nodes: StockKGNode[];
+};
+
 type EduStockDetail = {
   symbol: string;
   name: string;
@@ -1256,6 +1271,7 @@ type EduStockDetail = {
   epsData: { quarter: string; estimated: number; actual: number }[];
   revenueBreakdown: { label: string; value: number; color: string }[];
   kgFlows?: StockKGFlow[];
+  kgNetwork?: StockKGNetworkData;
 };
 
 const stockDetailsMap: Record<string, EduStockDetail> = {
@@ -1611,76 +1627,51 @@ const stockDetailsMap: Record<string, EduStockDetail> = {
       { label: "오토모티브", value: 1, color: "#9B59B6" },
       { label: "OEM/기타", value: 1, color: UP },
     ],
-    kgFlows: [
-      {
-        title: "AI 칩 수요가 공급망으로 번지는 경로",
-        scenario: "AI 데이터센터 투자 확대가 엔비디아를 시작으로 어떻게 공급망 전체로 파급되는지 분석합니다.",
-        steps: [
-          {
-            label: "AI 모델 학습 수요 급증",
-            sublabel: "AI 트렌드",
-            desc: "GPT-5급 대형 모델 훈련에 H100/B200 클러스터 수천 대 필요",
-            relation: "GPU 주문 폭발적 증가",
-            polarity: "positive",
-          },
-          {
-            label: "엔비디아 GPU 수요 급증",
-            sublabel: "NVDA",
-            desc: "데이터센터 매출 YoY 400%+ 성장. 납품 대기 12~18개월",
-            relation: "HBM 메모리 공급 부족",
-            polarity: "positive",
-          },
-          {
-            label: "SK하이닉스 HBM 독점 공급",
-            sublabel: "000660",
-            desc: "HBM3E 1위 공급사로 엔비디아 GPU 칩당 탑재. 일반 D램 대비 5~7배 ASP",
-            relation: "파운드리 CoWoS 패키징 수요",
-            polarity: "positive",
-          },
-          {
-            label: "TSMC CoWoS 풀가동",
-            sublabel: "TSM",
-            desc: "GPU와 HBM을 하나의 패키지로 묶는 CoWoS 공정이 AI 칩 제조의 병목으로 부상",
-            polarity: "positive",
-          },
-        ],
-        learningPoint: "AI 수혜주를 찾을 때는 '가장 수요가 많은 회사'보다 '가장 부족한 부품을 가진 회사'를 주목해야 합니다. 공급망의 병목 지점이 초과 이익을 누리는 구조입니다.",
-      },
-      {
-        title: "CUDA 락인이 경쟁 구도를 고정하는 메커니즘",
-        scenario: "엔비디아의 소프트웨어 생태계가 어떻게 하드웨어 경쟁을 차단하는지 분석합니다.",
-        steps: [
-          {
-            label: "CUDA 개발 환경 확산",
-            sublabel: "NVDA 플랫폼",
-            desc: "AI 연구자·기업 450만 명이 CUDA 기반으로 모델 구축",
-            relation: "플랫폼 전환 비용 발생",
-            polarity: "positive",
-          },
-          {
-            label: "AMD 등 대안 채택 어려움",
-            sublabel: "AMD / INTC",
-            desc: "CUDA 코드를 ROCm·OneAPI로 재작성하는 데 수개월 이상 소요",
-            relation: "NVDA 시장점유율 고착",
-            polarity: "negative",
-          },
-          {
-            label: "빅테크 자체 칩 개발 가속화",
-            sublabel: "GOOGL / META",
-            desc: "구글 TPU, 메타 MTIA 등 특정 용도 최적화 칩으로 일부 수요 분산 시도",
-            relation: "NVDA 성장률 일부 제한",
-            polarity: "neutral",
-          },
-          {
-            label: "엔비디아 플랫폼 독점 유지",
-            sublabel: "NVDA",
-            desc: "범용 AI 가속기 시장에서는 CUDA 생태계 우위가 중장기간 지속될 전망",
-            polarity: "positive",
-          },
-        ],
-        learningPoint: "하드웨어 경쟁은 결국 소프트웨어 생태계 경쟁입니다. 개발자 커뮤니티와 도구 생태계를 장악한 기업은 후발 주자의 기술 추격만으로 무너지지 않습니다.",
-      },
-    ],
+    kgNetwork: {
+      title: "AI 칩 공급망 및 생태계 파급효과",
+      scenario: "엔비디아의 독점적인 AI 인프라 장악력이 글로벌 공급망 및 경쟁사들에 미치는 영향을 지식 그래프로 확인합니다.",
+      nodes: [
+        {
+          sym: "TSM",
+          name: "TSMC",
+          polarity: "positive",
+          relation: "파운드리 파트너",
+          reason: "엔비디아의 모든 최첨단 AI 칩(H100, B200 등)과 CoWoS 패키징을 독점 위탁 생산하며 막대한 수혜를 입고 있습니다.",
+          learningPoint: "칩 설계사가 팹리스 구조일 때, 칩 수요 폭발은 파운드리 독점 기업의 병목 현상과 높은 마진으로 직결됩니다.",
+        },
+        {
+          sym: "000660",
+          name: "SK하이닉스",
+          polarity: "positive",
+          relation: "HBM 메모리 공급",
+          reason: "AI 가속기 구동에 필수적인 고대역폭 메모리(HBM3/HBM3E)를 엔비디아에 사실상 독점 공급하며 실적이 급증했습니다.",
+          learningPoint: "단순 부품사라도 고객사의 핵심 병목을 해소할 기술력(HBM)을 갖추면 구조적 갑의 위치를 점할 수 있습니다.",
+        },
+        {
+          sym: "MSFT",
+          name: "Microsoft",
+          polarity: "positive",
+          relation: "최대 고객사",
+          reason: "Azure 클라우드의 AI 주도권을 잡기 위해 엔비디아 GPU를 대량으로 선취매하며 인프라 투자를 주도하고 있습니다.",
+          learningPoint: "최대 고객사의 막대한 CapEx 투자는 엔비디아 매출의 가시성을 높이는 강력한 동인이 됩니다.",
+        },
+        {
+          sym: "ASML",
+          name: "ASML",
+          polarity: "positive",
+          relation: "장비 독점",
+          reason: "TSMC가 엔비디아 칩을 만들기 위해 필요한 EUV(극자외선) 노광 장비를 전 세계에서 유일하게 공급합니다.",
+        },
+        {
+          sym: "AMD",
+          name: "AMD",
+          polarity: "negative",
+          relation: "직접 경쟁사",
+          reason: "자체 AI 가속기(MI300X 등)를 출시하며 추격 중이나, 엔비디아의 견고한 CUDA 생태계 벽에 부딪혀 시장 점유율 확장에 어려움을 겪고 있습니다.",
+          learningPoint: "소프트웨어 생태계(CUDA) 락인 효과는 하드웨어 성능 격차보다 경쟁사의 진입 장벽을 높이는 핵심 요소입니다.",
+        },
+      ]
+    },
   },
   TSLA: {
     symbol: "TSLA",
@@ -3147,6 +3138,8 @@ function SectorGroupedList({
   );
 }
 
+
+
 function MineGroupedList({
   items,
   onOpen,
@@ -3154,7 +3147,6 @@ function MineGroupedList({
   items: Issue[];
   onOpen?: (issue: Issue) => void;
 }) {
-  // 관심종목 순서대로 그룹핑 — 이슈 없는 종목은 안 보여줌
   const groups = watchlist
     .map((stock) => ({
       stock,
@@ -3389,7 +3381,10 @@ function StockDetailMain({
         <EduEpsBars data={d.epsData} animate={animCharts} />
       </div>
 
-      {d.kgFlows && d.kgFlows.length > 0 && (
+      {d.kgNetwork && (
+        <StockKGNetworkGraph data={d.kgNetwork} baseSymbol={d.symbol} />
+      )}
+      {d.kgFlows && d.kgFlows.length > 0 && !d.kgNetwork && (
         <StockKGChain flows={d.kgFlows} />
       )}
 
@@ -3463,6 +3458,194 @@ function StockKGChain({ flows }: { flows: StockKGFlow[] }) {
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+function StockKGNetworkGraph({ data, baseSymbol }: { data: StockKGNetworkData; baseSymbol: string }) {
+  const [selectedSym, setSelectedSym] = useState<string>(data.nodes[0]?.sym || "");
+  const selectedNode = data.nodes.find((n) => n.sym === selectedSym);
+
+  const W = 320;
+  const H = 340; // 조금 더 넉넉하게
+  const issueX = W / 2;
+  const issueY = H / 2;
+  const issueR = 30;
+  const R = 110; // 반지름
+
+  const polColor = (p: Polarity) => (p === "positive" ? UP : p === "negative" ? DOWN : SUB);
+
+  return (
+    <div className="mb-6 rounded-[22px] p-5 shadow-sm" style={{ background: SURFACE, border: `1px solid ${LINE}` }}>
+      <h2 className="mb-1 text-[16px] font-extrabold flex items-center gap-2 tracking-tight" style={{ color: TEXT }}>
+        <span style={{ fontSize: 18 }}>🔗</span> {data.title}
+      </h2>
+      <p className="mb-5 text-[12px] leading-relaxed" style={{ color: SUB }}>
+        {data.scenario}
+      </p>
+
+      <div className="mb-5 relative" style={{ height: H }}>
+        <svg viewBox={`0 0 ${W} ${H}`} className="absolute top-0 left-0 w-full h-full">
+          <defs>
+            <radialGradient id="kg-base-fill" cx="0.35" cy="0.3" r="0.85">
+              <stop offset="0" stopColor="#FFD7B0" />
+              <stop offset="1" stopColor={ACCENT} />
+            </radialGradient>
+          </defs>
+
+          {/* Edges */}
+          {data.nodes.map((n, i) => {
+            const angle = (i * 2 * Math.PI) / data.nodes.length - Math.PI / 2;
+            const x = issueX + Math.cos(angle) * R;
+            const y = issueY + Math.sin(angle) * R;
+            const isSel = n.sym === selectedSym;
+            const c = polColor(n.polarity);
+
+            return (
+              <g key={`edge-${n.sym}`} className="cursor-pointer" onClick={() => setSelectedSym(n.sym)}>
+                <line
+                  x1={issueX}
+                  y1={issueY}
+                  x2={x}
+                  y2={y}
+                  stroke={c}
+                  strokeWidth={isSel ? 3.5 : 1.5}
+                  opacity={isSel ? 0.95 : 0.25}
+                  style={{ transition: "stroke-width 200ms, opacity 200ms" }}
+                />
+                <circle cx={x} cy={y} r={isSel ? 4 : 2.5} fill={c} opacity={isSel ? 1 : 0.4} />
+              </g>
+            );
+          })}
+
+          {/* Base Node */}
+          <g>
+            <circle cx={issueX} cy={issueY} r={issueR + 2} fill="none" stroke={ACCENT} strokeWidth={1} opacity={0.35} />
+            <circle cx={issueX} cy={issueY} r={issueR} fill="url(#kg-base-fill)" />
+            <text x={issueX} y={issueY + 1} textAnchor="middle" dominantBaseline="middle" fill="#fff" fontSize="13" fontWeight="800">
+              {baseSymbol}
+            </text>
+          </g>
+
+          {/* Target Nodes */}
+          {data.nodes.map((n, i) => {
+            const angle = (i * 2 * Math.PI) / data.nodes.length - Math.PI / 2;
+            const x = issueX + Math.cos(angle) * R;
+            const y = issueY + Math.sin(angle) * R;
+            const isSel = n.sym === selectedSym;
+            const c = polColor(n.polarity);
+
+            // 레이블 위치: 노드 중심에서 바깥쪽으로 조금 더 뺀 위치
+            const labelR = R + 22;
+            const lx = issueX + Math.cos(angle) * labelR;
+            const ly = issueY + Math.sin(angle) * labelR;
+            
+            // 글씨 정렬
+            const align = Math.cos(angle) > 0.1 ? "start" : Math.cos(angle) < -0.1 ? "end" : "middle";
+
+            // 선에 글씨 표시하기 (relation)
+            // 선 중간 지점
+            const mx = (issueX + x) / 2;
+            const my = (issueY + y) / 2;
+
+            return (
+              <g key={`node-${n.sym}`} className="cursor-pointer" onClick={() => setSelectedSym(n.sym)}>
+                <circle
+                  cx={x}
+                  cy={y}
+                  r={16}
+                  fill={isSel ? c : SURFACE}
+                  stroke={c}
+                  strokeWidth={isSel ? 0 : 1.5}
+                  style={{ transition: "all 200ms" }}
+                />
+                <text
+                  x={x}
+                  y={y + 1}
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                  fill={isSel ? "#fff" : TEXT}
+                  fontSize={n.sym.length > 5 ? "8" : "9.5"}
+                  fontWeight="800"
+                >
+                  {n.sym}
+                </text>
+                
+                {/* 텍스트 배경 (가독성 향상) */}
+                <text
+                  x={lx}
+                  y={ly - 6}
+                  textAnchor={align}
+                  dominantBaseline="middle"
+                  fontSize="11"
+                  fontWeight={isSel ? "800" : "600"}
+                  stroke={SURFACE}
+                  strokeWidth="3"
+                  strokeLinejoin="round"
+                >
+                  {n.name}
+                </text>
+                <text
+                  x={lx}
+                  y={ly - 6}
+                  textAnchor={align}
+                  dominantBaseline="middle"
+                  fontSize="11"
+                  fontWeight={isSel ? "800" : "600"}
+                  fill={isSel ? TEXT : SUB}
+                  style={{ transition: "all 200ms" }}
+                >
+                  {n.name}
+                </text>
+
+                {/* 엣지 위의 레이블 */}
+                <g transform={`translate(${mx}, ${my})`}>
+                  <rect x="-20" y="-8" width="40" height="16" fill={SURFACE} opacity="0.8" rx="4" />
+                  <text
+                    x="0"
+                    y="1"
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                    fontSize="9.5"
+                    fontWeight="600"
+                    fill={isSel ? ACCENT_DEEP : SUB}
+                    opacity={isSel ? 1 : 0.8}
+                  >
+                    {n.relation}
+                  </text>
+                </g>
+              </g>
+            );
+          })}
+        </svg>
+      </div>
+
+      {/* Detail Panel for Selected Node */}
+      {selectedNode && (
+        <div className="flex flex-col gap-3 rounded-[20px] p-4 shadow-sm" style={{ background: HERO, border: `1px solid rgba(0,0,0,0.03)` }}>
+          <div className="flex items-center gap-2">
+            <span className="text-[13px] font-black" style={{ color: polColor(selectedNode.polarity) }}>
+              {selectedNode.name}
+            </span>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: "rgba(0,0,0,0.05)", color: SUB }}>
+              {selectedNode.relation}
+            </span>
+          </div>
+          <p className="text-[12.5px] leading-relaxed" style={{ color: TEXT }}>
+            {selectedNode.reason}
+          </p>
+          {selectedNode.learningPoint && (
+            <div className="mt-1 rounded-xl p-3" style={{ background: "rgba(255,255,255,0.7)", border: `1px solid ${LINE}` }}>
+              <div className="text-[11px] font-black mb-1 flex items-center gap-1.5" style={{ color: ACCENT_DEEP }}>
+                💡 투자 인사이트
+              </div>
+              <div className="text-[12px] font-medium leading-relaxed" style={{ color: TEXT }}>
+                {selectedNode.learningPoint}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -3803,68 +3986,87 @@ function ScoreAxisCard({ axis }: { axis: ScoreAxis }) {
   const terms = collectGlossaryTerms([{ kind: "paragraph", text: axis.desc + " " + axis.learning }]);
 
   return (
-    <article
-      className="rounded-[22px] p-5"
-      style={{ background: SURFACE, boxShadow: SHADOW }}
+    <article 
+      className="score-axis-card animate-fade-in pb-4" 
+      key={axis.key}
     >
-      <header className="mb-4 flex items-center gap-3">
-        <span
-          className="flex h-10 w-10 items-center justify-center rounded-2xl"
-          style={{ background: ACCENT_SOFT, color: ACCENT_DEEP }}
-        >
-          <AxisIcon axisKey={axis.key} size={22} />
-        </span>
-        <div className="flex-1">
-          <div className="text-[15px] font-extrabold" style={{ color: TEXT }}>
-            {axis.key}
+      <style jsx>{`
+        .animate-fade-in {
+          animation: scoreFadeIn 0.3s ease-out forwards;
+        }
+        @keyframes scoreFadeIn {
+          from { opacity: 0; transform: translateY(8px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
+
+      <header className="mb-6 flex flex-col gap-3">
+        <div className="flex items-center gap-3">
+          <span
+            className="flex h-12 w-12 items-center justify-center rounded-2xl shadow-sm"
+            style={{ background: ACCENT_SOFT, color: ACCENT_DEEP }}
+          >
+            <AxisIcon axisKey={axis.key} size={26} />
+          </span>
+          <div className="flex-1">
+            <div className="text-[18px] font-extrabold tracking-tight" style={{ color: TEXT }}>
+              {axis.key}
+            </div>
           </div>
-          <div className="text-[12px]" style={{ color: SUB }}>
-            {axis.oneLine}
+          <div
+            className="flex h-12 min-w-[54px] items-center justify-center rounded-2xl px-2 text-[20px] font-black shadow-md"
+            style={{
+              background: `linear-gradient(135deg, ${ACCENT} 0%, #E3603B 100%)`,
+              color: "#fff",
+              fontVariantNumeric: "tabular-nums",
+            }}
+          >
+            {axis.score}
           </div>
         </div>
-        <div
-          className="flex h-9 min-w-[44px] items-center justify-center rounded-xl px-2 text-[14px] font-extrabold"
-          style={{
-            background: ACCENT,
-            color: "#fff",
-            fontVariantNumeric: "tabular-nums",
-          }}
-        >
-          {axis.score}
+        
+        <div className="relative rounded-2xl p-4 mt-1" style={{ background: SURFACE, borderLeft: `4px solid ${ACCENT}` }}>
+          <div className="text-[14px] font-bold leading-relaxed" style={{ color: TEXT }}>
+            "{axis.oneLine}"
+          </div>
         </div>
       </header>
 
       {axis.chart && (
         <section
-          className="mb-4 rounded-2xl p-3"
+          className="mb-6 rounded-[24px] p-4 shadow-sm"
           style={{ background: ACCENT_SOFT }}
         >
           <ScoreChart chart={axis.chart} />
         </section>
       )}
 
-      <div className="mb-4 grid grid-cols-3 gap-2">
+      <div className="mb-6 grid grid-cols-3 gap-3">
         {axis.indicators.map((ind) => (
           <div
             key={ind.name}
-            className="rounded-2xl p-2.5"
-            style={{ border: `1px solid ${LINE}`, background: SURFACE }}
+            className="flex flex-col justify-center rounded-2xl p-3 shadow-sm"
+            style={{
+              background: "rgba(255,255,255,0.6)",
+              backdropFilter: "blur(10px)",
+              border: `1px solid rgba(0,0,0,0.05)`,
+            }}
           >
             <div
-              className="mb-1 text-[10.5px] font-bold leading-tight"
+              className="mb-1 text-[11px] font-extrabold tracking-tight"
               style={{ color: SUB }}
             >
               {ind.name}
             </div>
             <div
-              className="text-[15px] font-extrabold leading-none"
+              className="text-[16px] font-black tracking-tight"
               style={{ color: ACCENT_DEEP, fontVariantNumeric: "tabular-nums" }}
             >
               {ind.value}
             </div>
             {ind.note && (
               <div
-                className="mt-1 text-[10px] leading-tight"
+                className="mt-1 text-[10px] font-medium leading-tight"
                 style={{ color: SUB }}
               >
                 {ind.note}
@@ -3875,39 +4077,50 @@ function ScoreAxisCard({ axis }: { axis: ScoreAxis }) {
       </div>
 
       <div
-        className="mb-3 flex gap-2 rounded-2xl p-3"
-        style={{ background: ACCENT_SOFT }}
+        className="mb-5 flex flex-col gap-3 rounded-[24px] p-5 shadow-sm"
+        style={{ background: SURFACE, border: `1px solid ${LINE}` }}
       >
-        <Mascot size={28} />
-        <p className="text-[12.5px] leading-relaxed" style={{ color: TEXT }}>
-          {axis.desc}
-        </p>
+        <div className="flex items-center gap-2">
+          <Mascot size={28} />
+          <span className="text-[12px] font-black uppercase tracking-wider" style={{ color: ACCENT_DEEP }}>
+            심층 분석 (Deep Dive)
+          </span>
+        </div>
+        <div className="text-[13.5px] leading-[1.75]" style={{ color: TEXT }}>
+          <HighlightedText text={axis.desc} />
+        </div>
       </div>
 
-      <div className="rounded-2xl p-3" style={{ background: HERO, color: TEXT }}>
-        <div
-          className="mb-1 flex items-center gap-1.5 text-[11px] font-extrabold"
-          style={{ color: ACCENT_DEEP, letterSpacing: 0.3 }}
-        >
-          💡 학습 포인트
+      <div
+        className="relative overflow-hidden rounded-[24px] p-5 shadow-md"
+        style={{ background: HERO, color: TEXT, border: `1px solid rgba(255, 107, 61, 0.15)` }}
+      >
+        <div className="absolute top-0 right-0 h-32 w-32 -translate-y-10 translate-x-10 rounded-full blur-[40px]" style={{ background: ACCENT_SOFT, opacity: 0.6 }} />
+        <div className="relative z-10">
+          <div
+            className="mb-2 flex items-center gap-1.5 text-[12px] font-black uppercase tracking-wider"
+            style={{ color: ACCENT_DEEP }}
+          >
+            💡 투자 인사이트
+          </div>
+          <div className="text-[13.5px] leading-[1.75] font-medium" style={{ color: TEXT }}>
+            <HighlightedText text={axis.learning} />
+          </div>
         </div>
-        <p className="text-[12.5px] leading-relaxed" style={{ color: TEXT }}>
-          {axis.learning}
-        </p>
       </div>
 
       {terms.length > 0 && (
-        <div className="mt-3 flex flex-col gap-2">
+        <div className="mt-6 flex flex-col gap-2">
           {terms.map((term) => (
             <div
               key={term}
-              className="rounded-xl p-3"
+              className="rounded-[16px] p-3.5 shadow-sm"
               style={{ background: SURFACE, border: `1px solid ${LINE}` }}
             >
-              <div className="mb-1 text-[11px] font-extrabold" style={{ color: ACCENT_DEEP }}>
+              <div className="mb-1 text-[11.5px] font-black" style={{ color: ACCENT_DEEP }}>
                 📖 {term}
               </div>
-              <div className="text-[11.5px] leading-relaxed" style={{ color: SUB }}>
+              <div className="text-[12px] leading-relaxed" style={{ color: SUB }}>
                 {GLOSSARY[term]}
               </div>
             </div>
@@ -3941,40 +4154,56 @@ function StockScoresScreen({ d, onBack }: { d: EduStockDetail; onBack: () => voi
       </button>
 
       <div
-        className="mb-5 rounded-[24px] p-5"
-        style={{ background: HERO, boxShadow: SHADOW_HERO }}
+        className="mb-6 relative overflow-hidden rounded-[28px] p-6 shadow-xl"
+        style={{
+          background: `linear-gradient(135deg, #1A1C20 0%, #0E0F11 100%)`,
+          border: `1px solid rgba(255, 255, 255, 0.08)`,
+        }}
       >
-        <div className="mb-2 flex items-center gap-2">
-          <StockLogo symbol={d.symbol} size={36} />
+        <div
+          className="absolute -right-10 -top-10 h-40 w-40 rounded-full blur-[60px]"
+          style={{ background: ACCENT, opacity: 0.15 }}
+        />
+        <div className="relative z-10 mb-4 flex items-center gap-3">
+          <StockLogo symbol={d.symbol} size={42} />
           <div>
-            <div className="text-[18px] font-extrabold" style={{ color: TEXT }}>
+            <div className="text-[20px] font-extrabold tracking-tight text-white">
               {d.name}
             </div>
-            <div className="text-[11px]" style={{ color: ACCENT_DEEP }}>
-              5가지 관점 자세히
+            <div
+              className="text-[12px] font-medium"
+              style={{ color: "rgba(255,255,255,0.6)" }}
+            >
+              5가지 관점 세부 분석
             </div>
           </div>
         </div>
-        <div className="flex items-baseline gap-2">
+        <div className="relative z-10 flex items-baseline gap-2">
           <span
-            className="text-[40px] font-extrabold leading-none"
-            style={{ color: TEXT, letterSpacing: -1 }}
+            className="text-[48px] font-black leading-none tracking-tighter text-white"
+            style={{ textShadow: "0 2px 10px rgba(0,0,0,0.5)" }}
           >
             {total}
           </span>
-          <span className="text-[16px] font-extrabold" style={{ color: SUB }}>
+          <span
+            className="text-[18px] font-bold"
+            style={{ color: "rgba(255,255,255,0.4)" }}
+          >
             / 100
           </span>
           <span
-            className="ml-2 text-[12.5px] font-bold"
-            style={{ color: ACCENT_DEEP }}
+            className="ml-auto rounded-full px-3 py-1.5 text-[11px] font-extrabold"
+            style={{
+              background: "rgba(255,255,255,0.1)",
+              color: "rgba(255,255,255,0.9)",
+            }}
           >
-            5개 관점 평균
+            종합 평균 스코어
           </span>
         </div>
       </div>
 
-      <div className="no-scrollbar -mx-5 mb-4 overflow-x-auto px-5">
+      <div className="no-scrollbar -mx-5 mb-6 overflow-x-auto px-5">
         <div className="flex gap-2">
           {d.scoreDetails.map((axis) => {
             const active = pick === axis.key;
@@ -3983,24 +4212,26 @@ function StockScoresScreen({ d, onBack }: { d: EduStockDetail; onBack: () => voi
                 key={axis.key}
                 type="button"
                 onClick={() => setPick(axis.key)}
-                className="flex flex-shrink-0 items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[12px] font-bold transition"
+                className="relative flex flex-shrink-0 items-center gap-1.5 rounded-2xl px-4 py-2.5 text-[13.5px] font-extrabold transition-all duration-300"
                 style={{
                   background: active ? TEXT : SURFACE,
                   color: active ? "#fff" : SUB,
-                  border: `1px solid ${active ? TEXT : LINE}`,
+                  border: `1px solid ${active ? "transparent" : LINE}`,
+                  boxShadow: active ? "0 6px 16px rgba(0,0,0,0.12)" : "none",
+                  transform: active ? "scale(1.02)" : "scale(1)",
                 }}
               >
                 <span
-                  className="flex items-center"
-                  style={{ color: active ? "#fff" : ACCENT_DEEP }}
+                  className="flex items-center transition-colors"
+                  style={{ color: active ? ACCENT : ACCENT_DEEP }}
                 >
-                  <AxisIcon axisKey={axis.key} size={14} />
+                  <AxisIcon axisKey={axis.key} size={16} />
                 </span>
                 <span>{axis.key}</span>
                 <span
-                  className="text-[11px] font-extrabold"
+                  className="text-[12px]"
                   style={{
-                    color: active ? "rgba(255,255,255,0.7)" : ACCENT_DEEP,
+                    color: active ? "rgba(255,255,255,0.8)" : ACCENT_DEEP,
                     fontVariantNumeric: "tabular-nums",
                   }}
                 >
