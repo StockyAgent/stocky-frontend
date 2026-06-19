@@ -75,6 +75,45 @@ const dailyCards: {
   },
 ];
 
+// ── 오늘의 학습 카드 목록 ──
+const lessonCards: {
+  issueId: number;
+  headline: string;
+  subtitle: string;
+  emoji: string;
+}[] = [
+  {
+    issueId: 1,
+    headline: "이란 군부 호르무즈 봉쇄 시사",
+    subtitle: "유가·항공·방산까지 도미노를 따라가 보자",
+    emoji: "🛢️",
+  },
+  {
+    issueId: 17,
+    headline: "EU AI법 시행 — 빅테크 규제 시대 개막",
+    subtitle: "규제가 주가를 어떻게 흔드는지 배워보자",
+    emoji: "⚖️",
+  },
+  {
+    issueId: 18,
+    headline: "테슬라 FSD 로보택시 공식 출시",
+    subtitle: "자율주행 시대, 승자와 패자를 분석해보자",
+    emoji: "🚕",
+  },
+  {
+    issueId: 19,
+    headline: "글로벌 반도체 랠리 — HBM 공급망 병목",
+    subtitle: "AI 가속기가 쏘아올린 공급망 사이클",
+    emoji: "🖥️",
+  },
+  {
+    issueId: 20,
+    headline: "전기차 수요 캐즘과 가격 치킨게임",
+    subtitle: "단가 인하 경쟁이 산업을 어떻게 재편하는지 추적해보자",
+    emoji: "⚡",
+  },
+];
+
 const watchlist = [
   { symbol: "AAPL", name: "애플", change: 1.24, price: "247.30" },
   { symbol: "NVDA", name: "엔비디아", change: -0.82, price: "898.42" },
@@ -155,7 +194,7 @@ const issueList: Issue[] = [
     title: "이란 군부 호르무즈 봉쇄 시사",
     time: "19:30",
     summary:
-      "혁명수비대 사령관이 봉쇄를 시사. 전 세계 원유의 20%가 지나가는 길목이라 유가 +7%, 항공·해운 단기 충격이 번지는 중.",
+      "이란군이 호르무즈 해협 봉쇄를 시사하며 전 세계 원유 물동량의 20%가 위협받고 있습니다. 이로 인해 유가가 7% 급등했으며 항공·해운 섹터로 단기 충격이 확산되고 있습니다.",
     sentiment: "negative",
     newsCount: 12,
     keywords: ["호르무즈", "이란", "유가"],
@@ -166,22 +205,22 @@ const issueList: Issue[] = [
       body: [
         {
           kind: "lead",
-          text: "이란 혁명수비대 사령관이 호르무즈 해협 봉쇄를 시사했어. 미국이 추가 제재를 발표한 직후 나온 발언이라 시장은 진짜 일어날 가능성을 가격에 반영하기 시작했어.",
+          text: "이란 혁명수비대 사령관이 호르무즈 해협 봉쇄 가능성을 시사했습니다. 미국이 추가 제재를 발표한 직후 나온 발언으로, 시장은 실제 봉쇄 가능성을 즉각 가격에 반영하기 시작했습니다.",
         },
         {
           kind: "analogy",
-          title: "왜 호르무즈가 그렇게 중요해?",
-          text: "전 세계 원유의 약 20%, 천연가스의 30%가 이 좁은 해협을 지나. 좁은 다리 하나에 트럭들이 줄 서 있는 상황을 상상해봐. 다리가 닫히면 모든 게 멈춰.",
+          title: "호르무즈 해협의 중요성",
+          text: "전 세계 원유의 약 20%, 천연가스의 30%가 이 좁은 해협을 통과합니다. 단일 병목 구간이 차단되면 글로벌 에너지 공급망 전체가 마비되는 결과를 초래합니다.",
         },
         {
           kind: "paragraph",
-          title: "어떻게 번질까?",
-          text: "1단계는 유가 급등(이미 +7%). 2단계는 항공·해운 비용 증가, 정유주 마진 확대. 3단계는 인플레 재점화로 금리 인하 기대가 후퇴하면서 빅테크 변동성까지 번져.",
+          title: "이슈의 파급 구조",
+          text: "1단계로 유가가 급등(+7%)하며, 2단계로 항공 및 해운 업종의 운송비용 증가와 정유주의 정제 마진 확대가 발생합니다. 3단계는 에너지 발 인플레이션 재점화로 인한 금리 인하 기대감 후퇴와 빅테크 기업들의 변동성 확대로 이어집니다.",
         },
         {
           kind: "callout",
-          title: "지금 가장 흔들릴 것",
-          text: "단기적으로는 항공주(DAL, AAL)가 가장 빠르게 빠질 가능성. 정유주(XOM, CVX)는 반대로 단기 강세. 다만 실제 봉쇄가 일어나지 않으면 며칠 안에 되돌림이 올 수 있으니 추격 매수는 위험.",
+          title: "단기적 영향과 대응",
+          text: "단기적으로 유류비 비중이 높은 항공주(DAL, AAL)의 약세가 예상되며, 정유주(XOM, CVX)는 반사이익이 기대됩니다. 다만, 실제 봉쇄로 이어지지 않을 경우 유가가 빠르게 안정화될 수 있으므로 추격 매수는 지양해야 합니다.",
         },
       ],
       ripple: {
@@ -863,6 +902,261 @@ const issueList: Issue[] = [
       },
     },
   },
+  // ===== 학습 전용 이슈 =====
+  {
+    id: 17,
+    tier: 3,
+    category: "general",
+    topic: "policy",
+    title: "EU AI법 시행 — 빅테크 규제 시대 개막",
+    time: "16:00",
+    summary:
+      "EU AI법(AI Act)이 2026년 6월부터 전면 시행. 고위험 AI에 대한 투명성·설명 의무가 강화되며, 위반 시 매출의 최대 7%까지 과징금이 부과돼.",
+    sentiment: "negative",
+    newsCount: 15,
+    keywords: ["EU", "AI법", "규제", "빅테크"],
+    symbols: ["META", "GOOGL", "MSFT", "AAPL"],
+    coachLine:
+      "AI가 돈을 벌기 시작했는데, 유럽이 규제 울타리를 쳤어. 이게 비용 증가인지 진입장벽인지에 따라 해석이 완전히 달라져.",
+    detail: {
+      body: [
+        {
+          kind: "lead",
+          text: "EU AI법(AI Act)이 2026년 6월부터 본격 시행됩니다. 범용 AI 모델에 대한 투명성 보고 의무, 고위험 분야(의료·채용·금융) AI의 사전 심사 의무가 핵심이며, 위반 시 글로벌 매출의 최대 7%까지 과징금이 부과될 수 있습니다.",
+        },
+        {
+          kind: "analogy",
+          title: "규제의 파급 효과",
+          text: "자동차가 처음 등장했을 때 신호등과 교통법규가 뒤따라온 것처럼, AI 산업에도 규칙이 제정되고 있습니다. 규칙을 선제적으로 준수한 기업은 신뢰를 얻지만, 늦은 기업은 막대한 과징금과 영업 제한의 위험에 직면하게 됩니다.",
+        },
+        {
+          kind: "paragraph",
+          title: "주요 영향 대상",
+          text: "EU에서 AI 서비스를 제공하는 모든 회사가 규제 대상에 포함됩니다. 메타의 인스타그램 추천 알고리즘, 구글의 검색 AI, MS의 코파일럿 등이 해당되며, 이들은 모델 훈련 데이터 출처와 편향성 검증 결과를 매년 공개해야 합니다.",
+        },
+        {
+          kind: "paragraph",
+          title: "규제의 양면성",
+          text: "규제 준수 비용이 연간 수십억 달러에 달해 중소 AI 스타트업에게는 감당하기 어렵지만, 이미 컴플라이언스 역량을 갖춘 빅테크에게는 오히려 새로운 진입장벽 역할을 하여 시장 지배력을 공고히 할 수 있습니다.",
+        },
+        {
+          kind: "callout",
+          title: "투자의 관점",
+          text: "새로운 규제는 단기적으로 비용 증가 우려로 작용하지만, 중장기적으로는 규제를 버틸 수 있는 체력을 가진 기업과 그렇지 못한 기업을 나누는 필터 역할을 합니다. 규제를 단순한 악재가 아닌 옥석 가리기의 기준으로 바라보아야 합니다.",
+        },
+      ],
+      ripple: {
+        summary: "AI 규제가 빅테크 밸류에이션을 어떻게 재편하는지",
+        affected: [
+          {
+            sym: "META",
+            name: "메타",
+            polarity: "negative",
+            reason: "추천 알고리즘이 고위험 AI로 분류 — 투명성 비용 증가",
+          },
+          {
+            sym: "GOOGL",
+            name: "알파벳",
+            polarity: "negative",
+            reason: "검색·광고 AI 모두 규제 대상 — 데이터 사용 제약",
+          },
+          {
+            sym: "MSFT",
+            name: "마이크로소프트",
+            polarity: "neutral",
+            reason: "엔터프라이즈 컴플라이언스 역량으로 B2B 신뢰도 확보 가능",
+          },
+          {
+            sym: "AAPL",
+            name: "애플",
+            polarity: "positive",
+            reason: "온디바이스 AI 전략이 개인정보 규제에 유리 — 반사수혜",
+          },
+        ],
+      },
+    },
+  },
+  {
+    id: 18,
+    tier: 3,
+    category: "sector",
+    sector: "전기차",
+    title: "테슬라 FSD 로보택시 공식 출시",
+    time: "11:00",
+    summary:
+      "테슬라가 오스틴에서 완전 무인 로보택시 '사이버캡' 정식 서비스를 개시. 자율주행 소프트웨어 구독 모델로 전환하며 차량 판매 의존도를 낮추는 전략.",
+    sentiment: "positive",
+    newsCount: 22,
+    keywords: ["테슬라", "FSD", "로보택시", "자율주행"],
+    symbols: ["TSLA", "UBER", "GOOGL"],
+    coachLine:
+      "테슬라가 차를 파는 회사에서 킬로미터당 돈을 받는 플랫폼으로 변신하려 해. 우버·리프트가 긴장할 수밖에 없는 이유를 같이 뜯어보자.",
+    detail: {
+      body: [
+        {
+          kind: "lead",
+          text: "테슬라가 텍사스 오스틴에서 완전 무인 로보택시 '사이버캡' 정식 서비스를 개시했습니다. 앱으로 호출하면 운전자 없이 목적지까지 이동하며, 제한된 지역에서 시작하여 연내 주요 도시로 확장이 예고되었습니다.",
+        },
+        {
+          kind: "analogy",
+          title: "비즈니스 모델의 전환",
+          text: "지금까지 테슬라가 하드웨어(차량) 판매를 통해 일회성 수익을 창출했다면, 로보택시는 자율주행 소프트웨어를 기반으로 매 이동마다 반복 수익을 발생시킵니다. 이는 PC 판매에서 클라우드 구독 서비스로 진화하는 것과 유사합니다.",
+        },
+        {
+          kind: "paragraph",
+          title: "경쟁 구도와 규모의 경제",
+          text: "구글의 웨이모가 특정 지역에서 상업 운행을 선점했지만 차량 규모는 제한적입니다. 반면 테슬라는 이미 판매된 수백만 대의 차량을 소프트웨어 업데이트로 로보택시 네트워크에 편입할 수 있어 압도적인 규모의 경제를 확보할 수 있습니다.",
+        },
+        {
+          kind: "paragraph",
+          title: "주목해야 할 핵심 지표",
+          text: "수익성의 핵심은 '마일당 매출(Revenue per Mile)'입니다. 현재 공유 모빌리티 평균이 $2.50 수준인 반면, 테슬라는 운전자 인건비 절감을 통해 $1.00 이하로 운영이 가능하다고 주장합니다. 다만 자율주행 사고에 따른 책임 비용과 보험료가 변수로 작용할 수 있습니다.",
+        },
+        {
+          kind: "callout",
+          title: "투자의 관점",
+          text: "기업의 수익 창출 방식(비즈니스 모델) 변화는 밸류에이션(기업가치 평가) 기준 자체를 뒤바꿀 수 있습니다. 테슬라를 단순한 자동차 제조사(낮은 PER)로 평가할지, 모빌리티 소프트웨어 플랫폼(높은 PER)으로 평가할지에 따라 적정 주가의 눈높이가 달라집니다.",
+        },
+      ],
+      ripple: {
+        summary: "자율주행 상용화가 모빌리티·보험 업계에 미치는 충격",
+        affected: [
+          {
+            sym: "TSLA",
+            name: "테슬라",
+            polarity: "positive",
+            reason: "하드웨어 → 서비스 전환 시 반복 수익(recurring revenue) 확보",
+          },
+          {
+            sym: "UBER",
+            name: "우버",
+            polarity: "negative",
+            reason: "드라이버 네트워크가 핵심 자산인데 무인 운행에 밀릴 위험",
+          },
+          {
+            sym: "GOOGL",
+            name: "알파벳(웨이모)",
+            polarity: "positive",
+            reason: "자율주행 시장 확대 → 웨이모 부문 가치 재평가",
+          },
+          {
+            sym: "F",
+            name: "포드",
+            polarity: "negative",
+            reason: "자율주행 기술 후발주자 — 전통 OEM 밸류에이션 압박",
+          },
+        ],
+      },
+    },
+  },
+  {
+    id: 19,
+    tier: 2,
+    category: "general",
+    topic: "policy",
+    title: "글로벌 반도체 랠리 — HBM 공급망 병목",
+    time: "10:30",
+    summary:
+      "AI 모델의 대형화로 엔비디아 GPU에 탑재되는 고대역폭메모리(HBM) 수요가 폭증하며 메모리 반도체 공급망 전체에 심각한 병목 현상이 발생하고 있습니다.",
+    sentiment: "positive",
+    newsCount: 45,
+    keywords: ["HBM", "AI 반도체", "엔비디아", "공급망 병목"],
+    symbols: ["NVDA", "005930"],
+    detail: {
+      body: [
+        {
+          kind: "lead",
+          text: "생성형 AI 모델의 연산 속도를 끌어올리기 위해 HBM(고대역폭메모리) 수요가 급증하고 있습니다. 엔비디아가 요구하는 HBM 물량을 SK하이닉스 등 주요 메모리 제조사가 다 감당하지 못하면서, 반도체 공급망 전체가 타이트해지고 있습니다.",
+        },
+        {
+          kind: "analogy",
+          title: "병목 현상의 구조",
+          text: "초고속으로 물건을 포장하는 공장(GPU)을 세웠는데, 재료를 실어나르는 도로(메모리 대역폭)가 좁아서 공장 전체 속도가 느려진 상황입니다. 그래서 엄청 넓은 도로(HBM)를 만들 수 있는 업체들의 몸값이 치솟는 것입니다.",
+        },
+        {
+          kind: "paragraph",
+          title: "주요 수혜 기업 및 파급",
+          text: "가장 직접적인 수혜는 HBM 시장을 선점한 SK하이닉스와 마이크론입니다. 또한 HBM을 쌓을 때 필요한 첨단 패키징 장비를 독점 공급하는 한미반도체, TSMC 같은 밸류체인 소부장(소재/부품/장비) 기업들까지 실적 추정치가 상향되고 있습니다.",
+        },
+        {
+          kind: "callout",
+          title: "투자 포인트",
+          text: "HBM의 공급이 수요를 맞추기 전까지는 가격 협상력이 제조사에게 있습니다. 하지만 삼성전자가 수율을 극복하고 본격적으로 진입하여 공급 과잉이 일어나는 시점을 면밀히 모니터링해야 합니다.",
+        },
+      ],
+      ripple: {
+        summary: "AI 반도체 공급망에 속한 밸류체인별 수혜",
+        affected: [
+          {
+            sym: "NVDA",
+            name: "엔비디아",
+            polarity: "positive",
+            reason: "AI 가속기 압도적 점유율 유지, 병목 해소 시 실적 폭발",
+          },
+          {
+            sym: "005930",
+            name: "삼성전자",
+            polarity: "neutral",
+            reason: "HBM3E 납품 테스트 결과에 따라 추격 여부 결정",
+          },
+        ],
+      },
+    },
+  },
+  {
+    id: 20,
+    tier: 3,
+    category: "sector",
+    sector: "전기차",
+    title: "전기차 수요 캐즘과 가격 치킨게임",
+    time: "14:00",
+    summary:
+      "얼리어답터 수요가 소진된 후 대중화 단계로 넘어가는 '캐즘(Chasm)'에 진입한 전기차 시장. 업계 선두인 테슬라가 시장 점유율 방어를 위해 전면적인 단가 인하를 주도하고 있습니다.",
+    sentiment: "negative",
+    newsCount: 38,
+    keywords: ["전기차", "캐즘", "치킨게임", "배터리"],
+    symbols: ["TSLA", "F"],
+    detail: {
+      body: [
+        {
+          kind: "lead",
+          text: "전기차 시장이 고금리와 충전 인프라 부족 등으로 인해 성장세가 급격히 둔화되는 캐즘(Chasm) 영역에 돌입했습니다. 이에 테슬라를 필두로 한 주요 제조사들이 수익성을 포기하면서까지 대대적인 가격 인하 경쟁(치킨게임)을 벌이고 있습니다.",
+        },
+        {
+          kind: "analogy",
+          title: "캐즘과 가격 경쟁의 연관성",
+          text: "스마트폰 초기 시절과 유사합니다. 신제품에 기꺼이 비용을 지불하던 마니아들의 구매가 끝나자, 남은 대중 소비자들을 확보하기 위해 마진을 포기하고 박리다매 경쟁에 들어간 것입니다. 원가 경쟁력이 없는 기업은 이 구간에서 도태됩니다.",
+        },
+        {
+          kind: "paragraph",
+          title: "배터리 밸류체인 연쇄 효과",
+          text: "완성차의 가격 인하는 배터리 제조사와 양극재 소재 기업에 대한 단가 인하 압박으로 직결됩니다. 게다가 전방 수요가 줄어들며 공장 가동률마저 하락해 배터리 밸류체인 전체가 실적 둔화의 혹한기를 겪고 있습니다.",
+        },
+        {
+          kind: "callout",
+          title: "판단 포인트",
+          text: "치킨게임의 승자는 결국 '원가 경쟁력을 갖춘 1등 기업'입니다. 이 사이클이 끝난 후 살아남은 기업은 과점 시장의 혜택을 독점하게 됩니다. 기업의 현금 창출력과 부채 비율 건전성을 우선적으로 확인해야 합니다.",
+        },
+      ],
+      ripple: {
+        summary: "전기차 수요 둔화가 완성차 및 소재단에 미치는 연쇄 작용",
+        affected: [
+          {
+            sym: "TSLA",
+            name: "테슬라",
+            polarity: "neutral",
+            reason: "수익성은 악화되나, 시장 장악 및 구조조정 주도",
+          },
+          {
+            sym: "F",
+            name: "포드",
+            polarity: "negative",
+            reason: "가격 경쟁력 한계로 전동화 투자 계획 축소 및 지연",
+          },
+        ],
+      },
+    },
+  },
 ];
 
 type AxisChart =
@@ -890,137 +1184,6 @@ type ScoreAxis = {
   // 지금 상황을 1~2문장으로 — 어떤 점에서 안정/성장/저평가인지
   desc: string;
   learning: string;
-};
-
-const stockDetail: {
-  symbol: string;
-  name: string;
-  price: string;
-  change: number;
-  buyReasons: { icon: string; title: string; desc: string }[];
-  sellReasons: { icon: string; title: string; desc: string }[];
-  scoreDetails: ScoreAxis[];
-} = {
-  symbol: "AAPL",
-  name: "애플",
-  price: "257.46",
-  change: 1.24,
-  buyReasons: [
-    {
-      icon: "💪",
-      title: "현금 창출력 강함",
-      desc: "1년에 100조 넘게 쌓는 회사 — 빚 갚고도 사업 굴릴 여유가 차고 넘쳐.",
-    },
-    {
-      icon: "💰",
-      title: "배당금 매년 늘려줌",
-      desc: "10년째 한 번도 안 빼먹고 늘림. 주주한테 돈 돌려주는 회사라는 신호.",
-    },
-    {
-      icon: "🛡",
-      title: "한 번 쓰면 못 떠나는 락인",
-      desc: "아이폰 → 에어팟 → 워치 → 맥. 다른 회사 갈아타려면 다 버려야 함.",
-    },
-  ],
-  sellReasons: [
-    {
-      icon: "🌏",
-      title: "중국 의존도 너무 높음",
-      desc: "전체 매출 18%가 중국. 미·중 사이 안 좋아질 때마다 흔들려.",
-    },
-    {
-      icon: "🐢",
-      title: "AI 출발이 좀 늦음",
-      desc: "구글·MS는 이미 한참 달리는데 애플은 이제야 시작. 따라가는 입장.",
-    },
-  ],
-  // 5개 관점 — 각 관점은 점수 + 한줄평 + 핵심 지표 + 학습 포인트로 압축. 차트는 데이터가 깔끔히 잡히는 관점에만.
-  scoreDetails: [
-    {
-      key: "재무안정",
-      score: 85,
-      oneLine: "빚은 많아도 현금 만드는 속도가 더 빨라",
-      indicators: [
-        { name: "부채비율 D/E", value: "3.87", note: "낮을수록 안정" },
-        { name: "영업현금흐름", value: "$111.5B", note: "5년 연속 100B+" },
-        { name: "유동비율", value: "0.89", note: "1.0이 안전선" },
-      ],
-      desc: "빚(D/E 3.87)은 업계 평균보다 많지만, 영업으로 1년에 $111B 현금을 찍어내는 회사야. 갚을 능력이 빚보다 빠르게 자라는 중이라 망할 걱정은 거의 없어.",
-      learning:
-        "부채비율(D/E)만 보면 함정 — 영업현금흐름이랑 같이 봐야 진짜 망할 회사인지 보여.",
-    },
-    {
-      key: "성장성",
-      score: 78,
-      oneLine: "꾸준히 크는 중인데 폭발적이진 않아",
-      chart: {
-        kind: "bar",
-        data: [365.8, 394.3, 383.3, 391.0, 416.2],
-        labels: ["'21", "'22", "'23", "'24", "'25"],
-        unit: "B",
-      },
-      indicators: [
-        { name: "5년 성장", value: "+13.8%", note: "연평균 3.3%" },
-        { name: "최근 1년", value: "+6.4%", note: "재가속 신호" },
-        { name: "서비스 매출", value: "$85B", note: "+14% YoY" },
-      ],
-      desc: "5년간 매출이 $365B → $416B로 꾸준히 늘었어. 폭발적이진 않지만 흔들림 적고, 최근 1년은 +6.4%로 다시 가속 중이야.",
-      learning:
-        "성장성은 '얼마나 빠르게 큰지'. 어디서(제품·지역) 자라는지 쪼개 봐야 지속 가능한지 보여.",
-    },
-    {
-      key: "수익성",
-      score: 92,
-      oneLine: "100원 팔면 27원이 그대로 이익 — 압도적",
-      chart: {
-        kind: "line",
-        data: [29.8, 30.3, 29.8, 31.5, 32.0],
-        labels: ["'21", "'22", "'23", "'24", "'25"],
-        unit: "%",
-      },
-      indicators: [
-        { name: "영업이익률", value: "32%", note: "업계 평균 12%" },
-        { name: "순이익률", value: "27%" },
-        { name: "ROE", value: "151%", note: "자본 효율 최상위" },
-      ],
-      desc: "100원 팔면 27원이 그대로 이익으로 남아. 제조업 평균(10~15%)의 2배 이상이고, 자본 효율(ROE 151%)은 빅테크 중에서도 최상위 수준이야.",
-      learning:
-        "수익성은 '버는 효율'. 매출이 커도 이익이 안 남으면 의미 없어. 영업이익률·ROE만 봐도 충분.",
-    },
-    {
-      key: "해자",
-      score: 85,
-      oneLine: "한 번 들어오면 못 빠져나가는 생태계",
-      indicators: [
-        { name: "재구매 의향", value: "92%", note: "락인 효과" },
-        { name: "ASP 격차", value: "3.0x", note: "vs 안드로이드" },
-        { name: "구독자", value: "10억명", note: "서비스 매출 $85B" },
-      ],
-      desc: "한 번 들어오면 못 떠나는 락인이 핵심. 아이폰 → 워치 → 에어팟 → 맥으로 묶이면 다른 브랜드 가려고 다 버려야 하니까 재구매율이 92%까지 나와.",
-      learning:
-        "해자(Moat)는 '경쟁사가 못 따라오는 구조적 우위'. 브랜드·전환비용·네트워크 효과로 나눠 봐.",
-    },
-    {
-      key: "저평가",
-      score: 68,
-      oneLine: "비싸진 않은데 싸지도 않아",
-      chart: {
-        kind: "line",
-        data: [22.4, 25.1, 28.3, 30.6, 33.8],
-        labels: ["'21", "'22", "'23", "'24", "'25"],
-        avg: 25,
-        unit: "x",
-      },
-      indicators: [
-        { name: "P/E", value: "33.8x", note: "5년 평균 25x" },
-        { name: "PEG", value: "1.84", note: "1.0 미만이면 매력" },
-        { name: "상승여력", value: "+13%", note: "목표가 $290.90" },
-      ],
-      desc: "회사가 좋긴 한데 그 좋음이 이미 가격에 반영된 상태야. 5년 평균(25배)보다 35% 비싼 편. 단, 애널리스트 목표가 기준 +13% 상승 여력은 남아 있어.",
-      learning:
-        "PER 하나만 보면 함정 — PEG(성장 대비)까지 같이 봐야 진짜 싼 건지 보여.",
-    },
-  ],
 };
 
 // ═══════ 차트용 Mock 데이터 ═══════
@@ -1063,6 +1226,694 @@ const EDU_REVENUE_BREAKDOWN = [
   { label: "iPad", value: 8, color: "#9B59B6" },
   { label: "웨어러블", value: 8, color: UP },
 ];
+
+type KGStep = {
+  label: string;
+  sublabel?: string;
+  desc: string;
+  relation?: string;
+  polarity?: Polarity;
+};
+
+type StockKGFlow = {
+  title: string;
+  scenario: string;
+  steps: KGStep[];
+  learningPoint: string;
+};
+
+type EduStockDetail = {
+  symbol: string;
+  name: string;
+  price: string;
+  change: number;
+  low52w: number;
+  high52w: number;
+  buyReasons: { icon: string; title: string; desc: string }[];
+  sellReasons: { icon: string; title: string; desc: string }[];
+  scoreDetails: ScoreAxis[];
+  priceHistory: Record<EduPeriodKey, { date: string; price: number }[]>;
+  epsData: { quarter: string; estimated: number; actual: number }[];
+  revenueBreakdown: { label: string; value: number; color: string }[];
+  kgFlows?: StockKGFlow[];
+};
+
+const stockDetailsMap: Record<string, EduStockDetail> = {
+  AAPL: {
+    symbol: "AAPL",
+    name: "애플",
+    price: "257.46",
+    change: 1.24,
+    low52w: 164.08,
+    high52w: 260.10,
+    buyReasons: [
+      {
+        icon: "💪",
+        title: "현금 창출력 강함",
+        desc: "1년에 100조 넘게 쌓는 회사 — 빚 갚고도 사업 굴릴 여유가 차고 넘쳐.",
+      },
+      {
+        icon: "💰",
+        title: "배당금 매년 늘려줌",
+        desc: "10년째 한 번도 안 빼먹고 늘림. 주주한테 돈 돌려주는 회사라는 신호.",
+      },
+      {
+        icon: "🛡",
+        title: "한 번 쓰면 못 떠나는 락인",
+        desc: "아이폰 → 에어팟 → 워치 → 맥. 다른 회사 갈아타려면 다 버려야 함.",
+      },
+    ],
+    sellReasons: [
+      {
+        icon: "🌏",
+        title: "중국 의존도 너무 높음",
+        desc: "전체 매출 18%가 중국. 미·중 사이 안 좋아질 때마다 흔들려.",
+      },
+      {
+        icon: "🐢",
+        title: "AI 출발이 좀 늦음",
+        desc: "구글·MS는 이미 한참 달리는데 애플은 이제야 시작. 따라가는 입장.",
+      },
+    ],
+    scoreDetails: [
+      {
+        key: "재무안정",
+        score: 85,
+        oneLine: "빚은 많아도 현금 만드는 속도가 더 빨라",
+        indicators: [
+          { name: "부채비율 D/E", value: "3.87", note: "낮을수록 안정" },
+          { name: "영업현금흐름", value: "$111.5B", note: "5년 연속 100B+" },
+          { name: "유동비율", value: "0.89", note: "1.0이 안전선" },
+        ],
+        desc: "비율(D/E 3.87)은 업계 평균 대비 높은 수준입니다. 그러나 연간 $111B의 영업현금흐름이 이를 충분히 상쇄하며, 채무 상환 능력이 부채 증가 속도를 상회하는 구조입니다.",
+        learning:
+          "비율(D/E)은 단독으로 재무 건전성을 판단하기 어렵습니다. 영업현금흐름을 병행 분석하면 실질적인 부채 감당 능력을 확인할 수 있습니다.",
+      },
+      {
+        key: "성장성",
+        score: 78,
+        oneLine: "꾸준히 크는 중인데 폭발적이진 않아",
+        chart: {
+          kind: "bar",
+          data: [365.8, 394.3, 383.3, 391.0, 416.2],
+          labels: ["'21", "'22", "'23", "'24", "'25"],
+          unit: "B",
+        },
+        indicators: [
+          { name: "5년 성장", value: "+13.8%", note: "연평균 3.3%" },
+          { name: "최근 1년", value: "+6.4%", note: "재가속 신호" },
+          { name: "서비스 매출", value: "$85B", note: "+14% YoY" },
+        ],
+        desc: "5년간 매출이 $365B → $416B로 꾸준히 늘었어. 폭발적이진 않지만 흔들림 적고, 최근 1년은 +6.4%로 다시 가속 중이야.",
+        learning:
+          "성장성은 '얼마나 빠르게 큰지'. 어디서(제품·지역) 자라는지 쪼개 봐야 지속 가능한지 보여.",
+      },
+      {
+        key: "수익성",
+        score: 92,
+        oneLine: "100원 팔면 27원이 그대로 이익 — 압도적",
+        chart: {
+          kind: "line",
+          data: [29.8, 30.3, 29.8, 31.5, 32.0],
+          labels: ["'21", "'22", "'23", "'24", "'25"],
+          unit: "%",
+        },
+        indicators: [
+          { name: "영업이익률", value: "32%", note: "업계 평균 12%" },
+          { name: "순이익률", value: "27%" },
+          { name: "ROE", value: "151%", note: "자본 효율 최상위" },
+        ],
+        desc: "100원 팔면 27원이 그대로 이익으로 남아. 제조업 평균(10~15%)의 2배 이상이고, 자본 효율(ROE 151%)은 빅테크 중에서도 최상위 수준이야.",
+        learning:
+          "수익성은 '버는 효율'. 매출이 커도 이익이 안 남으면 의미 없어. 영업이익률·ROE만 봐도 충분.",
+      },
+      {
+        key: "해자",
+        score: 85,
+        oneLine: "한 번 들어오면 못 빠져나가는 생태계",
+        indicators: [
+          { name: "재구매 의향", value: "92%", note: "락인 효과" },
+          { name: "ASP 격차", value: "3.0x", note: "vs 안드로이드" },
+          { name: "구독자", value: "10억명", note: "서비스 매출 $85B" },
+        ],
+        desc: "한 번 들어오면 못 떠나는 락인이 핵심. 아이폰 → 워치 → 에어팟 → 맥으로 묶이면 다른 브랜드 가려고 다 버려야 하니까 재구매율이 92%까지 나와.",
+        learning:
+          "해자(Moat)는 '경쟁사가 못 따라오는 구조적 우위'. 브랜드·전환비용·네트워크 효과로 나눠 봐.",
+      },
+      {
+        key: "저평가",
+        score: 68,
+        oneLine: "비싸진 않은데 싸지도 않아",
+        chart: {
+          kind: "line",
+          data: [22.4, 25.1, 28.3, 30.6, 33.8],
+          labels: ["'21", "'22", "'23", "'24", "'25"],
+          avg: 25,
+          unit: "x",
+        },
+        indicators: [
+          { name: "P/E", value: "33.8x", note: "5년 평균 25x" },
+          { name: "PEG", value: "1.84", note: "1.0 미만이면 매력" },
+          { name: "상승여력", value: "+13%", note: "목표가 $290.90" },
+        ],
+        desc: "회사가 좋긴 한데 그 좋음이 이미 가격에 반영된 상태야. 5년 평균(25배)보다 35% 비싼 편. 단, 애널리스트 목표가 기준 +13% 상승 여력은 남아 있어.",
+        learning:
+          "PER 하나만 보면 함정 — PEG(성장 대비)까지 같이 봐야 진짜 싼 건지 보여.",
+      },
+    ],
+    priceHistory: EDU_PRICE_HISTORY,
+    epsData: EDU_EPS_DATA,
+    revenueBreakdown: EDU_REVENUE_BREAKDOWN,
+    kgFlows: [
+      {
+        title: "AI 기기 수요가 공급망에 미치는 흐름",
+        scenario: "Apple Intelligence 탐재 신제품이 출시될 때, 수요 증가가 어떤 경로로 공급망 전체로 전파되는지 분석합니다.",
+        steps: [
+          {
+            label: "애플 AI 기기 수요 증가",
+            sublabel: "AAPL",
+            desc: "Apple Intelligence 탐재 신제품 출시로 아이폰·맹 교체 수요 발생",
+            relation: "파운드리 주문 급증",
+            polarity: "positive" as const,
+          },
+          {
+            label: "TSMC 최첨단 공정 수요 집중",
+            sublabel: "TSM",
+            desc: "3nm·2nm 공정 가동률 상승, 단가 협상력 강화 및 공급 병목 발생",
+            relation: "고성능 메모리 동반 수요 증가",
+            polarity: "positive" as const,
+          },
+          {
+            label: "SK하이닉스 메모리 수혜",
+            sublabel: "000660",
+            desc: "AI 기기용 LPDDR5X 고성능 메모리 주문 증가로 ASP 상승",
+            relation: "반도체 섹터 전반 업황 개선",
+            polarity: "positive" as const,
+          },
+          {
+            label: "반도체 공급망 동반 강세",
+            sublabel: "SOXX · 섬터 ETF",
+            desc: "한국·대만 반도체 공급망 기업 실적 개선, 주가 동반 상승 경향",
+            polarity: "positive" as const,
+          },
+        ],
+        learningPoint: "대형 제품 사이클은 직접 제조사뿐 아니라 부품·소재 공급망 전체로 영향이 전파됩니다. 공급망 지도를 파악하면 간접 수혜 종목을 조기에 발굴할 수 있습니다.",
+      },
+      {
+        title: "중국 매쳙 리스크의 파급 경로",
+        scenario: "미중 관계 악화로 중국 내 애플 점유율이 하락할 때 어떤 기업들이 연쇄적으로 영향을 받는지 분석합니다.",
+        steps: [
+          {
+            label: "미중 갈등 심화",
+            sublabel: "지정학",
+            desc: "미국의 대중 제재 강화 또는 중국 정부의 애플 견제 정책 시행",
+            relation: "중국 시장 점유율 하락",
+            polarity: "negative" as const,
+          },
+          {
+            label: "애플 중국 매쳙 감소",
+            sublabel: "AAPL",
+            desc: "전체 매쳙의 약 18%인 중국 매쳙이 화웨이·BYD 대체재로 이탈",
+            relation: "EMS 위탁 생산 주문 감소",
+            polarity: "negative" as const,
+          },
+          {
+            label: "폭스콘 수주 물량 감소",
+            sublabel: "HON HAI",
+            desc: "아이폰 위탁생산 물량 감소로 대만·인도 공장 가동률 하락",
+            relation: "한국 부품사 연쇄 영향",
+            polarity: "negative" as const,
+          },
+          {
+            label: "한국 부품주 수주 감소",
+            sublabel: "삼성전기·LG이노텐",
+            desc: "카메라 모듈·MLCC 등 애플향 부품 주문 감소 가능성",
+            polarity: "negative" as const,
+          },
+        ],
+        learningPoint: "글로벌 대형주 투자 시에는 지역별 매쳙 의존도를 파악해야 합니다. 지정학 리스크는 해당 기업뿐 아니라 공급망 전체로 영향이 번질 수 있습니다.",
+      },
+    ],
+  },
+  NVDA: {
+    symbol: "NVDA",
+    name: "엔비디아",
+    price: "898.42",
+    change: -0.82,
+    low52w: 474.00,
+    high52w: 974.00,
+    buyReasons: [
+      {
+        icon: "🧠",
+        title: "AI 칩 시장 독점",
+        desc: "AI 가속기 시장 점유율 90% 이상 확보 — CUDA 생태계 지배력.",
+      },
+      {
+        icon: "🚀",
+        title: "매출 성장폭 압도적",
+        desc: "매 분기 매출 YoY 200%+ 성장 중인 엄청난 속도.",
+      },
+      {
+        icon: "🖥️",
+        title: "차세대 블랙웰 기대감",
+        desc: "새로운 아키텍처 도입으로 연산 효율 극대화 및 단가 상승.",
+      },
+    ],
+    sellReasons: [
+      {
+        icon: "📈",
+        title: "밸류에이션 부담",
+        desc: "주가가 급격히 상승하여 미래 기대감이 매우 크게 반영됨.",
+      },
+      {
+        icon: "🧩",
+        title: "공급망 병목 현상",
+        desc: "TSMC 파운드리 캐파 부족 시 칩 인도 지연 리스크.",
+      },
+      {
+        icon: "👥",
+        title: "빅테크 자체 칩 개발",
+        desc: "구글, 아마존, MS 등 주요 고객사들의 자체 AI 칩 설계 시작.",
+      },
+    ],
+    scoreDetails: [
+      {
+        key: "재무안정",
+        score: 90,
+        oneLine: "현금이 넘쳐서 부채를 전부 갚고도 남아",
+        indicators: [
+          { name: "부채비율 D/E", value: "0.17", note: "낮을수록 안정" },
+          { name: "영업현금흐름", value: "$28.0B", note: "급격한 상승 추세" },
+          { name: "유동비율", value: "3.50", note: "1.0이 안전선" },
+        ],
+        desc: "AI 칩 판매 급증으로 영업현금흐름이 $28.0B으로 크게 증가했으며, 부채비율(D/E 0.17)과 유동비율(3.50)은 업계 최상위 수준의 재무 건전성을 나타냅니다.",
+        learning: "영업현금흐름이 급증하는 시기에는 부채 상환 여력과 추가 투자 여력이 동시에 확대됩니다.",
+      },
+      {
+        key: "성장성",
+        score: 98,
+        oneLine: "빅테크 역사상 전무후무한 속도로 성장 중",
+        chart: {
+          kind: "bar",
+          data: [26.9, 44.9, 60.9, 96.3, 120.0],
+          labels: ["'21", "'22", "'23", "'24", "'25"],
+          unit: "B",
+        },
+        indicators: [
+          { name: "최근 1년", value: "+262%", note: "데이터센터 성장 주도" },
+          { name: "데이터센터 매출", value: "$22.6B", note: "YoY 400%+" },
+          { name: "5년 성장", value: "+65.4%", note: "연평균" },
+        ],
+        desc: "데이터센터 AI 가속기 매출이 YoY 400%+ 성장하며 전체 실적을 주도하고 있습니다. 이는 일시적 유행이 아닌 AI 인프라 투자 사이클의 구조적 수혜를 반영합니다.",
+        learning: "성장성이 지속되는 기간에는 높은 밸류에이션(P/E)도 부분적으로 정당화될 수 있습니다. 성장 꺾임 신호가 핵심 모니터링 지표입니다.",
+      },
+      {
+        key: "수익성",
+        score: 95,
+        oneLine: "반도체를 파는데 영업이익률이 50%가 넘어",
+        chart: {
+          kind: "line",
+          data: [32.0, 35.5, 40.2, 54.1, 57.0],
+          labels: ["'21", "'22", "'23", "'24", "'25"],
+          unit: "%",
+        },
+        indicators: [
+          { name: "영업이익률", value: "57%", note: "업계 평균 12%" },
+          { name: "순이익률", value: "49%" },
+          { name: "ROE", value: "115%", note: "자본 효율 최상위" },
+        ],
+        desc: "하드웨어 제조 기업임에도 불구하고 소프트웨어 기업 수준인 영업이익률 57%를 기록 중입니다. AI 가속기 시장에서의 독점적 가격 결정력이 이와 같은 마진 구조를 가능하게 합니다.",
+        learning: "독점적 시장 지위를 체하는 기업는 가격 결정권 행사를 통해 경쟁사 대비 압도적인 수익성을 지속할 수 있습니다.",
+      },
+      {
+        key: "해자",
+        score: 94,
+        oneLine: "칩만 잘 만드는 게 아니라 CUDA 소프트웨어로 묶어둠",
+        indicators: [
+          { name: "개발자 수", value: "450만명", note: "CUDA 플랫폼 기준" },
+          { name: "시장 점유율", value: "92%", note: "AI 가속기 독점" },
+          { name: "특허 수", value: "7,500+", note: "반도체 및 소프트웨어" },
+        ],
+        desc: "450만 명의 AI 개발자가 CUDA 플랫폼에 기반해 모델을 구축하고 있습니다. AMD 등 경쟁사 칩으로 전환 시 기존 코드베이스를 전면 재작성해야 하는 구조적 락인이 형성되어 있습니다.",
+        learning: "소프트웨어 생태계 기반의 락인(Lock-in)은 하드웨어 성능 격차보다 진입 장벽 효과가 더 강력하고 지속적입니다.",
+      },
+      {
+        key: "저평가",
+        score: 55,
+        oneLine: "미래 성장성을 당겨 써서 밸류에이션이 높은 편",
+        chart: {
+          kind: "line",
+          data: [40.5, 55.2, 65.1, 75.4, 78.2],
+          labels: ["'21", "'22", "'23", "'24", "'25"],
+          avg: 45,
+          unit: "x",
+        },
+        indicators: [
+          { name: "P/E", value: "78.2x", note: "5년 평균 45x" },
+          { name: "PEG", value: "1.12", note: "1.0 미만이면 매력" },
+          { name: "상승여력", value: "+8%", note: "목표가 $970.00" },
+        ],
+        desc: "P/E 78.2x는 5년 평균(45x) 대비 높은 수준이나, 이익 성장률 대비 밸류에이션 지표인 PEG는 1.12로 비교적 합리적인 범위에 있습니다. 향후 성장률 둔화 여부가 핵심 리스크입니다.",
+        learning: "P/E가 높더라도 이익 성장률이 그 수준을 뒷받침한다면(낮은 PEG) 과도한 프리미엄으로 단정하기 어렵습니다.",
+      },
+    ],
+    priceHistory: {
+      "1W": [
+        { date: "월", price: 890.2 }, { date: "화", price: 892.5 }, { date: "수", price: 898.4 },
+        { date: "목", price: 895.3 }, { date: "금", price: 896.8 }, { date: "토", price: 897.2 }, { date: "일", price: 898.42 },
+      ],
+      "1M": [
+        { date: "2/17", price: 780.3 }, { date: "2/24", price: 800.1 }, { date: "3/3", price: 820.8 },
+        { date: "3/10", price: 850.5 }, { date: "3/17", price: 870.2 }, { date: "3/24", price: 885.8 },
+        { date: "3/31", price: 892.1 }, { date: "4/7", price: 898.42 },
+      ],
+      "3M": [
+        { date: "1월", price: 620.2 }, { date: "1/3주", price: 680.9 }, { date: "2/1주", price: 730.3 },
+        { date: "2/3주", price: 780.5 }, { date: "3/1주", price: 820.1 }, { date: "3/3주", price: 850.2 },
+        { date: "4/1주", price: 880.1 }, { date: "4/2주", price: 898.42 },
+      ],
+      "1Y": [
+        { date: "5월", price: 380.8 }, { date: "7월", price: 460.3 }, { date: "9월", price: 485.8 },
+        { date: "11월", price: 540.5 }, { date: "1월", price: 620.2 }, { date: "3월", price: 850.1 },
+        { date: "4월", price: 898.42 },
+      ],
+    },
+    epsData: [
+      { quarter: "Q1'24", estimated: 3.80, actual: 4.15 },
+      { quarter: "Q2'24", estimated: 4.50, actual: 5.16 },
+      { quarter: "Q3'24", estimated: 5.20, actual: 6.12 },
+      { quarter: "Q4'24", estimated: 5.80, actual: 6.25 },
+    ],
+    revenueBreakdown: [
+      { label: "데이터센터", value: 85, color: ACCENT },
+      { label: "게이밍", value: 11, color: "#4A90D9" },
+      { label: "프로 비주얼", value: 2, color: "#E5A820" },
+      { label: "오토모티브", value: 1, color: "#9B59B6" },
+      { label: "OEM/기타", value: 1, color: UP },
+    ],
+    kgFlows: [
+      {
+        title: "AI 칩 수요가 공급망으로 번지는 경로",
+        scenario: "AI 데이터센터 투자 확대가 엔비디아를 시작으로 어떻게 공급망 전체로 파급되는지 분석합니다.",
+        steps: [
+          {
+            label: "AI 모델 학습 수요 급증",
+            sublabel: "AI 트렌드",
+            desc: "GPT-5급 대형 모델 훈련에 H100/B200 클러스터 수천 대 필요",
+            relation: "GPU 주문 폭발적 증가",
+            polarity: "positive",
+          },
+          {
+            label: "엔비디아 GPU 수요 급증",
+            sublabel: "NVDA",
+            desc: "데이터센터 매출 YoY 400%+ 성장. 납품 대기 12~18개월",
+            relation: "HBM 메모리 공급 부족",
+            polarity: "positive",
+          },
+          {
+            label: "SK하이닉스 HBM 독점 공급",
+            sublabel: "000660",
+            desc: "HBM3E 1위 공급사로 엔비디아 GPU 칩당 탑재. 일반 D램 대비 5~7배 ASP",
+            relation: "파운드리 CoWoS 패키징 수요",
+            polarity: "positive",
+          },
+          {
+            label: "TSMC CoWoS 풀가동",
+            sublabel: "TSM",
+            desc: "GPU와 HBM을 하나의 패키지로 묶는 CoWoS 공정이 AI 칩 제조의 병목으로 부상",
+            polarity: "positive",
+          },
+        ],
+        learningPoint: "AI 수혜주를 찾을 때는 '가장 수요가 많은 회사'보다 '가장 부족한 부품을 가진 회사'를 주목해야 합니다. 공급망의 병목 지점이 초과 이익을 누리는 구조입니다.",
+      },
+      {
+        title: "CUDA 락인이 경쟁 구도를 고정하는 메커니즘",
+        scenario: "엔비디아의 소프트웨어 생태계가 어떻게 하드웨어 경쟁을 차단하는지 분석합니다.",
+        steps: [
+          {
+            label: "CUDA 개발 환경 확산",
+            sublabel: "NVDA 플랫폼",
+            desc: "AI 연구자·기업 450만 명이 CUDA 기반으로 모델 구축",
+            relation: "플랫폼 전환 비용 발생",
+            polarity: "positive",
+          },
+          {
+            label: "AMD 등 대안 채택 어려움",
+            sublabel: "AMD / INTC",
+            desc: "CUDA 코드를 ROCm·OneAPI로 재작성하는 데 수개월 이상 소요",
+            relation: "NVDA 시장점유율 고착",
+            polarity: "negative",
+          },
+          {
+            label: "빅테크 자체 칩 개발 가속화",
+            sublabel: "GOOGL / META",
+            desc: "구글 TPU, 메타 MTIA 등 특정 용도 최적화 칩으로 일부 수요 분산 시도",
+            relation: "NVDA 성장률 일부 제한",
+            polarity: "neutral",
+          },
+          {
+            label: "엔비디아 플랫폼 독점 유지",
+            sublabel: "NVDA",
+            desc: "범용 AI 가속기 시장에서는 CUDA 생태계 우위가 중장기간 지속될 전망",
+            polarity: "positive",
+          },
+        ],
+        learningPoint: "하드웨어 경쟁은 결국 소프트웨어 생태계 경쟁입니다. 개발자 커뮤니티와 도구 생태계를 장악한 기업은 후발 주자의 기술 추격만으로 무너지지 않습니다.",
+      },
+    ],
+  },
+  TSLA: {
+    symbol: "TSLA",
+    name: "테슬라",
+    price: "412.66",
+    change: 2.41,
+    low52w: 138.80,
+    high52w: 430.00,
+    buyReasons: [
+      {
+        icon: "🚗",
+        title: "전기차 압도적 생산 효율",
+        desc: "메가캐스팅 등 제조 공정 혁신을 통한 업계 1위 원가 경쟁력.",
+      },
+      {
+        icon: "🤖",
+        title: "FSD 및 로보택시 비전",
+        desc: "자율주행 데이터 축적량 및 AI 트레이닝 클러스터 최상위권.",
+      },
+      {
+        icon: "⚡",
+        title: "ESS 에너지 저장장치 급성장",
+        desc: "메가팩 판매량이 전년비 2배 가까이 늘며 새 성장동력 확보.",
+      },
+    ],
+    sellReasons: [
+      {
+        icon: "📉",
+        title: "전기차 수요 둔화",
+        desc: "글로벌 전기차 보급 속도 조절(캐즘) 및 경쟁사 할인 경쟁 심화.",
+      },
+      {
+        icon: "🇨🇳",
+        title: "중국계 업체들과의 경쟁",
+        desc: "BYD, 샤오미 등 중국 기업들의 저가 공세 및 해외 진출 가속화.",
+      },
+      {
+        icon: "🕰️",
+        title: "FSD 상용화 지연",
+        desc: "자율주행 규제 당국의 감시 강화 및 신차 출시 일정 지연 리스크.",
+      },
+    ],
+    scoreDetails: [
+      {
+        key: "재무안정",
+        score: 82,
+        oneLine: "부채는 적고 쌓아둔 현금은 든든해",
+        indicators: [
+          { name: "부채비율 D/E", value: "0.08", note: "매우 낮음" },
+          { name: "영업현금흐름", value: "$13.2B", note: "지속 투자 여력" },
+          { name: "유동비율", value: "1.70", note: "1.0이 안전선" },
+        ],
+        desc: "대규모 자본적 지출(CAPEX)을 지속하면서도 부채비율(D/E)을 0.08 수준으로 철저히 통제 중입니다. 고금리 환경에서도 이자 비용 부담이 제한적인 강력한 재무 구조를 갖췄습니다.",
+        learning: "설비 투자가 필수적인 제조업에서 낮은 부채비율은 매크로 충격(금리 인상 등)을 방어하는 핵심 버팀목입니다.",
+      },
+      {
+        key: "성장성",
+        score: 72,
+        oneLine: "전기차는 잠시 멈춤, 자율주행과 에너지가 바통 터치",
+        chart: {
+          kind: "bar",
+          data: [53.8, 81.4, 96.7, 98.0, 105.0],
+          labels: ["'21", "'22", "'23", "'24", "'25"],
+          unit: "B",
+        },
+        indicators: [
+          { name: "차량 인도수", value: "180만대", note: "전년비 +3%" },
+          { name: "ESS 설치량", value: "14.7GWh", note: "YoY +125%" },
+          { name: "5년 성장", value: "+21.2%", note: "연평균" },
+        ],
+        desc: "차량 인도량 성장세는 다소 둔화(YoY +3%)되었으나, 고마진의 ESS(에너지저장장치, YoY +125%) 및 FSD 구독 서비스가 새로운 성장 동력으로 부상하며 외형 축소를 방어하고 있습니다.",
+        learning: "핵심 사업의 성장이 정체 국면에 진입할 경우, 이를 상쇄할 수 있는 신성장 사업(ESS, 소프트웨어 등)의 본격화 여부를 점검해야 합니다.",
+      },
+      {
+        key: "수익성",
+        score: 70,
+        oneLine: "저가형 경쟁으로 마진이 이전보다 깎였지만 극복 중",
+        chart: {
+          kind: "line",
+          data: [12.1, 16.8, 9.2, 8.5, 9.0],
+          labels: ["'21", "'22", "'23", "'24", "'25"],
+          unit: "%",
+        },
+        indicators: [
+          { name: "영업이익률", value: "9.0%", note: "최고점 16.8%" },
+          { name: "순이익률", value: "7.8%" },
+          { name: "ROE", value: "18.5%", note: "자본 효율 양호" },
+        ],
+        desc: "전기차 가격 인하 경쟁(Price War) 심화로 과거 16%대였던 영업이익률이 9%대까지 하락했습니다. 원가 절감 기술(기가프레스 등)과 에너지 부문 이익 기여도 확대가 향후 수익성 회복의 관건입니다.",
+        learning: "제품 단가 인하는 수익성 훼손으로 직결됩니다. 제조 혁신을 통한 원가 절감이나 고부가가치 서비스 모델로의 전환이 필수적입니다.",
+      },
+      {
+        key: "해자",
+        score: 88,
+        oneLine: "슈퍼차저 충전망과 독보적 자율주행 누적 데이터",
+        indicators: [
+          { name: "슈퍼차저 점유율", value: "60%", note: "북미 지역 표준화" },
+          { name: "누적 주행거리", value: "15B miles", note: "FSD 학습용" },
+          { name: "기가팩토리 수", value: "6개", note: "글로벌 생산 거점" },
+        ],
+        desc: "북미 충전 표준(NACS)으로 채택된 슈퍼차저 인프라와 150억 마일 이상의 실제 주행 데이터(FSD 학습용)는 신생 전기차 및 기존 내연기관 업체들이 단기간에 복제하기 어려운 강력한 구조적 우위입니다.",
+        learning: "인프라 표준 선점과 기하급수적으로 누적되는 사용자 데이터는 후발 주자의 추격을 원천 차단하는 가장 강력한 형태의 경제적 해자입니다.",
+      },
+      {
+        key: "저평가",
+        score: 52,
+        oneLine: "성장성 대비해서 밸류에이션(PER)은 여전히 높은 수준",
+        chart: {
+          kind: "line",
+          data: [120.5, 80.2, 70.1, 60.5, 62.0],
+          labels: ["'21", "'22", "'23", "'24", "'25"],
+          avg: 78,
+          unit: "x",
+        },
+        indicators: [
+          { name: "P/E", value: "62.0x", note: "5년 평균 78x" },
+          { name: "PEG", value: "2.84", note: "1.0 미만이면 매력" },
+          { name: "상승여력", value: "+15%", note: "목표가 $475.00" },
+        ],
+        desc: "P/E 62.0x는 전통 자동차 제조사(5~10배) 대비 과도한 프리미엄을 받고 있습니다. 이는 시장이 테슬라를 단순 제조사가 아닌 로보택시·AI 플랫폼 기업으로 평가하며 미래 가치를 선반영했기 때문입니다.",
+        learning: "산업의 경계를 넘나드는 융합 기업의 경우, 어떤 피어(Peer) 그룹(제조업 vs. 테크/플랫폼)을 기준으로 밸류에이션할지에 따라 저평가/고평가 판단이 완전히 달라집니다.",
+      },
+    ],
+    priceHistory: {
+      "1W": [
+        { date: "월", price: 402.1 }, { date: "화", price: 405.5 }, { date: "수", price: 410.2 },
+        { date: "목", price: 407.8 }, { date: "금", price: 412.0 }, { date: "토", price: 411.5 }, { date: "일", price: 412.66 },
+      ],
+      "1M": [
+        { date: "2/17", price: 360.5 }, { date: "2/24", price: 375.2 }, { date: "3/3", price: 370.1 },
+        { date: "3/10", price: 382.4 }, { date: "3/17", price: 395.2 }, { date: "3/24", price: 402.1 },
+        { date: "3/31", price: 408.5 }, { date: "4/7", price: 412.66 },
+      ],
+      "3M": [
+        { date: "1월", price: 280.5 }, { date: "1/3주", price: 310.2 }, { date: "2/1주", price: 335.6 },
+        { date: "2/3주", price: 350.2 }, { date: "3/1주", price: 375.4 }, { date: "3/3주", price: 390.1 },
+        { date: "4/1주", price: 405.2 }, { date: "4/2주", price: 412.66 },
+      ],
+      "1Y": [
+        { date: "5월", price: 175.2 }, { date: "7월", price: 210.5 }, { date: "9월", price: 250.4 },
+        { date: "11월", price: 280.1 }, { date: "1월", price: 280.5 }, { date: "3월", price: 385.2 },
+        { date: "4월", price: 412.66 },
+      ],
+    },
+    epsData: [
+      { quarter: "Q1'24", estimated: 0.65, actual: 0.45 },
+      { quarter: "Q2'24", estimated: 0.60, actual: 0.52 },
+      { quarter: "Q3'24", estimated: 0.55, actual: 0.62 },
+      { quarter: "Q4'24", estimated: 0.70, actual: 0.76 },
+    ],
+    revenueBreakdown: [
+      { label: "자동차 판매", value: 80, color: ACCENT },
+      { label: "에너지 저장", value: 8, color: "#4A90D9" },
+      { label: "서비스 및 기타", value: 7, color: "#E5A820" },
+      { label: "탄소배출권", value: 3, color: "#9B59B6" },
+      { label: "FSD 구독/기타", value: 2, color: UP },
+    ],
+    kgFlows: [
+      {
+        title: "전기차 캐즘이 산업 재편으로 이어지는 과정",
+        scenario: "전기차 수요 성장 둔화(Chasm) 시기에 가격 경쟁이 공급망을 어떻게 재편하는지 추적합니다.",
+        steps: [
+          {
+            label: "전기차 수요 성장 둔화",
+            sublabel: "매크로",
+            desc: "고금리와 충전 인프라 부족 등으로 얼리어답터 이후 대중화(Mass Adoption) 지연",
+            relation: "재고 증가 및 가격 인하 압박",
+            polarity: "negative",
+          },
+          {
+            label: "테슬라 가격 인하 주도",
+            sublabel: "TSLA",
+            desc: "업계 1위 마진율(원가 경쟁력)을 무기로 시장 점유율 방어를 위해 전면적인 단가 인하 단행",
+            relation: "수익성 악화 및 경쟁사 압박",
+            polarity: "neutral",
+          },
+          {
+            label: "기존 완성차의 전동화 전략 지연",
+            sublabel: "F / GM",
+            desc: "가격 경쟁력 확보에 실패한 포드, GM 등 기존 내연기관 업체들이 전기차 투자 계획 축소·연기",
+            relation: "배터리 수주 감소 연쇄 작용",
+            polarity: "negative",
+          },
+          {
+            label: "배터리 밸류체인 실적 부진",
+            sublabel: "LG엔솔·에코프로",
+            desc: "전방 수요 감소로 배터리 셀 및 양극재 등 소재 업체들의 공장 가동률 하락 및 실적 충격",
+            polarity: "negative",
+          },
+        ],
+        learningPoint: "혁신 산업의 성장 둔화기(Chasm)에는 가장 원가 경쟁력이 높은 선두 기업이 단가 인하로 치킨 게임을 주도하며 후발 주자를 탈락시키는 구조 조정이 발생합니다.",
+      },
+      {
+        title: "자율주행(FSD)이 하드웨어를 소프트웨어 플랫폼으로 바꾸는 마법",
+        scenario: "테슬라가 자동차 제조사를 넘어 소프트웨어 플랫폼 기업으로 진화하는 메커니즘을 분석합니다.",
+        steps: [
+          {
+            label: "압도적 주행 데이터 확보",
+            sublabel: "TSLA 차량",
+            desc: "전 세계 수백만 대의 테슬라 차량이 카메라를 통해 매일 실제 주행 영상 데이터 수집",
+            relation: "AI 모델 학습 고도화",
+            polarity: "positive",
+          },
+          {
+            label: "FSD(자율주행) 성능 진화",
+            sublabel: "소프트웨어",
+            desc: "엔드투엔드(End-to-End) AI 네트워크 도입으로 코드 기반 규칙에서 AI 스스로 운전 방식을 학습하는 체계로 진화",
+            relation: "구독 수익 창출",
+            polarity: "positive",
+          },
+          {
+            label: "고마진 구독 경제 활성화",
+            sublabel: "TSLA 실적",
+            desc: "FSD 구매(월 $99 구독 등) 비율 증가로 자동차 1대당 생애 가치(LTV) 및 영업이익률 비약적 상승",
+            relation: "가치 평가 패러다임 전환",
+            polarity: "positive",
+          },
+          {
+            label: "플랫폼(로보택시) 기업으로 재평가",
+            sublabel: "밸류에이션",
+            desc: "단순 제조 마진이 아닌 글로벌 모빌리티 네트워크 플랫폼으로서 높은 밸류에이션 멀티플(PER) 적용 정당화",
+            polarity: "positive",
+          },
+        ],
+        learningPoint: "제조업이 고수익을 창출하려면 하드웨어 1회성 판매에 그치지 않고, 그 위에 지속적인 구독 수익을 창출하는 소프트웨어·서비스 생태계를 구축해야 합니다.",
+      },
+    ],
+  },
+};
+
+const stockDetail = stockDetailsMap.AAPL;
+
+
 
 const ISSUE_SPARKLINES: Record<string, number[]> = {
   USO: [72, 74, 73, 78, 80, 82, 85], XOM: [108, 109, 107, 110, 112, 114, 116],
@@ -1575,15 +2426,19 @@ function HomeScreen({
   onStartLesson,
   onSelectStock,
   lessonStep,
+  activeLessonId,
 }: {
   onGoToIssues: () => void;
   onOpenIssue: (issue: Issue) => void;
-  onStartLesson: () => void;
-  onSelectStock: () => void;
+  onStartLesson: (issueId: number) => void;
+  onSelectStock: (symbol: string) => void;
   lessonStep: number;
+  activeLessonId: number;
 }) {
   const [current, setCurrent] = useState(0);
   const sliderRef = useRef<HTMLDivElement>(null);
+  const [lessonCurrent, setLessonCurrent] = useState(0);
+  const lessonSliderRef = useRef<HTMLDivElement>(null);
 
   const handleScroll = () => {
     const el = sliderRef.current;
@@ -1592,86 +2447,127 @@ function HomeScreen({
     setCurrent(idx);
   };
 
-  const firstCard = dailyCards[0];
-  const inProgress = lessonStep > 0 && lessonStep < 5;
-  const totalSteps = 5;
+  const handleLessonScroll = () => {
+    const el = lessonSliderRef.current;
+    if (!el) return;
+    const idx = Math.round(el.scrollLeft / el.offsetWidth);
+    setLessonCurrent(idx);
+  };
+
   const issueCards = dailyCards.slice(1);
 
   return (
     <div className="pt-2">
-      {/* ── 오늘의 학습 카드 (독립 배치) ── */}
-      <div className="px-5 mb-5">
-        <article
-          className="relative overflow-hidden rounded-[28px] p-6 pr-4"
-          style={{ background: HERO, boxShadow: SHADOW_HERO, minHeight: 180 }}
-        >
-          <div
-            className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold"
-            style={{ background: ACCENT_SOFT, color: ACCENT_DEEP }}
-          >
-            {inProgress ? "📝 학습 중" : "📖 오늘의 학습"}
-          </div>
-          <h2
-            className="mt-2 text-[20px] font-extrabold leading-tight"
-            style={{ color: TEXT }}
-          >
-            {firstCard.headline}
-          </h2>
-
-          {inProgress ? (
-            <>
-              <div className="mt-3 flex items-center gap-2">
+      {/* ── 오늘의 학습 카드 슬라이더 ── */}
+      <div className="px-5 mb-2">
+        <SectionHeader title="오늘의 학습" />
+      </div>
+      <div
+        ref={lessonSliderRef}
+        onScroll={handleLessonScroll}
+        className="flex overflow-x-auto"
+        style={{ scrollSnapType: "x mandatory", scrollbarWidth: "none" }}
+      >
+        {lessonCards.map((lc) => {
+          const isActive = activeLessonId === lc.issueId;
+          const inProgress = isActive && lessonStep > 0 && lessonStep < 5;
+          const totalSteps = 5;
+          return (
+            <div
+              key={lc.issueId}
+              className="w-full flex-shrink-0 px-5"
+              style={{ scrollSnapAlign: "start" }}
+            >
+              <article
+                className="relative overflow-hidden rounded-[28px] p-6 pr-4"
+                style={{ background: HERO, boxShadow: SHADOW_HERO, minHeight: 180 }}
+              >
                 <div
-                  className="h-2 flex-1 overflow-hidden rounded-full"
-                  style={{ background: LINE }}
+                  className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold"
+                  style={{ background: ACCENT_SOFT, color: ACCENT_DEEP }}
                 >
-                  <div
-                    className="h-full rounded-full"
-                    style={{
-                      width: `${(lessonStep / totalSteps) * 100}%`,
-                      background: ACCENT,
-                      transition: "width 400ms ease-out",
-                    }}
-                  />
+                  {inProgress ? "📝 학습 중" : `${lc.emoji} 학습하기`}
                 </div>
-                <span
-                  className="text-[11px] font-bold"
-                  style={{ color: ACCENT_DEEP }}
+                <h2
+                  className="mt-2 text-[20px] font-extrabold leading-tight"
+                  style={{ color: TEXT }}
                 >
-                  {lessonStep}/{totalSteps}
-                </span>
-              </div>
-              <button
-                type="button"
-                onClick={onStartLesson}
-                className="mt-3 inline-flex items-center gap-1.5 rounded-full px-5 py-2.5 text-[13px] font-extrabold active:opacity-80"
-                style={{ background: ACCENT, color: "#fff", boxShadow: SHADOW }}
-              >
-                이어서 학습하기 <span style={{ fontSize: 11 }}>▶</span>
-              </button>
-            </>
-          ) : (
-            <>
-              <div
-                className="mt-1.5 text-[12.5px] leading-snug"
-                style={{ color: SUB }}
-              >
-                배경부터 파급효과까지, 4단계로 이해해보자
-              </div>
-              <button
-                type="button"
-                onClick={onStartLesson}
-                className="mt-4 inline-flex items-center gap-1.5 rounded-full px-5 py-2.5 text-[13px] font-extrabold active:opacity-80"
-                style={{ background: ACCENT, color: "#fff", boxShadow: SHADOW }}
-              >
-                학습 시작하기 <span style={{ fontSize: 11 }}>▶</span>
-              </button>
-            </>
-          )}
-          <div className="absolute" style={{ right: -6, bottom: -10 }}>
-            <Mascot size={150} withPencil />
-          </div>
-        </article>
+                  {lc.headline}
+                </h2>
+
+                {inProgress ? (
+                  <>
+                    <div className="mt-3 flex items-center gap-2">
+                      <div
+                        className="h-2 flex-1 overflow-hidden rounded-full"
+                        style={{ background: LINE }}
+                      >
+                        <div
+                          className="h-full rounded-full"
+                          style={{
+                            width: `${(lessonStep / totalSteps) * 100}%`,
+                            background: ACCENT,
+                            transition: "width 400ms ease-out",
+                          }}
+                        />
+                      </div>
+                      <span
+                        className="text-[11px] font-bold"
+                        style={{ color: ACCENT_DEEP }}
+                      >
+                        {lessonStep}/{totalSteps}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => onStartLesson(lc.issueId)}
+                      className="mt-3 inline-flex items-center gap-1.5 rounded-full px-5 py-2.5 text-[13px] font-extrabold active:opacity-80"
+                      style={{ background: ACCENT, color: "#fff", boxShadow: SHADOW }}
+                    >
+                      이어서 학습하기 <span style={{ fontSize: 11 }}>▶</span>
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <div
+                      className="mt-1.5 text-[12.5px] leading-snug"
+                      style={{ color: SUB }}
+                    >
+                      {lc.subtitle}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => onStartLesson(lc.issueId)}
+                      className="mt-4 inline-flex items-center gap-1.5 rounded-full px-5 py-2.5 text-[13px] font-extrabold active:opacity-80"
+                      style={{ background: ACCENT, color: "#fff", boxShadow: SHADOW }}
+                    >
+                      학습 시작하기 <span style={{ fontSize: 11 }}>▶</span>
+                    </button>
+                  </>
+                )}
+                <div className="absolute" style={{ right: -6, bottom: -10 }}>
+                  <Mascot size={150} withPencil />
+                </div>
+              </article>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* 학습 카드 페이지네이션 닷 */}
+      <div className="mb-5 mt-3 flex justify-center gap-1.5">
+        {lessonCards.map((_, i) => (
+          <div
+            key={i}
+            className="rounded-full"
+            style={{
+              width: i === lessonCurrent ? 16 : 6,
+              height: 6,
+              background: i === lessonCurrent ? ACCENT : LINE,
+              transition: "width 200ms, background 200ms",
+            }}
+          />
+        ))}
       </div>
 
       {/* ── 오늘의 이슈 슬라이더 ── */}
@@ -1805,7 +2701,7 @@ function HomeScreen({
               <StockRow
                 stock={s}
                 divided={i > 0}
-                onClick={onSelectStock}
+                onClick={() => onSelectStock(s.symbol)}
                 trailing={
                   <div className="text-right">
                     <div
@@ -1879,9 +2775,11 @@ function DailyCard({ card }: { card: (typeof dailyCards)[number] }) {
 function IssueScreen({
   active,
   onSetActive,
+  onStartLesson,
 }: {
   active: Issue | null;
   onSetActive: (issue: Issue | null) => void;
+  onStartLesson: (id: number) => void;
 }) {
   const [highlight, setHighlight] = useState<Category>("general");
   const generalRef = useRef<HTMLElement>(null);
@@ -1926,7 +2824,7 @@ function IssueScreen({
   };
 
   if (active) {
-    return <IssueDetail issue={active} onBack={() => onSetActive(null)} />;
+    return <IssueDetail issue={active} onBack={() => onSetActive(null)} onStartLesson={onStartLesson} />;
   }
 
   const generalIssues = issueList.filter((i) => i.category === "general");
@@ -2325,7 +3223,7 @@ function MineGroupedList({
   );
 }
 
-function StocksScreen({ onSelectStock }: { onSelectStock: () => void }) {
+function StocksScreen({ onSelectStock }: { onSelectStock: (symbol: string) => void }) {
   const [query, setQuery] = useState("");
   const trimmed = query.trim();
   const filtered = trimmed
@@ -2369,7 +3267,7 @@ function StocksScreen({ onSelectStock }: { onSelectStock: () => void }) {
             >
               <StockRow
                 stock={s}
-                onClick={onSelectStock}
+                onClick={() => onSelectStock(s.symbol)}
                 trailing={
                   <span className="text-[18px]" style={{ color: SUB }}>
                     ☆
@@ -2384,11 +3282,11 @@ function StocksScreen({ onSelectStock }: { onSelectStock: () => void }) {
   );
 }
 
-function StockDetail({ onBack }: { onBack: () => void }) {
-  const d = stockDetail;
+function StockDetail({ symbol, onBack }: { symbol: string; onBack: () => void }) {
+  const d = stockDetailsMap[symbol] || stockDetailsMap["AAPL"];
   const [showScores, setShowScores] = useState(false);
   if (showScores) {
-    return <StockScoresScreen onBack={() => setShowScores(false)} />;
+    return <StockScoresScreen d={d} onBack={() => setShowScores(false)} />;
   }
   return (
     <StockDetailMain d={d} onBack={onBack} onSeeScores={() => setShowScores(true)} />
@@ -2400,7 +3298,7 @@ function StockDetailMain({
   onBack,
   onSeeScores,
 }: {
-  d: typeof stockDetail;
+  d: EduStockDetail;
   onBack: () => void;
   onSeeScores: () => void;
 }) {
@@ -2442,7 +3340,7 @@ function StockDetailMain({
 
       {/* 52주 레인지 */}
       <div className="mb-4 rounded-[22px] p-4" style={{ background: SURFACE, boxShadow: SHADOW }}>
-        <EduRange52W low={164.08} high={260.10} current={parseFloat(d.price)} />
+        <EduRange52W low={d.low52w} high={d.high52w} current={parseFloat(d.price.replace(/,/g, ''))} />
       </div>
 
       {/* 인터랙티브 주가 차트 */}
@@ -2458,19 +3356,27 @@ function StockDetailMain({
             ))}
           </div>
         </div>
-        <EduPriceChart data={EDU_PRICE_HISTORY[pricePeriod]} period={pricePeriod} />
+        <EduPriceChart data={d.priceHistory[pricePeriod]} period={pricePeriod} />
       </div>
 
       {/* 레이더 차트 */}
       <div className="mb-4 rounded-[22px] p-4" style={{ background: SURFACE, boxShadow: SHADOW }}>
         <span className="text-[13px] font-extrabold" style={{ color: TEXT }}>🎯 종합 평가 · {totalScore}점</span>
         <EduRadar scores={d.scoreDetails} animate={animCharts} />
+        <button
+          type="button"
+          onClick={onSeeScores}
+          className="mt-4 flex w-full items-center justify-center gap-1 rounded-xl py-3 text-[13px] font-bold"
+          style={{ background: ACCENT_SOFT, color: ACCENT_DEEP }}
+        >
+          자세히 보기 →
+        </button>
       </div>
 
       {/* 매출 구성비 */}
       <div className="mb-4 rounded-[22px] p-4" style={{ background: SURFACE, boxShadow: SHADOW }}>
         <div className="mb-3 text-[13px] font-extrabold" style={{ color: TEXT }}>🍩 매출 구성비</div>
-        <EduDonut segments={EDU_REVENUE_BREAKDOWN} animate={animCharts} />
+        <EduDonut segments={d.revenueBreakdown} animate={animCharts} />
       </div>
 
       {/* EPS 비교 */}
@@ -2480,8 +3386,12 @@ function StockDetailMain({
           <div className="flex items-center gap-1"><div className="size-2 rounded-full" style={{ background: LINE }} /><span className="text-[9px]" style={{ color: SUB }}>예상</span></div>
           <div className="flex items-center gap-1"><div className="size-2 rounded-full" style={{ background: UP }} /><span className="text-[9px]" style={{ color: SUB }}>서프라이즈</span></div>
         </div>
-        <EduEpsBars data={EDU_EPS_DATA} animate={animCharts} />
+        <EduEpsBars data={d.epsData} animate={animCharts} />
       </div>
+
+      {d.kgFlows && d.kgFlows.length > 0 && (
+        <StockKGChain flows={d.kgFlows} />
+      )}
 
       <h2 className="mb-2 text-[15px] font-extrabold" style={{ color: TEXT }}>
         살 이유
@@ -2501,55 +3411,58 @@ function StockDetailMain({
         ))}
       </div>
 
-      <h2 className="mb-2 text-[15px] font-extrabold" style={{ color: TEXT }}>
-        5가지 관점 평가
+    </div>
+  );
+}
+
+// ───── KG 흐름 연쇄 컴포넌트 ─────────────────────────────
+function StockKGChain({ flows }: { flows: StockKGFlow[] }) {
+  if (!flows || flows.length === 0) return null;
+  return (
+    <div className="mb-6 rounded-[22px] p-5" style={{ background: SURFACE, boxShadow: SHADOW }}>
+      <h2 className="mb-4 text-[15px] font-extrabold flex items-center gap-2" style={{ color: TEXT }}>
+        <span style={{ fontSize: 16 }}>🔗</span> 파급효과 시나리오
       </h2>
-      <div
-        className="mb-3 rounded-[22px] p-4"
-        style={{ background: SURFACE, boxShadow: SHADOW }}
-      >
-        <ul className="flex flex-col gap-3">
-          {d.scoreDetails.map((axis) => (
-            <li key={axis.key} className="flex items-center gap-3">
-              <span
-                className="flex w-5 items-center justify-center"
-                style={{ color: ACCENT_DEEP }}
-              >
-                <AxisIcon axisKey={axis.key} size={18} />
-              </span>
-              <span
-                className="w-14 text-[12.5px] font-medium"
-                style={{ color: SUB }}
-              >
-                {axis.key}
-              </span>
-              <div
-                className="h-2 flex-1 overflow-hidden rounded-full"
-                style={{ background: LINE }}
-              >
-                <div
-                  className="h-full rounded-full"
-                  style={{ width: `${axis.score}%`, background: ACCENT }}
-                />
+      <div className="flex flex-col gap-6">
+        {flows.map((flow, i) => (
+          <div key={i} className="flex flex-col gap-3">
+            <div>
+              <div className="text-[13.5px] font-extrabold mb-1" style={{ color: TEXT }}>{flow.title}</div>
+              <div className="text-[12px] leading-relaxed" style={{ color: SUB }}>{flow.scenario}</div>
+            </div>
+            <div className="flex flex-col gap-2">
+              {flow.steps.map((step, si) => (
+                <div key={si} className="flex gap-3">
+                  <div className="flex flex-col items-center">
+                    <div className="w-2.5 h-2.5 rounded-full mt-1.5" style={{ background: step.polarity === 'positive' ? UP : step.polarity === 'negative' ? DOWN : SUB }} />
+                    {si < flow.steps.length - 1 && <div className="w-[1.5px] h-full min-h-6 my-1 rounded-full" style={{ background: LINE }} />}
+                  </div>
+                  <div className="flex-1 pb-2">
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <span className="text-[13px] font-extrabold" style={{ color: step.polarity === 'positive' ? UP : step.polarity === 'negative' ? DOWN : TEXT }}>{step.label}</span>
+                      {step.sublabel && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md" style={{ background: ACCENT_SOFT, color: ACCENT_DEEP }}>{step.sublabel}</span>}
+                    </div>
+                    <div className="text-[12px] leading-relaxed" style={{ color: SUB }}>{step.desc}</div>
+                    {step.relation && (
+                      <div className="mt-2 text-[11px] font-bold flex items-center gap-1" style={{ color: TEXT }}>
+                        <span style={{ color: SUB }}>↳</span> {step.relation}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+            {flow.learningPoint && (
+              <div className="rounded-xl p-3" style={{ background: HERO, color: TEXT }}>
+                <div className="text-[11px] font-extrabold mb-1 flex items-center gap-1.5" style={{ color: ACCENT_DEEP }}>
+                  💡 학습 포인트
+                </div>
+                <div className="text-[12px] leading-relaxed">{flow.learningPoint}</div>
               </div>
-              <span
-                className="w-8 text-right text-[13px] font-extrabold"
-                style={{ color: TEXT, fontVariantNumeric: "tabular-nums" }}
-              >
-                {axis.score}
-              </span>
-            </li>
-          ))}
-        </ul>
+            )}
+          </div>
+        ))}
       </div>
-      <button
-        type="button"
-        onClick={onSeeScores}
-        className="mb-2 flex w-full items-center justify-center gap-1 rounded-xl py-3.5 text-[14px] font-bold"
-        style={{ background: ACCENT_SOFT, color: ACCENT_DEEP }}
-      >
-        자세히 보기 →
-      </button>
     </div>
   );
 }
@@ -2614,7 +3527,7 @@ function AxisIcon({ axisKey, size = 20 }: { axisKey: string; size?: number }) {
   return null;
 }
 
-function MyScreen({ onSelectStock }: { onSelectStock: () => void }) {
+function MyScreen({ onSelectStock }: { onSelectStock: (symbol: string) => void }) {
   const recentIssues = issueList.slice(0, 3);
   return (
     <div className="px-5 pt-4">
@@ -2690,7 +3603,7 @@ function MyScreen({ onSelectStock }: { onSelectStock: () => void }) {
             <StockRow
               stock={s}
               divided={i > 0}
-              onClick={onSelectStock}
+              onClick={() => onSelectStock(s.symbol)}
               trailing={
                 <div className="text-right">
                   <div
@@ -2887,6 +3800,8 @@ function ScoreChart({ chart }: { chart: AxisChart }) {
 }
 
 function ScoreAxisCard({ axis }: { axis: ScoreAxis }) {
+  const terms = collectGlossaryTerms([{ kind: "paragraph", text: axis.desc + " " + axis.learning }]);
+
   return (
     <article
       className="rounded-[22px] p-5"
@@ -2980,12 +3895,30 @@ function ScoreAxisCard({ axis }: { axis: ScoreAxis }) {
           {axis.learning}
         </p>
       </div>
+
+      {terms.length > 0 && (
+        <div className="mt-3 flex flex-col gap-2">
+          {terms.map((term) => (
+            <div
+              key={term}
+              className="rounded-xl p-3"
+              style={{ background: SURFACE, border: `1px solid ${LINE}` }}
+            >
+              <div className="mb-1 text-[11px] font-extrabold" style={{ color: ACCENT_DEEP }}>
+                📖 {term}
+              </div>
+              <div className="text-[11.5px] leading-relaxed" style={{ color: SUB }}>
+                {GLOSSARY[term]}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </article>
   );
 }
 
-function StockScoresScreen({ onBack }: { onBack: () => void }) {
-  const d = stockDetail;
+function StockScoresScreen({ d, onBack }: { d: EduStockDetail; onBack: () => void }) {
   const total = Math.round(
     d.scoreDetails.reduce((s, a) => s + a.score, 0) / d.scoreDetails.length,
   );
@@ -3267,7 +4200,11 @@ export default function EduPage() {
   const [tab, setTab] = useState<Tab>("home");
   // 어느 탭에서든 종목을 누르면 상세로 진입 — 탭 전환 없이 상세를 위에 덮어 띄움
   const [showDetail, setShowDetail] = useState(false);
-  const openDetail = () => setShowDetail(true);
+  const [selectedStockSymbol, setSelectedStockSymbol] = useState<string>("AAPL");
+  const openDetail = (symbol: string) => {
+    setSelectedStockSymbol(symbol);
+    setShowDetail(true);
+  };
   // 이슈 상세 상태 — 홈에서 직접 진입 가능하도록 상위로 끌어올림
   const [activeIssue, setActiveIssue] = useState<Issue | null>(null);
   const openIssue = (issue: Issue) => {
@@ -3277,6 +4214,9 @@ export default function EduPage() {
   // 학습 플로우 상태
   const [showLesson, setShowLesson] = useState(false);
   const [lessonStep, setLessonStep] = useState(0);
+  const [activeLessonId, setActiveLessonId] = useState(1);
+
+  const lessonIssue = issueList.find((i) => i.id === activeLessonId) || issueList[0];
 
   return (
     <div
@@ -3292,7 +4232,7 @@ export default function EduPage() {
       <main className="pb-24 pt-14">
         {showLesson ? (
           <LessonFlow
-            issue={issueList[0]}
+            issue={lessonIssue}
             onComplete={() => {
               setShowLesson(false);
               setLessonStep(0);
@@ -3304,20 +4244,33 @@ export default function EduPage() {
             initialStep={lessonStep}
           />
         ) : showDetail ? (
-          <StockDetail onBack={() => setShowDetail(false)} />
+          <StockDetail symbol={selectedStockSymbol} onBack={() => setShowDetail(false)} />
         ) : (
           <>
             {tab === "home" && (
               <HomeScreen
                 onGoToIssues={() => setTab("issue")}
                 onOpenIssue={openIssue}
-                onStartLesson={() => setShowLesson(true)}
+                onStartLesson={(issueId) => {
+                  setActiveLessonId(issueId);
+                  setLessonStep(0);
+                  setShowLesson(true);
+                }}
                 onSelectStock={openDetail}
                 lessonStep={lessonStep}
+                activeLessonId={activeLessonId}
               />
             )}
             {tab === "issue" && (
-              <IssueScreen active={activeIssue} onSetActive={setActiveIssue} />
+              <IssueScreen 
+                active={activeIssue} 
+                onSetActive={setActiveIssue} 
+                onStartLesson={(issueId) => {
+                  setActiveLessonId(issueId);
+                  setLessonStep(0);
+                  setShowLesson(true);
+                }}
+              />
             )}
             {tab === "stocks" && (
               <StocksScreen onSelectStock={openDetail} />
@@ -3360,7 +4313,7 @@ const TIER_HEAD: Record<
   1: { eyebrow: "오늘의 학습 이슈", bg: SURFACE, fg: SUB, barBg: LINE },
 };
 
-function IssueDetail({ issue, onBack }: { issue: Issue; onBack: () => void }) {
+function IssueDetail({ issue, onBack, onStartLesson }: { issue: Issue; onBack: () => void; onStartLesson: (id: number) => void }) {
   const detail = issue.detail;
   // ADR-022 + 5/2 회의 정합 — 순서: 이슈 → (tier 2-3) 파급효과 → 설명 → 코치 한마디
   const showRipple = issue.tier >= 2 && !!detail?.ripple;
@@ -3389,7 +4342,14 @@ function IssueDetail({ issue, onBack }: { issue: Issue; onBack: () => void }) {
 
       {detail?.body && <TermSlider blocks={detail.body} />}
 
-      {issue.coachLine && <CoachOneLiner line={issue.coachLine} />}
+      <button
+        type="button"
+        onClick={() => onStartLesson(issue.id)}
+        className="mt-6 flex w-full items-center justify-center gap-1.5 rounded-2xl py-4 text-[15px] font-extrabold shadow-sm active:opacity-80"
+        style={{ background: ACCENT, color: "#fff" }}
+      >
+        이 내용 더 자세히 학습하기 <span style={{ fontSize: 11 }}>▶</span>
+      </button>
 
       <div className="h-12" />
     </div>
@@ -3514,6 +4474,11 @@ const GLOSSARY: Record<string, string> = {
   OPEC: "석유수출국기구. 산유국들의 모임 — 증산·감산 결정으로 유가에 영향.",
   ASP: "평균 판매가(Average Selling Price). 제품 1개당 평균 가격.",
   컨센: "시장 컨센서스의 줄임말. 애널리스트들의 평균 예상치.",
+  PER: "주가수익비율. 주가를 주당순이익(EPS)으로 나눈 값. 높을수록 미래 이익 기대가 선반영된 상태.",
+  PEG: "PER을 이익 성장률로 나눈 지표. 1.0 미만이면 성장 대비 저평가로 해석. PER만으로 부족한 성장성 고려를 보완.",
+  ROE: "자기자본이익률. 자기자본 대비 순이익 비율. 높을수록 자본을 효율적으로 활용하는 기업.",
+  "락인": "Lock-in. 고객이 특정 제품·서비스를 쓰면 다른 브랜드로 이탈하기 어렵게 만드는 구조적 우위.",
+  EPS: "주당순이익(Earnings Per Share). 순이익을 발행 주식 수로 나눈 값. 기업 수익성의 핵심 지표.",
 };
 
 const GLOSSARY_TERMS = Object.keys(GLOSSARY).sort(
@@ -3640,10 +4605,9 @@ function BodyBlocks({ blocks }: { blocks: NonNullable<IssueDetail["body"]> }) {
               <div
                 key={i}
                 className="rounded-[20px] p-5"
-                style={{ background: ACCENT_SOFT, boxShadow: SHADOW }}
+                style={{ background: SURFACE, boxShadow: SHADOW }}
               >
                 <div className="mb-2 flex items-center gap-1.5">
-                  <span className="text-[16px]">💡</span>
                   <span
                     className="text-[12px] font-extrabold"
                     style={{ color: ACCENT_DEEP }}
@@ -4401,6 +5365,30 @@ function getLessonIntroPoints(issue: Issue) {
       },
     ];
   }
+  if (/FSD|로보택시|자율주행|사이버캡|모빌리티/.test(haystack)) {
+    return [
+      {
+        label: "비즈니스 모델 전환",
+        text: "차를 한 번 팔아 돈 버는 구조에서, 매 이동마다 수익을 내는 플랫폼 모델로의 전환이 밸류에이션을 바꿔.",
+      },
+      {
+        label: "플랫폼 vs 하드웨어",
+        text: "같은 회사라도 '자동차 제조업 PER'과 '소프트웨어 플랫폼 PER'은 전혀 다른 배수가 적용돼.",
+      },
+    ];
+  }
+  if (/AI법|AI Act|규제|컴플라이언스|과징금|EU/.test(haystack)) {
+    return [
+      {
+        label: "규제 = 비용 + 진입장벽",
+        text: "규제는 준수 비용을 올리지만, 동시에 체력 약한 경쟁자를 걸러내는 필터 역할도 해.",
+      },
+      {
+        label: "선례 학습",
+        text: "GDPR 시행 때 빅테크 주가가 어떻게 반응했는지 비교해보면 규제 뉴스의 패턴이 보여.",
+      },
+    ];
+  }
   if (/AI|HBM|Blackwell|반도체|TSMC|CoWoS|파운드리|데이터센터/.test(haystack)) {
     return [
       {
@@ -4470,6 +5458,20 @@ function getLessonAnalysisFrames(issue: Issue) {
       "시장 예상과 실제 발표가 얼마나 달랐는지 먼저 봐.",
       "성장주는 할인율, 금융주는 예대마진, 채권은 금리 방향에 각각 다르게 반응해.",
       "발표 직후 반응보다 다음 인하·인상 시점에 대한 기대가 더 중요할 때가 많아.",
+    ];
+  }
+  if (/FSD|로보택시|자율주행|사이버캡|모빌리티/.test(haystack)) {
+    return [
+      "비즈니스 모델이 바뀌면 회사를 평가하는 기준(PER 배수)부터 달라져.",
+      "기존 사업(차량 판매)이 줄더라도 새 사업(구독 서비스)의 마진이 높으면 전체 이익은 늘 수 있어.",
+      "경쟁사(우버, 웨이모)의 반응을 보면 시장이 이 변화를 얼마나 심각하게 보는지 알 수 있어.",
+    ];
+  }
+  if (/AI법|AI Act|규제|컴플라이언스|과징금|EU/.test(haystack)) {
+    return [
+      "규제의 핵심은 '누가 대상'이고 '비용이 얼마'인지를 숫자로 확인하는 거야.",
+      "단기 비용 증가와 중장기 경쟁 구도 변화를 분리해서 봐야 해.",
+      "과거 유사 규제(GDPR 등)가 시행됐을 때 주가 반응 패턴을 참고하면 판단 기준이 생겨.",
     ];
   }
   if (/AI|HBM|Blackwell|반도체|TSMC|CoWoS|파운드리|데이터센터/.test(haystack)) {
@@ -4640,7 +5642,7 @@ function LessonFlow({
                   오늘 잡고 갈 핵심
                 </div>
                 <div
-                  className="text-[14.5px] font-medium leading-[1.85]"
+                  className="line-clamp-3 text-[14.5px] font-medium leading-[1.85]"
                   style={{ color: TEXT }}
                 >
                   <HighlightedText text={issue.summary} />
@@ -4669,59 +5671,28 @@ function LessonFlow({
                 </div>
               ))}
             </div>
-            <div
-              className="mt-4 rounded-[18px] p-4"
-              style={{ background: SURFACE, boxShadow: SHADOW }}
-            >
+            {introPoints.length > 0 && (
               <div
-                className="mb-2 text-[11px] font-extrabold"
-                style={{ color: SUB }}
+                className="mt-4 flex gap-3 rounded-[18px] p-4"
+                style={{ background: ACCENT_SOFT }}
               >
-                이번 학습에서 확인할 것
-              </div>
-              <div className="flex flex-col gap-2">
-                {[
-                  "뉴스가 어떤 시장 변수를 건드렸는지",
-                  "그 변수가 어떤 종목으로 전달되는지",
-                  "내 판단은 매수·관망·패스 중 어디에 가까운지",
-                ].map((text, i) => (
-                  <div key={text} className="flex gap-2">
-                    <span
-                      className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full text-[10px] font-extrabold"
-                      style={{ background: ACCENT_SOFT, color: ACCENT_DEEP }}
-                    >
-                      {i + 1}
-                    </span>
-                    <span
-                      className="text-[12.5px] leading-relaxed"
-                      style={{ color: TEXT }}
-                    >
-                      {text}
-                    </span>
+                <Mascot size={36} />
+                <div className="flex-1">
+                  <div
+                    className="mb-0.5 text-[10.5px] font-extrabold uppercase"
+                    style={{ color: ACCENT_DEEP, letterSpacing: 0.3 }}
+                  >
+                    스토키
                   </div>
-                ))}
-              </div>
-            </div>
-            <div
-              className="mt-4 flex gap-3 rounded-[18px] p-4"
-              style={{ background: ACCENT_SOFT }}
-            >
-              <Mascot size={36} />
-              <div className="flex-1">
-                <div
-                  className="mb-0.5 text-[10.5px] font-extrabold uppercase"
-                  style={{ color: ACCENT_DEEP, letterSpacing: 0.3 }}
-                >
-                  스토키
+                  <p
+                    className="text-[12.5px] leading-relaxed"
+                    style={{ color: TEXT }}
+                  >
+                    {introPoints[0].label}에 집중해서 봐보자.
+                  </p>
                 </div>
-                <p
-                  className="text-[12.5px] leading-relaxed"
-                  style={{ color: TEXT }}
-                >
-                  먼저 결론부터 잡고, 배경과 판단 포인트를 차례대로 뜯어보자.
-                </p>
               </div>
-            </div>
+            )}
           </div>
         )}
 
@@ -4731,7 +5702,7 @@ function LessonFlow({
               className="mb-4 text-[18px] font-extrabold leading-tight"
               style={{ color: TEXT }}
             >
-              이 일이 터지기 전, 시장은 어떤 분위기였을까?
+              이 이슈가 터진 배경
             </h2>
             {leadBlock ? (
               <div
@@ -4778,21 +5749,24 @@ function LessonFlow({
               ))}
             </div>
             <div
-              className="mt-4 rounded-[18px] p-4"
+              className="mt-4 flex gap-3 rounded-[18px] p-4"
               style={{ background: ACCENT_SOFT }}
             >
-              <div
-                className="mb-1 text-[11px] font-extrabold"
-                style={{ color: ACCENT_DEEP }}
-              >
-                배경을 읽는 순서
+              <Mascot size={36} />
+              <div className="flex-1">
+                <div
+                  className="mb-0.5 text-[10.5px] font-extrabold uppercase"
+                  style={{ color: ACCENT_DEEP, letterSpacing: 0.3 }}
+                >
+                  스토키의 해석
+                </div>
+                <p
+                  className="text-[12.5px] leading-relaxed"
+                  style={{ color: TEXT }}
+                >
+                  이 배경에서 주목할 포인트는 시장이 이미 이 변수를 걱정하고 있었는지야. 같은 뉴스라도 시장이 긴장한 상태였는지 안심하던 상태였는지에 따라 반응이 완전히 달라지거든.
+                </p>
               </div>
-              <p
-                className="text-[12.5px] leading-relaxed"
-                style={{ color: TEXT }}
-              >
-                먼저 사건이 나온 맥락을 보고, 그다음 시장이 이미 걱정하던 변수가 무엇이었는지 확인해. 같은 뉴스라도 시장이 긴장한 상태였는지, 안심하던 상태였는지에 따라 반응이 달라져.
-              </p>
             </div>
             {terms.length > 0 && (
               <div className="mt-4">
@@ -4824,7 +5798,7 @@ function LessonFlow({
               className="mb-4 text-[18px] font-extrabold leading-tight"
               style={{ color: TEXT }}
             >
-              왜 이런 이슈가 생겼을까?
+              이 이슈가 시장에 영향을 미치는 구조
             </h2>
             <div
               className="mb-4 rounded-[20px] p-5"
@@ -4858,6 +5832,26 @@ function LessonFlow({
                 ))}
               </div>
             </div>
+            <div
+              className="mb-4 flex gap-3 rounded-[18px] p-4"
+              style={{ background: ACCENT_SOFT }}
+            >
+              <Mascot size={36} />
+              <div className="flex-1">
+                <div
+                  className="mb-0.5 text-[10.5px] font-extrabold uppercase"
+                  style={{ color: ACCENT_DEEP, letterSpacing: 0.3 }}
+                >
+                  스토키의 조언
+                </div>
+                <p
+                  className="text-[12.5px] leading-relaxed"
+                  style={{ color: TEXT }}
+                >
+                  이 분석에서 가장 중요한 건 각 요인이 어떻게 톱니바퀴처럼 맞물려 돌아가는지 파악하는 거야.
+                </p>
+              </div>
+            </div>
             <div className="flex flex-col gap-3">
               {[...analogyBlocks, ...analysisBlocks].map((block, i) => (
                 <div
@@ -4885,7 +5879,7 @@ function LessonFlow({
                       className="mb-2 text-[13px] font-extrabold"
                       style={{ color: TEXT }}
                     >
-                      {block.title}
+                      {block.title.replace("어떻게 번질까?", "이슈의 파급 구조").replace("왜 빅테크가 흔들려?", "영향을 받는 주요 섹터").replace("누가 가장 영향 받아?", "직접적인 영향을 받는 기업들").replace("규제가 오히려 유리한 경우도 있어?", "새로운 관점에서 본 이슈 해석")}
                     </div>
                   )}
                   <div
@@ -4916,7 +5910,7 @@ function LessonFlow({
               className="mb-4 text-[18px] font-extrabold leading-tight"
               style={{ color: TEXT }}
             >
-              어떤 관점에서 오르고 내릴까?
+              핵심 쟁점과 파급효과
             </h2>
             {calloutBlock && (
               <div
@@ -5052,33 +6046,7 @@ function LessonFlow({
             >
               마지막으로 네 판단을 찍어보자
             </h2>
-            {issue.coachLine && (
-              <div
-                className="relative mb-5 flex gap-3 overflow-hidden rounded-[20px] p-5 pl-6"
-                style={{ background: SURFACE, boxShadow: SHADOW }}
-              >
-                <span
-                  aria-hidden
-                  className="absolute left-0 top-0 h-full w-1.5"
-                  style={{ background: ACCENT }}
-                />
-                <Mascot size={40} />
-                <div className="flex-1">
-                  <div
-                    className="mb-1 text-[10.5px] font-extrabold uppercase"
-                    style={{ color: ACCENT_DEEP, letterSpacing: 0.3 }}
-                  >
-                    스토키 한마디
-                  </div>
-                  <p
-                    className="text-[13.5px] leading-[1.75]"
-                    style={{ color: TEXT }}
-                  >
-                    <HighlightedText text={issue.coachLine} />
-                  </p>
-                </div>
-              </div>
-            )}
+
 
             <div
               className="mb-4 rounded-[20px] p-5"
@@ -5182,6 +6150,28 @@ function LessonFlow({
                     </button>
                   );
                 })}
+              </div>
+            </div>
+            
+            {/* 오늘의 정리 카드 */}
+            <div
+              className="mt-4 rounded-[20px] p-5"
+              style={{ background: HERO, boxShadow: SHADOW_HERO }}
+            >
+              <div
+                className="mb-2 text-[12px] font-extrabold"
+                style={{ color: ACCENT_DEEP }}
+              >
+                오늘의 정리
+              </div>
+              <p className="mb-3 text-[14px] font-bold leading-relaxed" style={{ color: TEXT }}>
+                {issue.summary ? issue.summary.split('.')[0] + ' 등 주요 포인트들을 학습했어요.' : '이슈의 핵심 구조와 파급효과를 확인했어요.'}
+              </p>
+              <div
+                className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-bold"
+                style={{ background: ACCENT_SOFT, color: ACCENT_DEEP }}
+              >
+                💡 {issue.symbols && issue.symbols.length > 0 ? `${issue.symbols[0]} 종목 페이지에서 더 자세히 볼까요?` : '관련 종목을 확인해볼까요?'}
               </div>
             </div>
           </div>
