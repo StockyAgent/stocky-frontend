@@ -3330,11 +3330,6 @@ function StockDetailMain({
         </span>
       </div>
 
-      {/* 52주 레인지 */}
-      <div className="mb-4 rounded-[22px] p-4" style={{ background: SURFACE, boxShadow: SHADOW }}>
-        <EduRange52W low={d.low52w} high={d.high52w} current={parseFloat(d.price.replace(/,/g, ''))} />
-      </div>
-
       {/* 인터랙티브 주가 차트 */}
       <div className="mb-4 rounded-[22px] p-4" style={{ background: SURFACE, boxShadow: SHADOW }}>
         <div className="flex items-center justify-between mb-3">
@@ -3365,21 +3360,7 @@ function StockDetailMain({
         </button>
       </div>
 
-      {/* 매출 구성비 */}
-      <div className="mb-4 rounded-[22px] p-4" style={{ background: SURFACE, boxShadow: SHADOW }}>
-        <div className="mb-3 text-[13px] font-extrabold" style={{ color: TEXT }}>🍩 매출 구성비</div>
-        <EduDonut segments={d.revenueBreakdown} animate={animCharts} />
-      </div>
 
-      {/* EPS 비교 */}
-      <div className="mb-6 rounded-[22px] p-4" style={{ background: SURFACE, boxShadow: SHADOW }}>
-        <div className="mb-1 text-[13px] font-extrabold" style={{ color: TEXT }}>💹 EPS 실적 vs 예상</div>
-        <div className="flex items-center gap-3 mb-3">
-          <div className="flex items-center gap-1"><div className="size-2 rounded-full" style={{ background: LINE }} /><span className="text-[9px]" style={{ color: SUB }}>예상</span></div>
-          <div className="flex items-center gap-1"><div className="size-2 rounded-full" style={{ background: UP }} /><span className="text-[9px]" style={{ color: SUB }}>서프라이즈</span></div>
-        </div>
-        <EduEpsBars data={d.epsData} animate={animCharts} />
-      </div>
 
       {d.kgNetwork && (
         <StockKGNetworkGraph data={d.kgNetwork} baseSymbol={d.symbol} />
@@ -3388,23 +3369,6 @@ function StockDetailMain({
         <StockKGChain flows={d.kgFlows} />
       )}
 
-      <h2 className="mb-2 text-[15px] font-extrabold" style={{ color: TEXT }}>
-        살 이유
-      </h2>
-      <div className="mb-6 flex flex-col gap-2">
-        {d.buyReasons.map((r) => (
-          <ReasonCard key={r.title} {...r} />
-        ))}
-      </div>
-
-      <h2 className="mb-2 text-[15px] font-extrabold" style={{ color: TEXT }}>
-        팔 이유
-      </h2>
-      <div className="mb-6 flex flex-col gap-2">
-        {d.sellReasons.map((r) => (
-          <ReasonCard key={r.title} {...r} />
-        ))}
-      </div>
 
     </div>
   );
@@ -3462,193 +3426,298 @@ function StockKGChain({ flows }: { flows: StockKGFlow[] }) {
   );
 }
 
-function StockKGNetworkGraph({ data, baseSymbol }: { data: StockKGNetworkData; baseSymbol: string }) {
-  const [selectedSym, setSelectedSym] = useState<string>(data.nodes[0]?.sym || "");
-  const selectedNode = data.nodes.find((n) => n.sym === selectedSym);
+// ───── Full KG Relation Graph (ported from mobile_stock_relation_detail_real.html) ─────
 
-  const W = 320;
-  const H = 340; // 조금 더 넉넉하게
-  const issueX = W / 2;
-  const issueY = H / 2;
-  const issueR = 30;
-  const R = 110; // 반지름
+const KG_CAT_META: Record<string, { color: string; kicker: string; title: string; copy: string }> = {
+  supply:      { color: "#3f73d8", kicker: "공급망", title: "의존하는 핵심 부품·생산 파트너",
+    copy: "제품이 만들어지려면 이 공급사들이 필요해요. 공급망 뉴스는 출시 일정과 원가를 흔드는 신호로 읽으면 좋아요." },
+  demand:      { color: "#169b5f", kicker: "수요",   title: "돈이 들어오는 고객",
+    copy: "이 고객들이 매출을 받쳐줘요. 수요가 살아있는지, 한 곳에 쏠려 있지는 않은지 보는 입구예요." },
+  competition: { color: "#8e6be8", kicker: "경쟁",   title: "같은 시장을 두고 싸우는 대상",
+    copy: "경쟁사가 치고 나오면 점유율과 프리미엄이 시험받아요. 절대 수치보다 방향성이 중요해요." },
+  risk:        { color: "#e24646", kicker: "리스크",  title: "가격을 흔드는 약한 고리",
+    copy: "규제·비용·수요처럼 나쁜 뉴스의 입구예요. 노출이 큰 곳부터 먼저 확인하는 습관을 들이세요." },
+  partner:     { color: "#f2b63b", kicker: "파트너십", title: "함께 가는 협력 관계",
+    copy: "투자·공동개발로 엮인 관계예요. 새 기능이 실제 매출로 이어질지 보는 단서로 쓰면 좋아요." },
+};
 
-  const polColor = (p: Polarity) => (p === "positive" ? UP : p === "negative" ? DOWN : SUB);
+type KGRel = { o: string; n: number; tier: string; sub?: string; ko: string; en: string };
+type KGStockData = {
+  name: string; ticker: string;
+  counts: Record<string, number>;
+  interp: string;
+  rels: Record<string, KGRel[]>;
+};
+
+const KG_STOCKS: Record<string, KGStockData> = {
+  NVDA: {
+    name: "엔비디아", ticker: "NVDA",
+    counts: { supply: 13, demand: 39, competition: 12, risk: 13, partner: 67 },
+    interp: "엔비디아는 AI 칩 생태계의 한가운데예요. 칩을 사가는 고객(클라우드·AI 기업)이 압도적으로 많고, 공급은 메모리(HBM)와 파운드리(TSMC)에 의존해요. 리스크는 대부분 중국 수출 규제 한 곳에 몰려 있어요.",
+    rels: {
+      supply: [
+        { o: "SK hynix", n: 8, tier: "B", ko: "이번 협력은 NVIDIA의 AI 인프라 로드맵에 맞춰 메모리 공급을 강화하고, AI 기술을 접목해 반도체 설계·제조의 발전을 앞당길 것으로 보인다.", en: "This collaboration is set to enhance memory supply aligned with NVIDIA's AI infrastructure roadmap." },
+        { o: "MU", n: 6, tier: "S", ko: "3대 HBM4 메모리 공급사(삼성, SK하이닉스, 마이크론)가 모두 품질 인증을 통과하고 출하 중이다.", en: "all three major HBM4 memory suppliers (Samsung, SK Hynix, and Micron) qualified and shipping" },
+        { o: "TSM", n: 6, tier: "S", ko: "엔비디아의 주요 공급사인 TSMC가 미국 애리조나주에 공장을 짓기 위해 1,650억 달러를 투자하고 있다.", en: "TSMC, a major supplier to Nvidia, is investing $165 billion to build factories in the U.S. state of Arizona." },
+        { o: "SK Hynix", n: 4, tier: "B", ko: "3대 HBM4 메모리 공급사(삼성, SK하이닉스, 마이크론)가 모두 품질 인증을 통과하고 출하 중이다.", en: "all three major HBM4 memory suppliers (Samsung, SK Hynix, and Micron) qualified and shipping" },
+        { o: "A000660", n: 2, tier: "B", ko: "SK하이닉스와 NVIDIA가 AI 컴퓨팅 플랫폼용 차세대 메모리에 초점을 맞춘 다년간의 기술 파트너십에 합의했다.", en: "SK hynix and NVIDIA have agreed a multiyear technology partnership focused on next generation memory for AI computing platforms." },
+        { o: "INTC", n: 2, tier: "B", ko: "구글과 NVIDIA가 인텔을 보조 AI 칩 파운드리(위탁 생산처)로 선택하고 있다.", en: "Google and NVIDIA are choosing Intel as a backup AI chip foundry." },
+      ],
+      demand: [
+        { o: "AAPL", n: 6, tier: "B", ko: "애플은 처음부터 새로 만드는 대신, 엔비디아 및 알파벳의 구글 클라우드와 손잡고 AI 야심에 시동을 걸었다.", en: "Rather than reinvent the wheel, Apple joined forces with Nvidia and Alphabet's Google Cloud to kick-start its AI ambitions." },
+        { o: "OpenAI", n: 5, tier: "B", ko: "보도에 따르면 엔비디아는 해당 시설에 하드웨어를 공급하고, OpenAI의 임대와 SB에너지의 자금 조달에 대한 재정 보증도 제공할 것으로 예상된다.", en: "Nvidia is expected to supply hardware in the facility and provide a financial guarantee for OpenAI's lease and SB Energy's financing." },
+        { o: "SpaceX", n: 5, tier: "B", ko: "스페이스X는 이미 엔비디아 칩의 대형 구매자다.", en: "SpaceX is already a huge buyer of Nvidia chips." },
+        { o: "DELL", n: 4, tier: "S", ko: "베라 루빈의 양산 본격화는 또 다른 의미가 있다. 엔비디아가 이미 차세대 플랫폼을 대량 출하 중임을 확인해 준다.", en: "Vera Rubin's production ramp carries a separate significance: it confirms Nvidia is already shipping its next platform at scale." },
+        { o: "Nebius", n: 3, tier: "B", ko: "이번 투자에는 NVIDIA 기반의 첨단 인프라를 새로 구축하는 3건의 배치가 포함된다.", en: "The investment includes three new deployments of advanced NVIDIA-powered infrastructure." },
+        { o: "ORCL", n: 3, tier: "S", ko: "오라클의 대표 제품인 제타스케일10 슈퍼클러스터는 엔비디아 하드웨어 위에 구축된다.", en: "Oracle's flagship Zettascale10 superclusters are built on Nvidia hardware" },
+      ],
+      competition: [
+        { o: "AMD", n: 13, tier: "A", ko: "오랫동안 인텔, AMD, 퀄컴이 나눠 가져온 시장에 정면으로 진입하는 것이다.", en: "a direct push into a market long carved up by Intel, Advanced Micro Devices, and Qualcomm" },
+        { o: "INTC", n: 10, tier: "A", ko: "오랫동안 인텔, AMD, 퀄컴이 나눠 가져온 시장에 정면으로 진입하는 것이다.", en: "a direct push into a market long carved up by Intel, Advanced Micro Devices, and Qualcomm" },
+        { o: "QCOM", n: 6, tier: "B", ko: "엔비디아가 퀄컴이 차지하려 애써온 바로 그 영역에 깃발을 꽂고 있다.", en: "Nvidia is now planting a flag on the exact ground Qualcomm has been working to claim" },
+        { o: "AVGO", n: 2, tier: "B", ko: "브로드컴은 AI 작업의 업계 표준으로 군림하는 GPU를 가진 엔비디아와 경쟁한다.", en: "Broadcom races with Nvidia whose dominant graphics processing units remain the industry standard for AI workloads." },
+        { o: "Cerebras", n: 1, tier: "B", ko: "세레브라스 시스템즈는 빠른 AI 분야의 잘 알려진 혁신 기업으로, 엔비디아를 바짝 위협하고 있다.", en: "Cerebras Systems, a well-known innovator in fast AI and one that is giving Nvidia a run for its money." },
+      ],
+      risk: [
+        { o: "China", sub: "규제", n: 4, tier: "B", ko: "엔비디아는 여전히 중국에서 자사 AI 칩 판매를 재개하지 못하고 있다.", en: "Nvidia still hasn't been able to relaunch its AI chips in China." },
+        { o: "TSM", sub: "비용압박", n: 2, tier: "B", ko: "TSMC는 AI 칩 제조 수요가 폭발하면서 첨단 3나노 칩 가격을 큰 폭으로 올리는 방안을 검토 중인 것으로 전해진다.", en: "TSMC is reportedly considering significant price increases for its advanced 3nm chips due to overwhelming demand." },
+        { o: "Taiwan", sub: "규제", n: 2, tier: "B", ko: "대만 당국이 엔비디아 칩의 무단 수출과 연관된 문서 위조 혐의로 3명을 구금했다.", en: "Taiwanese authorities have detained three individuals in connection with allegations of document forgery linked to the unauthorized export of NVIDIA chips." },
+        { o: "U.S. Commerce", sub: "규제", n: 2, tier: "B", ko: "미국 상무부가 엔비디아 루빈·블랙웰 프로세서를 중국계 기업에 수출할 수 있게 했던 잠재적 허점을 막기 위해 나섰다.", en: "The U.S. Department of Commerce has moved to close a potential loophole that may have allowed companies to export Nvidia's Rubin and Blackwell processors to Chinese entities." },
+        { o: "AI hyperscalers", sub: "노출", n: 1, tier: "B", ko: "엔비디아는 늘 최고의 기술을 시장에 내놨지만, 내년 데이터센터 건설에 얼마를 쓸지는 AI 하이퍼스케일러들의 결정에 달려 있다.", en: "Nvidia has consistently brought the best technology to market, and it's up to the AI hyperscalers to decide how much money they are willing to spend next year on data center construction." },
+      ],
+      partner: [
+        { o: "MSFT", sub: "영향", n: 7, tier: "B", ko: "엔비디아는 마이크로소프트와 함께 윈도우 에이전트 플랫폼을 개발하고 있다.", en: "Nvidia is working with Microsoft on the Windows-agent platform" },
+        { o: "INTC", sub: "영향", n: 6, tier: "B", ko: "엔비디아가 50억 달러 규모의 지분을 인수했고, 소프트뱅크는 20억 달러 투자에 합의했다.", en: "Nvidia acquired a $5 billion equity stake; SoftBank agreed to invest $2 billion." },
+        { o: "MRVL", sub: "영향", n: 6, tier: "B", ko: "엔비디아와 마벨은 엔비디아가 이 반도체 기업에 20억 달러를 투자하는 내용을 포함한 전략적 파트너십을 발표했다.", en: "Nvidia and Marvell announced a strategic partnership that included a $2 billion investment from Nvidia into the semiconductor company." },
+        { o: "Taiwan", sub: "영향", n: 5, tier: "B", ko: "엔비디아 CEO는 대만을 AI 혁명의 '진앙지'라 부르며 매년 약 1,500억 달러를 대만에 투자할 계획이라고 밝혔다.", en: "Nvidia's CEO said the chip company plans to invest around $150 billion a year in Taiwan, terming it the 'epicentre' of the AI revolution." },
+        { o: "COHR", sub: "영향", n: 4, tier: "B", ko: "엔비디아의 20억 달러 투자 파트너십으로, AI 데이터센터용 광학 분야에서 코히런트의 확장을 뒷받침한다.", en: "Nvidia's US$2.0 billion investment partnership backs Coherent's expansion in indium phosphide optics for AI data centers." },
+        { o: "RTX Spark", sub: "견인", n: 4, tier: "B", ko: "엔비디아가 타이베이 컴퓨텍스 박람회에서 신제품 RTX 스파크 슈퍼칩을 공개하며 PC 시장에 공식 진입했다.", en: "NVIDIA launched its new RTX Spark superchip at the Computex technology show in Taipei, officially entering the PC market." },
+      ],
+    },
+  },
+  TSLA: {
+    name: "테슬라", ticker: "TSLA",
+    counts: { supply: 1, demand: 1, competition: 6, risk: 4, partner: 12 },
+    interp: "테슬라는 전기차에서 로보틱스·자율주행으로 경쟁 축이 넓어지고 있어요. 칩은 엔비디아에 기대고, 리스크는 머스크의 다른 회사들(스페이스X·xAI)과 얽힌 지분 노출에 몰려 있어요.",
+    rels: {
+      supply: [{ o: "NVDA", n: 1, tier: "B", ko: "머스크조차 자신의 회사들이 당분간 엔비디아 제품을 대규모로 계속 구매할 것이라고 인정한다.", en: "even Musk admits that his companies -- SpaceX, Tesla, and xAI -- will continue to buy Nvidia's products at scale for the foreseeable future." }],
+      demand: [{ o: "xAI", n: 1, tier: "B", ko: "테슬라는 2025년 xAI에 5억 600만 달러어치의 메가팩 배터리를 팔았다.", en: "Tesla sold $506 million in Megapack batteries to xAI in 2025." }],
+      competition: [
+        { o: "RIVN", n: 3, tier: "B", ko: "전기차 제조사 리비안이 더 저렴한 SUV 인도를 시작했다. 테슬라 등에서 고객을 빼앗으려는 노림수다.", en: "Electric-vehicle maker Rivian began delivery of a cheaper SUV as it aims to take customers from Tesla and others." },
+        { o: "BYD", n: 2, tier: "B", ko: "테슬라가 2026년 1분기에 BYD를 제치고 글로벌 순수전기차 시장 1위를 되찾았다.", en: "Tesla reclaims the global BEV market lead in Q1 2026, overtaking BYD despite modest industry growth." },
+        { o: "OpenAI Robotics", n: 2, tier: "B", ko: "OpenAI가 로보틱스에 진출하면서 테슬라의 옵티머스가 새로운 위협에 직면했다.", en: "Tesla's Optimus faces new threat as OpenAI enters robotics" },
+        { o: "NVDA", n: 1, tier: "B", ko: "테슬라의 휴머노이드 로봇·자율주행 야심이 더 거센 경쟁에 부딪혔다.", en: "Tesla's humanoid robotics and autonomy ambitions face sharper competition as OpenAI launches a robotics division and Nvidia expands its robotics platforms." },
+        { o: "Waymo", n: 1, tier: "B", ko: "웨이모는 미국에서 테슬라에 대한 우위를 굳히려 차량을 늘리고 있다.", en: "Waymo expands its fleet in an effort to cement its lead in the U.S. over Tesla." },
+      ],
+      risk: [
+        { o: "Intel 14A", sub: "노출", n: 1, tier: "B", ko: "테슬라는 오스틴의 테라팹 AI 칩 프로젝트에 인텔 14A 공정을 사용하기로 약속했다.", en: "Tesla committed in April to use Intel's 14A process for its Terafab AI chip project in Austin." },
+        { o: "SPCX", sub: "노출", n: 1, tier: "B", ko: "테슬라는 xAI가 스페이스X에 인수되기 전 xAI에 20억 달러를 투자했고, 그 지분 덕분에 스페이스X의 주주가 되었다.", en: "Tesla had invested $2 billion in xAI before it was acquired by SpaceX." },
+      ],
+      partner: [
+        { o: "SpaceX IPO", sub: "영향", n: 2, tier: "B", ko: "스페이스X IPO가 다가오며 투자자들이 테슬라를 팔고 있다는 분석이 나온다.", en: "TSLA Stock Sinks As SpaceX IPO Nears — Analyst Says Investors Are Selling Tesla To Catch A Day-1 Pop In Next Musk Trade" },
+        { o: "China", sub: "영향", n: 1, tier: "B", ko: "테슬라는 중국에서 판매되는 자사 전기차에 '완전자율주행(FSD)' 기능을 이제 이용할 수 있다고 발표했다.", en: "Tesla announced that its 'Full Self-Driving' capabilities are now available for its electric vehicles sold in China." },
+        { o: "FSD", sub: "영향", n: 1, tier: "B", ko: "테슬라가 2026년 1분기에 처음으로 FSD(완전자율주행) 구독 데이터를 공개했다.", en: "Tesla's disclosure of FSD subscription data for the first time in the first quarter of 2026" },
+      ],
+    },
+  },
+};
+
+function kgStrength(n: number): [string, string] {
+  if (n >= 5) return ["견고", "#169b5f"];
+  if (n >= 3) return ["보통", "#d39200"];
+  return ["약함", "#e07b3a"];
+}
+
+function StockKGNetworkGraph({ baseSymbol }: { data?: any; baseSymbol: string }) {
+  const stockKey = Object.keys(KG_STOCKS).find(k => k === baseSymbol) ?? "NVDA";
+  const stock = KG_STOCKS[stockKey] ?? KG_STOCKS["NVDA"];
+  const [curCat, setCurCat] = useState("demand");
+  const [openQuote, setOpenQuote] = useState<number | null>(null);
+  const [openEn, setOpenEn] = useState<number | null>(null);
+
+  const meta = KG_CAT_META[curCat];
+  const rels = stock.rels[curCat] ?? [];
+  const total = Object.values(stock.counts).reduce((a, b) => a + b, 0);
+  const subByCat: Record<string, string> = { supply: "공급사", demand: "고객", competition: "경쟁" };
+
+  const catButtons: { key: string; label: string; sub: string }[] = [
+    { key: "supply",      label: "공급망",   sub: "의존하는 곳" },
+    { key: "demand",      label: "수요",     sub: "돈이 오는 곳" },
+    { key: "competition", label: "경쟁",     sub: "뺏고 뺏기는 곳" },
+    { key: "risk",        label: "리스크",   sub: "흔드는 곳" },
+    { key: "partner",     label: "파트너십", sub: "함께 가는 곳" },
+  ];
+
+  const svgArrows: { path: string; stroke: string; markerId: string }[] = [
+    { path: "M205 64 C205 82 205 95 205 109", stroke: "#3f73d8", markerId: "arrow-supply2" },
+    { path: "M268 114 C260 122 252 131 244 137", stroke: "#169b5f", markerId: "arrow-demand2" },
+    { path: "M142 114 C150 122 158 131 166 137", stroke: "#e24646", markerId: "arrow-risk2" },
+    { path: "M157 217 C166 204 174 193 181 183", stroke: "#8e6be8", markerId: "arrow-competition2" },
+    { path: "M253 217 C244 205 236 194 229 183", stroke: "#f2b63b", markerId: "arrow-partner2" },
+  ];
 
   return (
-    <div className="mb-6 rounded-[22px] p-5 shadow-sm" style={{ background: SURFACE, border: `1px solid ${LINE}` }}>
-      <h2 className="mb-1 text-[16px] font-extrabold flex items-center gap-2 tracking-tight" style={{ color: TEXT }}>
-        <span style={{ fontSize: 18 }}>🔗</span> {data.title}
-      </h2>
-      <p className="mb-5 text-[12px] leading-relaxed" style={{ color: SUB }}>
-        {data.scenario}
-      </p>
-
-      <div className="mb-5 relative" style={{ height: H }}>
-        <svg viewBox={`0 0 ${W} ${H}`} className="absolute top-0 left-0 w-full h-full">
-          <defs>
-            <radialGradient id="kg-base-fill" cx="0.35" cy="0.3" r="0.85">
-              <stop offset="0" stopColor="#FFD7B0" />
-              <stop offset="1" stopColor={ACCENT} />
-            </radialGradient>
-          </defs>
-
-          {/* Edges */}
-          {data.nodes.map((n, i) => {
-            const angle = (i * 2 * Math.PI) / data.nodes.length - Math.PI / 2;
-            const x = issueX + Math.cos(angle) * R;
-            const y = issueY + Math.sin(angle) * R;
-            const isSel = n.sym === selectedSym;
-            const c = polColor(n.polarity);
-
-            return (
-              <g key={`edge-${n.sym}`} className="cursor-pointer" onClick={() => setSelectedSym(n.sym)}>
-                <line
-                  x1={issueX}
-                  y1={issueY}
-                  x2={x}
-                  y2={y}
-                  stroke={c}
-                  strokeWidth={isSel ? 3.5 : 1.5}
-                  opacity={isSel ? 0.95 : 0.25}
-                  style={{ transition: "stroke-width 200ms, opacity 200ms" }}
-                />
-                <circle cx={x} cy={y} r={isSel ? 4 : 2.5} fill={c} opacity={isSel ? 1 : 0.4} />
-              </g>
-            );
-          })}
-
-          {/* Base Node */}
-          <g>
-            <circle cx={issueX} cy={issueY} r={issueR + 2} fill="none" stroke={ACCENT} strokeWidth={1} opacity={0.35} />
-            <circle cx={issueX} cy={issueY} r={issueR} fill="url(#kg-base-fill)" />
-            <text x={issueX} y={issueY + 1} textAnchor="middle" dominantBaseline="middle" fill="#fff" fontSize="13" fontWeight="800">
-              {baseSymbol}
-            </text>
-          </g>
-
-          {/* Target Nodes */}
-          {data.nodes.map((n, i) => {
-            const angle = (i * 2 * Math.PI) / data.nodes.length - Math.PI / 2;
-            const x = issueX + Math.cos(angle) * R;
-            const y = issueY + Math.sin(angle) * R;
-            const isSel = n.sym === selectedSym;
-            const c = polColor(n.polarity);
-
-            // 레이블 위치: 노드 중심에서 바깥쪽으로 조금 더 뺀 위치
-            const labelR = R + 22;
-            const lx = issueX + Math.cos(angle) * labelR;
-            const ly = issueY + Math.sin(angle) * labelR;
-            
-            // 글씨 정렬
-            const align = Math.cos(angle) > 0.1 ? "start" : Math.cos(angle) < -0.1 ? "end" : "middle";
-
-            // 선에 글씨 표시하기 (relation)
-            // 선 중간 지점
-            const mx = (issueX + x) / 2;
-            const my = (issueY + y) / 2;
-
-            return (
-              <g key={`node-${n.sym}`} className="cursor-pointer" onClick={() => setSelectedSym(n.sym)}>
-                <circle
-                  cx={x}
-                  cy={y}
-                  r={16}
-                  fill={isSel ? c : SURFACE}
-                  stroke={c}
-                  strokeWidth={isSel ? 0 : 1.5}
-                  style={{ transition: "all 200ms" }}
-                />
-                <text
-                  x={x}
-                  y={y + 1}
-                  textAnchor="middle"
-                  dominantBaseline="middle"
-                  fill={isSel ? "#fff" : TEXT}
-                  fontSize={n.sym.length > 5 ? "8" : "9.5"}
-                  fontWeight="800"
-                >
-                  {n.sym}
-                </text>
-                
-                {/* 텍스트 배경 (가독성 향상) */}
-                <text
-                  x={lx}
-                  y={ly - 6}
-                  textAnchor={align}
-                  dominantBaseline="middle"
-                  fontSize="11"
-                  fontWeight={isSel ? "800" : "600"}
-                  stroke={SURFACE}
-                  strokeWidth="3"
-                  strokeLinejoin="round"
-                >
-                  {n.name}
-                </text>
-                <text
-                  x={lx}
-                  y={ly - 6}
-                  textAnchor={align}
-                  dominantBaseline="middle"
-                  fontSize="11"
-                  fontWeight={isSel ? "800" : "600"}
-                  fill={isSel ? TEXT : SUB}
-                  style={{ transition: "all 200ms" }}
-                >
-                  {n.name}
-                </text>
-
-                {/* 엣지 위의 레이블 */}
-                <g transform={`translate(${mx}, ${my})`}>
-                  <rect x="-20" y="-8" width="40" height="16" fill={SURFACE} opacity="0.8" rx="4" />
-                  <text
-                    x="0"
-                    y="1"
-                    textAnchor="middle"
-                    dominantBaseline="middle"
-                    fontSize="9.5"
-                    fontWeight="600"
-                    fill={isSel ? ACCENT_DEEP : SUB}
-                    opacity={isSel ? 1 : 0.8}
-                  >
-                    {n.relation}
-                  </text>
-                </g>
-              </g>
-            );
-          })}
-        </svg>
+    <div className="mb-6" style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'Pretendard', 'Apple SD Gothic Neo', sans-serif" }}>
+      {/* 섹션 헤더 */}
+      <div className="flex items-end justify-between gap-3 mb-3">
+        <h2 className="text-[18px] font-extrabold tracking-tight m-0" style={{ color: TEXT }}>
+          {stock.name}를 움직이는 관계
+        </h2>
+        <span className="text-[12px] font-bold" style={{ color: SUB }}>KG 관계 {total}개</span>
       </div>
 
-      {/* Detail Panel for Selected Node */}
-      {selectedNode && (
-        <div className="flex flex-col gap-3 rounded-[20px] p-4 shadow-sm" style={{ background: HERO, border: `1px solid rgba(0,0,0,0.03)` }}>
-          <div className="flex items-center gap-2">
-            <span className="text-[13px] font-black" style={{ color: polColor(selectedNode.polarity) }}>
-              {selectedNode.name}
-            </span>
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: "rgba(0,0,0,0.05)", color: SUB }}>
-              {selectedNode.relation}
-            </span>
+      {/* 관계 카드 */}
+      <div className="rounded-[22px] mb-3" style={{ background: SURFACE, boxShadow: SHADOW, padding: "16px 16px 14px", overflow: "hidden" }}>
+        {/* 범례 헤더 */}
+        <div className="flex items-center justify-between mb-3">
+          <strong className="text-[15px] font-extrabold" style={{ color: TEXT }}>KG 관계 타입으로 보기</strong>
+          <div className="flex items-center gap-[7px] text-[11px] font-bold" style={{ color: "#7d7d7d" }}>
+            <span className="flex items-center gap-[5px]"><i className="w-[7px] h-[7px] rounded-full inline-block" style={{ background: "#3f73d8" }}/> 공급</span>
+            <span className="flex items-center gap-[5px]"><i className="w-[7px] h-[7px] rounded-full inline-block" style={{ background: "#e24646" }}/> 리스크</span>
           </div>
-          <p className="text-[12.5px] leading-relaxed" style={{ color: TEXT }}>
-            {selectedNode.reason}
-          </p>
-          {selectedNode.learningPoint && (
-            <div className="mt-1 rounded-xl p-3" style={{ background: "rgba(255,255,255,0.7)", border: `1px solid ${LINE}` }}>
-              <div className="text-[11px] font-black mb-1 flex items-center gap-1.5" style={{ color: ACCENT_DEEP }}>
-                💡 투자 인사이트
-              </div>
-              <div className="text-[12px] font-medium leading-relaxed" style={{ color: TEXT }}>
-                {selectedNode.learningPoint}
-              </div>
-            </div>
-          )}
         </div>
-      )}
+
+        {/* 관계망 SVG + 버튼 */}
+        <div className="relative rounded-[18px] overflow-hidden" style={{ height: 300, background: "radial-gradient(circle at 50% 50%, rgba(255, 90, 52, 0.15), transparent 31%), linear-gradient(180deg, #fffaf7 0%, #ffffff 62%, #fbfaf7 100%)", border: "1px solid #f2ede8" }}>
+          <svg viewBox="0 0 410 300" aria-hidden="true" className="absolute inset-0 w-full h-full">
+            <defs>
+              {svgArrows.map(a => (
+                <marker key={a.markerId} id={a.markerId} markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+                  <path d="M0 0 L8 4 L0 8 Z" fill={a.stroke}/>
+                </marker>
+              ))}
+            </defs>
+            {svgArrows.map((a, i) => (
+              <path key={i} d={a.path} fill="none" stroke={a.stroke} strokeWidth="3" strokeLinecap="round" markerEnd={`url(#${a.markerId})`}/>
+            ))}
+          </svg>
+
+          {/* 중심 노드 */}
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center text-center rounded-full z-10"
+            style={{ width: 82, height: 82, background: ACCENT, border: `1px solid ${ACCENT}`, color: "#fff", boxShadow: "0 16px 30px rgba(255, 90, 52, 0.28)", fontSize: 18, fontWeight: 800, lineHeight: 1.18 }}>
+            {baseSymbol}
+            <small style={{ display: "block", marginTop: 2, color: "rgba(255,255,255,0.78)", fontSize: 9, fontWeight: 750 }}>중심</small>
+          </div>
+
+          {/* 카테고리 버튼들 */}
+          {catButtons.map((cat) => {
+            const catMeta = KG_CAT_META[cat.key];
+            const isActive = curCat === cat.key;
+            const positions: Record<string, { left: string; top: string }> = {
+              supply:      { left: "50%",   top: "10.7%" },
+              demand:      { left: "77.3%", top: "37.8%" },
+              competition: { left: "33.1%", top: "81.8%" },
+              risk:        { left: "22.7%", top: "37.8%" },
+              partner:     { left: "66.9%", top: "81.8%" },
+            };
+            const pos = positions[cat.key];
+            return (
+              <button
+                key={cat.key}
+                type="button"
+                onClick={() => { setCurCat(cat.key); setOpenQuote(null); setOpenEn(null); }}
+                className="absolute flex flex-col items-center justify-center text-center"
+                style={{
+                  left: pos.left, top: pos.top,
+                  transform: "translate(-50%, -50%)",
+                  width: 92, minHeight: 58,
+                  borderRadius: 18,
+                  padding: "9px 8px",
+                  gap: 2,
+                  fontSize: 13, fontWeight: 850, lineHeight: 1.15,
+                  zIndex: 2,
+                  cursor: "pointer",
+                  border: `1px solid ${isActive ? catMeta.color : "#ece8e2"}`,
+                  background: isActive ? catMeta.color : "#fff",
+                  color: isActive ? "#fff" : "#171717",
+                  boxShadow: isActive ? `0 14px 26px rgba(0,0,0,0.18)` : "0 9px 22px rgba(34, 28, 18, 0.08)",
+                  transition: "all 150ms",
+                }}
+              >
+                <b style={{ fontSize: 13, fontWeight: 850 }}>{cat.label}</b>
+                <span style={{ color: isActive ? "rgba(255,255,255,0.82)" : "#b0b0b0", fontSize: 10, fontWeight: 850 }}>
+                  {stock.counts[cat.key]}
+                </span>
+                <small style={{ color: isActive ? "rgba(255,255,255,0.82)" : "#8a8a8a", fontSize: 9, fontWeight: 750 }}>{cat.sub}</small>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* 상세 패널 */}
+        <div className="mt-[10px] rounded-[18px] p-[14px]" style={{ border: "1px solid #f0ede7", background: "#faf9f6", "--rel-color": meta.color } as React.CSSProperties}>
+          <div className="inline-flex items-center gap-[6px] mb-[8px] text-[12px] font-[850]" style={{ color: meta.color }}>
+            <i className="w-[8px] h-[8px] rounded-full inline-block" style={{ background: "currentColor" }}/>
+            {meta.kicker} · {stock.counts[curCat]}개 관계{stock.counts[curCat] > rels.length ? ` (견고도 상위 ${rels.length})` : ""}
+          </div>
+          <h3 className="m-0 mb-[6px] text-[16px] font-extrabold" style={{ color: TEXT }}>{meta.title}</h3>
+          <p className="m-0 text-[13px] leading-[1.55]" style={{ color: "#707070" }}>{meta.copy}</p>
+
+          {/* 관계 리스트 */}
+          <div className="mt-[12px] flex flex-col gap-[7px]">
+            {rels.length === 0 ? (
+              <div className="text-[12.5px] leading-[1.6] py-[6px] px-[2px]" style={{ color: "#9a9a9a" }}>아직 이 타입으로 쌓인 KG 관계가 없어요.</div>
+            ) : rels.map((rel, idx) => {
+              const [slabel, scol] = kgStrength(rel.n);
+              const sub = rel.sub ?? subByCat[curCat] ?? "";
+              const isOpen = openQuote === idx;
+              const isEnOpen = openEn === idx;
+              return (
+                <div key={idx}>
+                  <button
+                    type="button"
+                    onClick={() => { setOpenQuote(isOpen ? null : idx); setOpenEn(null); }}
+                    className="w-full text-left rounded-[12px] flex items-center justify-between gap-[8px] p-[10px_11px]"
+                    style={{ background: "#fff", border: "1px solid #efebe5" }}
+                  >
+                    <span className="flex items-baseline gap-[7px] min-w-0">
+                      <span className="text-[12.5px] font-[850] whitespace-nowrap overflow-hidden text-ellipsis" style={{ color: "#1a1a1a" }}>{rel.o}</span>
+                      <span className="text-[10.5px] font-[760]" style={{ color: "#9a9a9a" }}>{sub}</span>
+                    </span>
+                    <span className="flex items-center gap-[7px] flex-none">
+                      <span className="text-[11px] font-[850]" style={{ color: scol }}>{slabel}·{rel.n}건</span>
+                      <span className="text-[10px]" style={{ color: "#c2c2c2", transition: "transform 0.16s", transform: isOpen ? "rotate(180deg)" : "none" }}>▾</span>
+                    </span>
+                  </button>
+                  {isOpen && (
+                    <div className="rounded-[12px] p-[11px_12px] mt-[-2px]" style={{ background: "#fff", border: "1px solid #efebe5" }}>
+                      <p className="m-0 text-[12.5px] leading-[1.62]" style={{ color: "#5f5f5f" }}>{rel.ko}</p>
+                      <button
+                        type="button"
+                        onClick={() => setOpenEn(isEnOpen ? null : idx)}
+                        className="mt-[9px] bg-transparent border-0 text-[11px] font-[800] p-0 cursor-pointer"
+                        style={{ color: "#d83812" }}
+                      >
+                        {isEnOpen ? "영어 원문 닫기 ▴" : "영어 원문 ▾"}
+                      </button>
+                      {isEnOpen && (
+                        <div className="mt-[7px] text-[11.5px] leading-[1.55] italic pl-[9px]" style={{ color: "#8d8d8d", display: "block", borderLeft: "2px solid #ece8e2" }}>
+                          &ldquo;{rel.en}&rdquo;
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* 오늘의 해석 카드 */}
+      <div className="flex items-start gap-[12px] rounded-[18px] p-[16px] mb-6" style={{ background: SURFACE, boxShadow: SHADOW }}>
+        <div className="flex-shrink-0 w-[34px] h-[34px] flex items-center justify-center rounded-[11px] font-[900] text-[16px]"
+          style={{ background: "#fff0e9", color: "#d83812" }}>↳</div>
+        <div>
+          <h3 className="m-0 mb-[6px] text-[15px] font-extrabold" style={{ color: TEXT }}>오늘의 해석</h3>
+          <p className="m-0 text-[13px] leading-[1.55]" style={{ color: "#707070" }}>{stock.interp}</p>
+        </div>
+      </div>
     </div>
   );
 }
+
+
 
 // ───── 5가지 관점 자세히 보기 ─────────────────────────────
 
@@ -4141,6 +4210,8 @@ function StockScoresScreen({ d, onBack }: { d: EduStockDetail; onBack: () => voi
   ).key;
   const [pick, setPick] = useState<string>(defaultPick);
   const visible = d.scoreDetails.find((a) => a.key === pick);
+  const [animCharts, setAnimCharts] = useState(false);
+  useEffect(() => { const t = setTimeout(() => setAnimCharts(true), 200); return () => clearTimeout(t); }, []);
 
   return (
     <div className="px-5 pb-8 pt-2">
@@ -4202,6 +4273,24 @@ function StockScoresScreen({ d, onBack }: { d: EduStockDetail; onBack: () => voi
           </span>
         </div>
       </div>
+
+      {/* 매출 구성비 */}
+      <div className="mb-4 rounded-[22px] p-4" style={{ background: SURFACE, boxShadow: SHADOW }}>
+        <div className="mb-3 text-[13px] font-extrabold" style={{ color: TEXT }}>🍩 매출 구성비</div>
+        <EduDonut segments={d.revenueBreakdown} animate={animCharts} />
+      </div>
+
+      {/* EPS 비교 */}
+      <div className="mb-6 rounded-[22px] p-4" style={{ background: SURFACE, boxShadow: SHADOW }}>
+        <div className="mb-1 text-[13px] font-extrabold" style={{ color: TEXT }}>💹 EPS 실적 vs 예상</div>
+        <div className="flex items-center gap-3 mb-3">
+          <div className="flex items-center gap-1"><div className="size-2 rounded-full" style={{ background: LINE }} /><span className="text-[9px]" style={{ color: SUB }}>예상</span></div>
+          <div className="flex items-center gap-1"><div className="size-2 rounded-full" style={{ background: UP }} /><span className="text-[9px]" style={{ color: SUB }}>서프라이즈</span></div>
+        </div>
+        <EduEpsBars data={d.epsData} animate={animCharts} />
+      </div>
+
+
 
       <div className="no-scrollbar -mx-5 mb-6 overflow-x-auto px-5">
         <div className="flex gap-2">
@@ -5738,9 +5827,6 @@ function LessonFlow({
   initialStep?: number;
 }) {
   const [step, setStep] = useState(initialStep);
-  const [openRippleSym, setOpenRippleSym] = useState<string | null>(null);
-  const [quizAnswer, setQuizAnswer] = useState<"o" | "x" | null>(null);
-  const [vote, setVote] = useState<"buy" | "watch" | "pass" | null>(null);
   const detail = issue.detail;
   const body = detail?.body || [];
 
@@ -5750,11 +5836,6 @@ function LessonFlow({
   const calloutBlock = body.find((b) => b.kind === "callout");
   const ripple = detail?.ripple;
   const terms = collectGlossaryTerms(body);
-  const hasMixedRipple =
-    ripple?.affected.some((a) => a.polarity !== ripple.affected[0]?.polarity) ??
-    false;
-  const quizCorrect = hasMixedRipple ? "x" : "o";
-  const quizDone = quizAnswer !== null;
   const introPoints = getLessonIntroPoints(issue);
   const backgroundPoints = getLessonBackgroundPoints(issue);
   const analysisFrames = getLessonAnalysisFrames(issue);
@@ -5764,7 +5845,6 @@ function LessonFlow({
     { label: "배경", icon: "📖" },
     { label: "원인/분석", icon: "🔎" },
     { label: "쟁점", icon: "⚖️" },
-    { label: "퀴즈/투표", icon: "✅" },
   ];
 
   const totalSteps = STEPS.length;
@@ -6194,10 +6274,7 @@ function LessonFlow({
                       >
                         <button
                           type="button"
-                          onClick={() =>
-                            setOpenRippleSym(isOpen ? null : a.sym)
-                          }
-                          className="flex w-full items-center gap-3 text-left active:opacity-80"
+                          className="flex w-full items-center gap-3 text-left"
                         >
                           <div
                             className="flex h-10 w-10 items-center justify-center rounded-full text-[13px] font-extrabold"
@@ -6232,25 +6309,7 @@ function LessonFlow({
                               {a.reason}
                             </div>
                           </div>
-                          <span
-                            className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-[12px] font-extrabold"
-                            style={{
-                              background: isOpen ? ACCENT_SOFT : BG,
-                              color: isOpen ? ACCENT_DEEP : SUB,
-                              transform: isOpen ? "rotate(180deg)" : "none",
-                              transition: "transform 180ms",
-                            }}
-                          >
-                            ⌄
-                          </span>
                         </button>
-                        {isOpen && (
-                          <LessonRippleFlow
-                            issue={issue}
-                            summary={ripple.summary}
-                            item={a}
-                          />
-                        )}
                       </article>
                     );
                   })}
@@ -6266,145 +6325,6 @@ function LessonFlow({
                 </p>
               </div>
             )}
-          </div>
-        )}
-
-        {step === 4 && (
-          <div>
-            <h2
-              className="mb-4 text-[18px] font-extrabold leading-tight"
-              style={{ color: TEXT }}
-            >
-              마지막으로 네 판단을 찍어보자
-            </h2>
-
-
-            <div
-              className="mb-4 rounded-[20px] p-5"
-              style={{ background: HERO, boxShadow: SHADOW_HERO }}
-            >
-              <div
-                className="mb-2 text-[12px] font-extrabold"
-                style={{ color: ACCENT_DEEP }}
-              >
-                OX 퀴즈
-              </div>
-              <p
-                className="mb-4 text-[14px] font-bold leading-relaxed"
-                style={{ color: TEXT }}
-              >
-                이 이슈는 관련 종목에 모두 같은 방향으로만 작용한다.
-              </p>
-              <div className="grid grid-cols-2 gap-2">
-                {(["o", "x"] as const).map((answer) => {
-                  const selected = quizAnswer === answer;
-                  return (
-                    <button
-                      key={answer}
-                      type="button"
-                      onClick={() => setQuizAnswer(answer)}
-                      className="rounded-2xl py-3 text-[15px] font-extrabold active:opacity-80"
-                      style={{
-                        background: selected ? ACCENT : SURFACE,
-                        color: selected ? "#fff" : TEXT,
-                        border: `1px solid ${selected ? ACCENT : LINE}`,
-                      }}
-                    >
-                      {answer === "o" ? "O" : "X"}
-                    </button>
-                  );
-                })}
-              </div>
-              {quizDone && (
-                <p
-                  className="mt-3 text-[12.5px] leading-relaxed"
-                  style={{ color: quizAnswer === quizCorrect ? UP : DOWN }}
-                >
-                  {quizAnswer === quizCorrect
-                    ? "정답! 이슈의 영향 방향을 구분해서 보는 게 핵심이야."
-                    : "아쉬워. 같은 뉴스라도 수혜 종목과 피해 종목이 갈릴 수 있어."}
-                </p>
-              )}
-            </div>
-
-            <div
-              className="rounded-[20px] p-5"
-              style={{ background: SURFACE, boxShadow: SHADOW }}
-            >
-              <div
-                className="mb-2 text-[12px] font-extrabold"
-                style={{ color: SUB }}
-              >
-                내 판단
-              </div>
-              <p className="mb-3 text-[13px] leading-relaxed" style={{ color: TEXT }}>
-                지금 이 이슈를 보고 관련 종목을 어떻게 볼래?
-              </p>
-              <div className="flex flex-col gap-2">
-                {[
-                  { id: "buy" as const, label: "매수 쪽으로 본다", desc: "수혜가 더 크다고 판단" },
-                  { id: "watch" as const, label: "일단 지켜본다", desc: "방향은 보이지만 확인 필요" },
-                  { id: "pass" as const, label: "매수하지 않는다", desc: "위험이 더 크다고 판단" },
-                ].map((option) => {
-                  const selected = vote === option.id;
-                  return (
-                    <button
-                      key={option.id}
-                      type="button"
-                      onClick={() => setVote(option.id)}
-                      className="flex items-center justify-between rounded-2xl p-3 text-left active:opacity-80"
-                      style={{
-                        background: selected ? ACCENT_SOFT : BG,
-                        border: `1px solid ${selected ? ACCENT : LINE}`,
-                      }}
-                    >
-                      <span>
-                        <span
-                          className="block text-[13px] font-extrabold"
-                          style={{ color: TEXT }}
-                        >
-                          {option.label}
-                        </span>
-                        <span className="mt-0.5 block text-[11.5px]" style={{ color: SUB }}>
-                          {option.desc}
-                        </span>
-                      </span>
-                      <span
-                        className="flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-extrabold"
-                        style={{
-                          background: selected ? ACCENT : LINE,
-                          color: selected ? "#fff" : SUB,
-                        }}
-                      >
-                        {selected ? "✓" : ""}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-            
-            {/* 오늘의 정리 카드 */}
-            <div
-              className="mt-4 rounded-[20px] p-5"
-              style={{ background: HERO, boxShadow: SHADOW_HERO }}
-            >
-              <div
-                className="mb-2 text-[12px] font-extrabold"
-                style={{ color: ACCENT_DEEP }}
-              >
-                오늘의 정리
-              </div>
-              <p className="mb-3 text-[14px] font-bold leading-relaxed" style={{ color: TEXT }}>
-                {issue.summary ? issue.summary.split('.')[0] + ' 등 주요 포인트들을 학습했어요.' : '이슈의 핵심 구조와 파급효과를 확인했어요.'}
-              </p>
-              <div
-                className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-bold"
-                style={{ background: ACCENT_SOFT, color: ACCENT_DEEP }}
-              >
-                💡 {issue.symbols && issue.symbols.length > 0 ? `${issue.symbols[0]} 종목 페이지에서 더 자세히 볼까요?` : '관련 종목을 확인해볼까요?'}
-              </div>
-            </div>
           </div>
         )}
       </div>
