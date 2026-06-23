@@ -31,8 +31,13 @@ const CATEGORY_LABEL: Record<Category, string> = {
   mine: "내 종목",
 };
 
-const FILTERS = ["general", "sector", "mine"] as const satisfies readonly Category[];
-type Filter = Category;
+const FILTERS = ["all", "general", "sector", "mine"] as const;
+type Filter = typeof FILTERS[number];
+
+const FILTER_LABEL: Record<Filter, string> = {
+  all: "전체",
+  ...CATEGORY_LABEL,
+};
 
 const dailyCards: {
   id: number;
@@ -2103,24 +2108,7 @@ function IssueChartsSection({ issue }: { issue: Issue }) {
   if (!affected || affected.length === 0) return null;
   return (
     <section className="mb-5">
-      <SectionHeader title="시각 분석" />
       <div className="flex flex-col gap-3">
-        {/* 임팩트 + 센티먼트 */}
-        <div className="flex gap-3">
-          <div className="flex-1 rounded-[20px] p-4" style={{ background: SURFACE, boxShadow: SHADOW }}>
-            <div className="mb-2 text-[10px] font-extrabold" style={{ color: SUB }}>이슈 임팩트</div>
-            <EduImpactMeter tier={issue.tier} />
-          </div>
-          <div className="flex-1 rounded-[20px] p-4" style={{ background: SURFACE, boxShadow: SHADOW }}>
-            <div className="mb-2 text-[10px] font-extrabold" style={{ color: SUB }}>센티먼트</div>
-            <EduSentimentDonut affected={affected} />
-          </div>
-        </div>
-        {/* 영향 종목 바 차트 */}
-        <div className="rounded-[20px] p-4" style={{ background: SURFACE, boxShadow: SHADOW }}>
-          <div className="mb-3 text-[11px] font-extrabold" style={{ color: TEXT }}>📊 영향 종목 방향성</div>
-          <EduAffectedBars affected={affected} />
-        </div>
         {/* 스파크라인 그리드 */}
         <div className="rounded-[20px] p-4" style={{ background: SURFACE, boxShadow: SHADOW }}>
           <div className="mb-3 text-[11px] font-extrabold" style={{ color: TEXT }}>📈 관련 종목 최근 추이</div>
@@ -2154,9 +2142,7 @@ const STOCK_LOGOS: Record<string, { src: string; color: string }> = {
   GOOGL: { src: "/logos/google.svg", color: "#4285F4" },
   AMZN: { src: "/logos/amazon.svg", color: "#FF9900" },
   META: { src: "/logos/meta.svg", color: "#0866FF" },
-  AVGO: { src: "/logos/broadcom.svg", color: "#CC092F" },
 };
-
 function StockLogo({ symbol, size }: { symbol: string; size: number }) {
   const logo = STOCK_LOGOS[symbol];
   if (!logo) {
@@ -2168,7 +2154,7 @@ function StockLogo({ symbol, size }: { symbol: string; size: number }) {
           height: size,
           background: ACCENT_SOFT,
           color: ACCENT_DEEP,
-          fontSize: Math.round(size * 0.3),
+          fontSize: Math.round(size * 0.4),
         }}
       >
         {symbol.slice(0, 2)}
@@ -2772,45 +2758,14 @@ function IssueScreen({
   onSetActive: (issue: Issue | null) => void;
   onStartLesson: (id: number) => void;
 }) {
-  const [highlight, setHighlight] = useState<Category>("general");
+  const [highlight, setHighlight] = useState<Filter>("all");
   const generalRef = useRef<HTMLElement>(null);
   const sectorRef = useRef<HTMLElement>(null);
   const mineRef = useRef<HTMLElement>(null);
 
-  useEffect(() => {
-    const targets = [
-      { ref: generalRef, cat: "general" as Category },
-      { ref: sectorRef, cat: "sector" as Category },
-      { ref: mineRef, cat: "mine" as Category },
-    ];
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            const found = targets.find((t) => t.ref.current === entry.target);
-            if (found) setHighlight(found.cat);
-          }
-        }
-      },
-      { rootMargin: "-40% 0px -55% 0px", threshold: 0 },
-    );
-    targets.forEach(({ ref }) => {
-      if (ref.current) observer.observe(ref.current);
-    });
-    return () => observer.disconnect();
-  }, []);
+  // (스크롤 옵저버 로직 제거)
 
-  const scrollToSection = (cat: Category) => {
-    const refMap: Record<Category, React.RefObject<HTMLElement | null>> = {
-      general: generalRef,
-      sector: sectorRef,
-      mine: mineRef,
-    };
-    const el = refMap[cat].current;
-    if (!el) return;
-    const offset = 152;
-    const top = el.getBoundingClientRect().top + window.scrollY - offset;
-    window.scrollTo({ top, behavior: "smooth" });
+  const handleFilterClick = (cat: Filter) => {
     setHighlight(cat);
   };
 
@@ -2838,7 +2793,7 @@ function IssueScreen({
               <button
                 key={f}
                 type="button"
-                onClick={() => scrollToSection(f)}
+                onClick={() => handleFilterClick(f)}
                 className="rounded-full px-3.5 py-1.5 text-[12px] font-bold transition"
                 style={{
                   background: isActive ? TEXT : SURFACE,
@@ -2846,7 +2801,7 @@ function IssueScreen({
                   border: `1px solid ${isActive ? TEXT : LINE}`,
                 }}
               >
-                {CATEGORY_LABEL[f]}
+                {FILTER_LABEL[f]}
               </button>
             );
           })}
@@ -2854,26 +2809,38 @@ function IssueScreen({
       </div>
 
       <div className="flex flex-col gap-10 px-5 pb-4">
-        <section ref={generalRef}>
-          <h2 className="mb-3 text-[15px] font-extrabold" style={{ color: SUB }}>
-            시장 전반
-          </h2>
-          <GeneralGroupedList items={generalIssues} onOpen={onSetActive} />
-        </section>
+        {(highlight === "all" || highlight === "general") && (
+          <section ref={generalRef}>
+            {highlight === "all" && (
+              <h2 className="mb-3 text-[15px] font-extrabold" style={{ color: SUB }}>
+                시장 전반
+              </h2>
+            )}
+            <GeneralGroupedList items={generalIssues} onOpen={onSetActive} />
+          </section>
+        )}
 
-        <section ref={sectorRef}>
-          <h2 className="mb-3 text-[15px] font-extrabold" style={{ color: SUB }}>
-            섹터
-          </h2>
-          <SectorGroupedList items={sectorIssues} onOpen={onSetActive} />
-        </section>
+        {(highlight === "all" || highlight === "sector") && (
+          <section ref={sectorRef}>
+            {highlight === "all" && (
+              <h2 className="mb-3 text-[15px] font-extrabold" style={{ color: SUB }}>
+                섹터
+              </h2>
+            )}
+            <SectorGroupedList items={sectorIssues} onOpen={onSetActive} />
+          </section>
+        )}
 
-        <section ref={mineRef}>
-          <h2 className="mb-3 text-[15px] font-extrabold" style={{ color: SUB }}>
-            내 종목
-          </h2>
-          <MineGroupedList items={mineIssues} onOpen={onSetActive} />
-        </section>
+        {(highlight === "all" || highlight === "mine") && (
+          <section ref={mineRef}>
+            {highlight === "all" && (
+              <h2 className="mb-3 text-[15px] font-extrabold" style={{ color: SUB }}>
+                내 종목
+              </h2>
+            )}
+            <MineGroupedList items={mineIssues} onOpen={onSetActive} />
+          </section>
+        )}
       </div>
     </>
   );
@@ -2886,20 +2853,6 @@ function IssueItem({
   issue: Issue;
   onOpen?: (issue: Issue) => void;
 }) {
-  const dotColor =
-    issue.sentiment === "positive"
-      ? UP
-      : issue.sentiment === "negative"
-        ? DOWN
-        : SUB;
-  const sentimentLabel =
-    issue.sentiment === "positive"
-      ? "긍정"
-      : issue.sentiment === "negative"
-        ? "부정"
-        : issue.sentiment === "neutral"
-          ? "중립"
-          : null;
   const visibleSymbols = issue.symbols?.slice(0, 3) ?? [];
   const hiddenSymbolCount = (issue.symbols?.length ?? 0) - visibleSymbols.length;
 
@@ -2954,24 +2907,14 @@ function IssueItem({
             )}
           </div>
         )}
-        {(sentimentLabel || issue.newsCount) && (
+        {issue.newsCount ? (
           <div
             className="mt-2.5 flex items-center gap-1.5 text-[11px]"
             style={{ color: SUB }}
           >
-            {sentimentLabel && (
-              <>
-                <span
-                  className="inline-block h-1.5 w-1.5 rounded-full"
-                  style={{ background: dotColor }}
-                />
-                <span>{sentimentLabel}</span>
-              </>
-            )}
-            {sentimentLabel && issue.newsCount ? <span>·</span> : null}
-            {issue.newsCount ? <span>관련 뉴스 {issue.newsCount}건</span> : null}
+            <span>관련 뉴스 {issue.newsCount}건</span>
           </div>
-        )}
+        ) : null}
       </button>
     </li>
   );
@@ -3023,27 +2966,12 @@ function GeneralGroupedList({
               <span className="ml-auto text-[11px] font-bold" style={{ color: ACCENT_DEEP }}>
                 {topicIssues.length}건
               </span>
-              <button
-                type="button"
-                onClick={() => toggle(topic)}
-                aria-label={isCollapsed ? "펼치기" : "접기"}
-                className="ml-1 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full"
-                style={{ background: ACCENT_SOFT, color: ACCENT_DEEP }}
-              >
-                <svg width="10" height="10" viewBox="0 0 10 10" fill="none"
-                  style={{ transform: isCollapsed ? "rotate(0deg)" : "rotate(180deg)", transition: "transform 200ms" }}
-                >
-                  <path d="M2 4 L5 7 L8 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </button>
             </header>
-            {!isCollapsed && (
-              <ul className="flex flex-col gap-2">
-                {topicIssues.map((i) => (
-                  <IssueItem key={i.id} issue={i} onOpen={onOpen} />
-                ))}
-              </ul>
-            )}
+            <ul className="flex flex-col gap-2">
+              {topicIssues.map((i) => (
+                <IssueItem key={i.id} issue={i} onOpen={onOpen} />
+              ))}
+            </ul>
           </section>
         );
       })}
@@ -3074,9 +3002,7 @@ function SectorGroupedList({
       seen.add(i.sector);
     }
   }
-  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
-  const toggle = (key: string) =>
-    setCollapsed((prev) => ({ ...prev, [key]: !prev[key] }));
+
 
   if (order.length === 0) {
     return (
@@ -3094,7 +3020,6 @@ function SectorGroupedList({
       {order.map((sector) => {
         const sectorIssues = items.filter((i) => i.sector === sector);
         const icon = SECTOR_META[sector]?.icon ?? "📊";
-        const isCollapsed = collapsed[sector] ?? false;
         return (
           <section key={sector}>
             <header className="mb-2 flex items-center gap-2.5 px-1">
@@ -3110,27 +3035,12 @@ function SectorGroupedList({
               <span className="ml-auto text-[11px] font-bold" style={{ color: ACCENT_DEEP }}>
                 {sectorIssues.length}건
               </span>
-              <button
-                type="button"
-                onClick={() => toggle(sector)}
-                aria-label={isCollapsed ? "펼치기" : "접기"}
-                className="ml-1 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full"
-                style={{ background: ACCENT_SOFT, color: ACCENT_DEEP }}
-              >
-                <svg width="10" height="10" viewBox="0 0 10 10" fill="none"
-                  style={{ transform: isCollapsed ? "rotate(0deg)" : "rotate(180deg)", transition: "transform 200ms" }}
-                >
-                  <path d="M2 4 L5 7 L8 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </button>
             </header>
-            {!isCollapsed && (
-              <ul className="flex flex-col gap-2">
-                {sectorIssues.map((i) => (
-                  <IssueItem key={i.id} issue={i} onOpen={onOpen} />
-                ))}
-              </ul>
-            )}
+            <ul className="flex flex-col gap-2">
+              {sectorIssues.map((i) => (
+                <IssueItem key={i.id} issue={i} onOpen={onOpen} />
+              ))}
+            </ul>
           </section>
         );
       })}
@@ -3153,9 +3063,7 @@ function MineGroupedList({
       issues: items.filter((i) => i.symbol === stock.symbol),
     }))
     .filter((g) => g.issues.length > 0);
-  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
-  const toggle = (key: string) =>
-    setCollapsed((prev) => ({ ...prev, [key]: !prev[key] }));
+
 
   if (groups.length === 0) {
     return (
@@ -3171,7 +3079,6 @@ function MineGroupedList({
   return (
     <div className="flex flex-col gap-5">
       {groups.map(({ stock, issues }) => {
-        const isCollapsed = collapsed[stock.symbol] ?? false;
         return (
           <section key={stock.symbol}>
             <header className="mb-2 flex items-center gap-2.5 px-1">
@@ -3187,27 +3094,12 @@ function MineGroupedList({
               <span className="ml-auto text-[11px] font-bold" style={{ color: ACCENT_DEEP }}>
                 {issues.length}건
               </span>
-              <button
-                type="button"
-                onClick={() => toggle(stock.symbol)}
-                aria-label={isCollapsed ? "펼치기" : "접기"}
-                className="ml-1 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full"
-                style={{ background: ACCENT_SOFT, color: ACCENT_DEEP }}
-              >
-                <svg width="10" height="10" viewBox="0 0 10 10" fill="none"
-                  style={{ transform: isCollapsed ? "rotate(0deg)" : "rotate(180deg)", transition: "transform 200ms" }}
-                >
-                  <path d="M2 4 L5 7 L8 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </button>
             </header>
-            {!isCollapsed && (
-              <ul className="flex flex-col gap-2">
-                {issues.map((i) => (
-                  <IssueItem key={i.id} issue={i} onOpen={onOpen} />
-                ))}
-              </ul>
-            )}
+            <ul className="flex flex-col gap-2">
+              {issues.map((i) => (
+                <IssueItem key={i.id} issue={i} onOpen={onOpen} />
+              ))}
+            </ul>
           </section>
         );
       })}
@@ -3217,8 +3109,12 @@ function MineGroupedList({
 
 function StocksScreen({ onSelectStock }: { onSelectStock: (symbol: string) => void }) {
   const [query, setQuery] = useState("");
+  const [filter, setFilter] = useState<"all" | "favorite" | "mine">("all");
   const trimmed = query.trim();
-  const filtered = trimmed
+
+  const FAVORITES = ["AAPL", "NVDA", "TSLA"];
+
+  let filtered = trimmed
     ? watchlist.filter(
         (s) =>
           s.name.includes(trimmed) ||
@@ -3226,21 +3122,77 @@ function StocksScreen({ onSelectStock }: { onSelectStock: (symbol: string) => vo
       )
     : watchlist;
 
+  if (!trimmed) {
+    if (filter === "favorite") {
+      filtered = filtered.filter((s) => FAVORITES.includes(s.symbol));
+    } else if (filter === "mine") {
+      filtered = filtered.filter((s) => ["TSLA"].includes(s.symbol)); // 예시로 TSLA만 보유
+    }
+  }
+
+  // Sort favorites to top
+  filtered.sort((a, b) => {
+    const aFav = FAVORITES.includes(a.symbol);
+    const bFav = FAVORITES.includes(b.symbol);
+    if (aFav && !bFav) return -1;
+    if (!aFav && bFav) return 1;
+    return 0;
+  });
+
   return (
     <div className="px-5 pt-4">
       <h1 className="mb-3 text-[20px] font-extrabold" style={{ color: TEXT }}>
         종목 검색
       </h1>
-      <input
-        type="search"
-        placeholder="종목명·티커 검색"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        className="mb-5 w-full rounded-xl px-4 py-3 text-[14px] outline-none"
-        style={{ background: SURFACE, boxShadow: SHADOW, color: TEXT }}
-      />
-      <div className="mb-2 text-[12px] font-bold" style={{ color: SUB }}>
-        {trimmed ? `"${trimmed}" 검색 결과 ${filtered.length}개` : "최근 본 종목"}
+      <div className="relative mb-3 w-full">
+        <input
+          type="search"
+          placeholder="종목명·티커 검색"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          className="w-full rounded-xl pl-4 pr-10 py-3 text-[14px] outline-none"
+          style={{ background: SURFACE, boxShadow: SHADOW, color: TEXT }}
+        />
+        <svg
+          className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke={SUB}
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+      </div>
+
+      <div className="mb-5 flex gap-2">
+        {(["all", "favorite", "mine"] as const).map((f) => {
+          const isActive = filter === f;
+          const label = f === "all" ? "전체" : f === "favorite" ? "관심종목" : "보유종목";
+          return (
+            <button
+              key={f}
+              type="button"
+              onClick={() => setFilter(f)}
+              className="rounded-full px-3.5 py-1.5 text-[12px] font-bold transition"
+              style={{
+                background: isActive ? TEXT : SURFACE,
+                color: isActive ? "#fff" : SUB,
+                border: `1px solid ${isActive ? TEXT : LINE}`,
+              }}
+            >
+              {label}
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="mb-2 text-[12px] font-bold" style={{ color: SUB, minHeight: "18px" }}>
+        {trimmed ? `"${trimmed}" 검색 결과 ${filtered.length}개` : null}
       </div>
       {filtered.length === 0 ? (
         <p
@@ -3251,23 +3203,26 @@ function StocksScreen({ onSelectStock }: { onSelectStock: (symbol: string) => vo
         </p>
       ) : (
         <ul className="flex flex-col gap-2">
-          {filtered.map((s) => (
-            <li
-              key={s.symbol}
-              className="rounded-[22px]"
-              style={{ background: SURFACE, boxShadow: SHADOW }}
-            >
-              <StockRow
-                stock={s}
-                onClick={() => onSelectStock(s.symbol)}
-                trailing={
-                  <span className="text-[18px]" style={{ color: SUB }}>
-                    ☆
-                  </span>
-                }
-              />
-            </li>
-          ))}
+          {filtered.map((s) => {
+            const isFav = FAVORITES.includes(s.symbol);
+            return (
+              <li
+                key={s.symbol}
+                className="rounded-[22px]"
+                style={{ background: SURFACE, boxShadow: SHADOW }}
+              >
+                <StockRow
+                  stock={s}
+                  onClick={() => onSelectStock(s.symbol)}
+                  trailing={
+                    <span className="text-[18px]" style={{ color: isFav ? "#FFD700" : SUB }}>
+                      {isFav ? "★" : "☆"}
+                    </span>
+                  }
+                />
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>
