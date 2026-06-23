@@ -4662,16 +4662,23 @@ function IssueDetail({ issue, onBack, onStartLesson }: { issue: Issue; onBack: (
 
       {detail?.body && <TermSlider blocks={detail.body} />}
 
-      <button
-        type="button"
-        onClick={() => onStartLesson(issue.id)}
-        className="mt-6 flex w-full items-center justify-center gap-1.5 rounded-2xl py-4 text-[15px] font-extrabold shadow-sm active:opacity-80"
-        style={{ background: ACCENT, color: "#fff" }}
-      >
-        이 내용 더 자세히 학습하기 <span style={{ fontSize: 11 }}>▶</span>
-      </button>
+      <div className="h-24" />
 
-      <div className="h-12" />
+      {/* 플로팅 버튼 — 더 알아보기 (모바일 뷰 중앙정렬 컨테이너에 고정) */}
+      <div className="fixed bottom-[100px] left-0 right-0 z-50 mx-auto max-w-[430px] pointer-events-none px-5 flex justify-end">
+        <button
+          type="button"
+          onClick={() => onStartLesson(issue.id)}
+          className="pointer-events-auto flex items-center gap-1.5 rounded-full px-5 py-3 text-[14px] font-extrabold active:scale-95 transition-transform"
+          style={{
+            background: ACCENT,
+            color: "#fff",
+            boxShadow: "0 6px 24px rgba(216, 56, 18, 0.35), 0 2px 8px rgba(0,0,0,0.12)",
+          }}
+        >
+          더 알아보기 <span style={{ fontSize: 11 }}>▶</span>
+        </button>
+      </div>
     </div>
   );
 }
