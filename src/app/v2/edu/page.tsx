@@ -5834,6 +5834,7 @@ function LessonFlow({
   initialStep?: number;
 }) {
   const [step, setStep] = useState(initialStep);
+  const [openRippleSym, setOpenRippleSym] = useState<string | null>(null);
   const detail = issue.detail;
   const body = detail?.body || [];
 
@@ -5846,6 +5847,7 @@ function LessonFlow({
   const introPoints = getLessonIntroPoints(issue);
   const backgroundPoints = getLessonBackgroundPoints(issue);
   const analysisFrames = getLessonAnalysisFrames(issue);
+
 
   const STEPS = [
     { label: "요약/서론", icon: "🧭" },
@@ -6281,6 +6283,7 @@ function LessonFlow({
                       >
                         <button
                           type="button"
+                          onClick={() => setOpenRippleSym(isOpen ? null : a.sym)}
                           className="flex w-full items-center gap-3 text-left"
                         >
                           <div
